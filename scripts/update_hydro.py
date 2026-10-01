@@ -219,12 +219,15 @@ if __name__ == "__main__":
         log("--- Κανονική εκτέλεση (τελευταίες 4 ημέρες) ---")
 
     json_path = "data/hydro_data.json"
+    
+    # ΛΥΣΗ: Φτιάχνει τον φάκελο 'data' αυτόματα αν δεν υπάρχει!
+    os.makedirs(os.path.dirname(json_path), exist_ok=True)
+    
     all_data = load_existing(json_path)
     by_date = {x["Date"]: x for x in all_data}
 
     for d in dates_to_fetch:
         new_day = process_day(d)
-        # Απλό merge: αντικαθιστούμε τα δεδομένα της ημέρας με τα νέα
         by_date[d] = new_day
 
     result = sorted(by_date.values(), key=lambda x: x["Date"], reverse=True)
