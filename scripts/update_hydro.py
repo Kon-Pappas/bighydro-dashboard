@@ -1,26 +1,64 @@
-import pandas as pd
+#!/usr/bin/env python3
+
 import json
 import os
-import requests
+import sys
+import tempfile
 from datetime import datetime, timedelta
-import urllib3
-import traceback
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# ==============================================================================
-# ΡΥΘΜΙΣΕΙΣ & ΧΑΡΤΟΓΡΑΦΗΣΗ
-# ==============================================================================
-
-DATA_DIR = "data"
-OUTPUT_FILE = os.path.join(DATA_DIR, "hydro_data.json")
+import pandas as pd
+import requests
 
 
-# Ονόματα Μονάδων όπως εμφανίζονται στα αρχεία παραγωγής (Realization)
-HYDRO_UNITS = [
-    "AGRAS",
+# ============================================================
+# CONFIG
+# ============================================================
+
+BASE_URL = "https://www.admie.gr"
+
+API_FILES = (
+    BASE_URL
+    + "/getOperationMarketFile"
+)
+
+FILE_CATEGORY = "ReservoirFillingRate"
+
+OUTPUT_FILE = "data/hydro_data.json"
+
+TIMEOUT = 60
+
+
+# ============================================================
+# HTTP SESSION
+# ============================================================
+
+session = requests.Session()
+
+session.headers.update(
+    {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 "
+            "(KHTML, like Gecko) "
+            "Chrome/154.0.0.0 Safari/537.36"
+        ),
+        "Accept": (
+            "application/json, "
+            "application/vnd.ms-excel, "
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, "
+            "*/*"
+        ),
+        "Referer": BASE_URL + "/file-type/reservoirfillingrate",
+    }
+)
+
+
+# ============================================================
+# RESERVOIR NAMES
+# ============================================================
+
+RESERVOIRS = [
     "ASOMATA",
-    "EDESSAIOS",
     "ILARIONAS",
     "KASTRAKI",
     "KREMASTA",
@@ -28,883 +66,555 @@ HYDRO_UNITS = [
     "PLASTIRAS",
     "PLATANOVRYSI",
     "POLYFYTO",
-    "POURNARI 1",
-    "POURNARI 2",
-    "P. AOOU",
+    "POYRNARI1",
+    "POYRNARI2",
+    "P_AOOU",
     "SFIKIA",
-    "STRATOS 1",
-    "THESAVROS"
+    "STRATOS",
+    "THESAVROS",
 ]
 
 
-# ==============================================================================
-# ΑΝΤΙΣΤΟΙΧΙΣΗ RESERVOIR
-# ==============================================================================
+# ============================================================
+# DATE
+# ============================================================
 
-RESERVOIR_MAPPING = {
-    "AGRAS": "Agras",
-    "ASOMATA": "Asomata",
-    "EDESSAIOS": "Edessaios",
-    "ILARIONAS": "Ilarionas",
-    "KASTRAKI": "Kastraki",
-    "KREMASTA": "Kremasta",
-    "LADONAS": "Ladonas",
-    "PLASTIRAS": "Plastiras",
-    "PLATANOVRYSI": "Platanovrysi",
-    "POLYFYTO": "Polyfyto",
+def get_target_date():
+    """
+    GitHub Actions can optionally provide TARGET_DATE.
 
-    # ADMIE χρησιμοποιεί POYRNARI
-    "POYRNARI1": "Pournari1",
-    "POYRNARI2": "Pournari2",
+    Example:
+        TARGET_DATE=2026-10-05
 
-    "P_AOOU": "PAoou",
+    If not provided, use today's date.
+    """
 
-    "SFIKIA": "Sfikia",
+    value = os.environ.get("TARGET_DATE")
 
-    # Το STRATOS εμφανίζεται ως ένα reservoir
-    "STRATOS": "Stratos1",
+    if value:
+        return datetime.strptime(value, "%Y-%m-%d").date()
 
-    # THESAVROS 1/2/3 είναι ο ίδιος ταμιευτήρας
-    "THESAVROS1": "Thesavros",
-    "THESAVROS2": "Thesavros",
-    "THESAVROS3": "Thesavros"
-}
+    return datetime.now().date()
 
 
-# ==============================================================================
-# ΒΟΗΘΗΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ
-# ==============================================================================
+# ============================================================
+# FIND ADMIE FILE
+# ============================================================
 
-def download_excel(url):
-    """Κατεβάζει ένα αρχείο Excel από ADMIE."""
+def find_reservoir_file(target_date):
+    """
+    Ask ADMIE for the actual URL of the ReservoirFillingRate file.
 
-    try:
+    We deliberately DO NOT construct:
 
-        response = requests.get(
-            url,
-            verify=False,
-            timeout=30
-        )
+        /get-file/YYYYMMDD_ReservoirFillingRate_01.xls
 
-        response.raise_for_status()
+    because ADMIE explicitly recommends using its web service
+    to obtain the correct file URL.
+    """
 
-        return response.content
+    date_string = target_date.strftime("%Y-%m-%d")
 
-    except Exception as e:
+    params = {
+        "dateStart": date_string,
+        "dateEnd": date_string,
+        "FileCategory": FILE_CATEGORY,
+    }
 
-        print(
-            f"Σφάλμα λήψης {url}: {e}"
-        )
+    print()
+    print("ADMIE API:")
+    print(API_FILES)
+    print("Παράμετροι:")
+    print(params)
 
+    response = session.get(
+        API_FILES,
+        params=params,
+        timeout=TIMEOUT,
+    )
+
+    response.raise_for_status()
+
+    data = response.json()
+
+    print("API response type:", type(data).__name__)
+
+    if not data:
         return None
 
+    # --------------------------------------------------------
+    # ADMIE normally returns a list.
+    # Be slightly defensive because API formatting can change.
+    # --------------------------------------------------------
 
-# ==============================================================================
-# RESERVOIR FILLING RATE
-# ==============================================================================
+    if isinstance(data, dict):
+        if "data" in data:
+            data = data["data"]
+        elif "results" in data:
+            data = data["results"]
+        else:
+            data = [data]
 
-def process_reservoir_file(date_str):
+    if not isinstance(data, list):
+        print("Μη αναμενόμενη μορφή απάντησης ADMIE.")
+        print(str(data)[:1000])
+        return None
 
+    # --------------------------------------------------------
+    # Find the record corresponding to our date.
+    # --------------------------------------------------------
+
+    candidates = []
+
+    for item in data:
+
+        if not isinstance(item, dict):
+            continue
+
+        filename = str(
+            item.get("FileName")
+            or item.get("filename")
+            or item.get("Name")
+            or ""
+        )
+
+        file_url = (
+            item.get("FileURL")
+            or item.get("fileURL")
+            or item.get("URL")
+            or item.get("url")
+        )
+
+        if not file_url:
+            continue
+
+        candidates.append(
+            {
+                "filename": filename,
+                "url": file_url,
+                "item": item,
+            }
+        )
+
+    if not candidates:
+        print("Το ADMIE API δεν επέστρεψε URL αρχείου.")
+        print(str(data)[:2000])
+        return None
+
+    # Prefer filename containing our target date.
+    target_token = target_date.strftime("%Y%m%d")
+
+    dated = [
+        item
+        for item in candidates
+        if target_token in item["filename"]
+    ]
+
+    if dated:
+        selected = dated[0]
+    else:
+        selected = candidates[0]
+
+    print()
+    print("Βρέθηκε αρχείο ADMIE:")
+    print("Filename:", selected["filename"])
+    print("URL:", selected["url"])
+
+    return selected["url"]
+
+
+# ============================================================
+# DOWNLOAD FILE
+# ============================================================
+
+def download_file(url):
     """
-    Διαβάζει το ADMIE ReservoirFillingRate.
+    Download the actual Excel file returned by ADMIE.
+    """
 
-    Το πραγματικό format του ADMIE είναι:
+    response = session.get(
+        url,
+        timeout=TIMEOUT,
+        allow_redirects=True,
+    )
 
-        column 1 -> Entity
-        column 2 -> Filling Rate
-        column 7 -> "Filling Rate (%) Total"
-        column 10 -> Total
+    response.raise_for_status()
 
-    Οι τιμές του ADMIE είναι fractions:
+    if not response.content:
+        raise RuntimeError("Το αρχείο ADMIE είναι κενό.")
+
+    temp = tempfile.NamedTemporaryFile(
+        suffix=".xls",
+        delete=False,
+    )
+
+    temp.write(response.content)
+    temp.close()
+
+    print(
+        "Downloaded:",
+        len(response.content),
+        "bytes"
+    )
+
+    return temp.name
+
+
+# ============================================================
+# NORMALIZE RESERVOIR NAME
+# ============================================================
+
+def normalize_name(value):
+    if value is None:
+        return ""
+
+    text = str(value).strip().upper()
+
+    # ADMIE uses THESAVROS1 / 2 / 3.
+    # We collapse them into one THESAVROS.
+    if text.startswith("THESAVROS"):
+        return "THESAVROS"
+
+    return text
+
+
+# ============================================================
+# PARSE RESERVOIR EXCEL
+# ============================================================
+
+def process_reservoir_file(file_path):
+    """
+    Read the actual ADMIE ReservoirFillingRate Excel file.
+
+    The known ADMIE structure is:
+
+        column 0 -> Entity
+        column 1 -> Filling Rate
+
+    Values are fractions:
 
         0.7196 -> 71.96%
-        0.43623 -> 43.623%
 
-    Επιστρέφει:
-
-    {
-        "Total": 43.623,
-        "Units": {
-            "Asomata": 71.96,
-            "Ilarionas": 15.38,
-            ...
-        }
-    }
+    The total row is ignored for the individual-reservoir
+    dataset because we calculate our own aggregate.
     """
 
-    date_obj = datetime.strptime(
-        date_str,
-        "%Y-%m-%d"
+    print()
+    print("Άνοιγμα Reservoir Excel...")
+
+    df = pd.read_excel(
+        file_path,
+        sheet_name=0,
+        header=None,
     )
 
-    date_format_url = date_obj.strftime(
-        "%Y%m%d"
-    )
+    print("Excel shape:", df.shape)
 
-    url = (
-        f"https://admie.gr/get-file/"
-        f"{date_format_url}_ReservoirFillingRate_01.xls"
-    )
+    reservoirs = {}
 
-    file_content = download_excel(url)
+    for _, row in df.iterrows():
 
-    if not file_content:
-        return None
+        if len(row) < 3:
+            continue
 
-    temp_file = f"temp_res_{date_format_url}.xls"
+        entity = normalize_name(row.iloc[1])
+
+        if entity not in RESERVOIRS:
+            continue
+
+        raw_rate = row.iloc[2]
+
+        try:
+            raw_rate = float(raw_rate)
+        except (TypeError, ValueError):
+            continue
+
+        # ADMIE publishes the value as a fraction.
+        rate_percent = raw_rate * 100.0
+
+        reservoirs[entity] = round(rate_percent, 2)
+
+    # --------------------------------------------------------
+    # Validation
+    # --------------------------------------------------------
+
+    missing = [
+        name
+        for name in RESERVOIRS
+        if name not in reservoirs
+    ]
+
+    if missing:
+        print()
+        print("ΠΡΟΣΟΧΗ: λείπουν reservoirs:")
+        for name in missing:
+            print(" -", name)
+
+    print()
+    print("Reservoirs που βρέθηκαν:", len(reservoirs), "/", len(RESERVOIRS))
+
+    for name in RESERVOIRS:
+        if name in reservoirs:
+            print(
+                f"  {name:<15} "
+                f"{reservoirs[name]:>7.2f}%"
+            )
+
+    if len(reservoirs) == 0:
+        raise RuntimeError(
+            "Δεν βρέθηκε κανένα reservoir στο Excel."
+        )
+
+    return reservoirs
+
+
+# ============================================================
+# LOAD EXISTING JSON
+# ============================================================
+
+def load_existing_data():
+    if not os.path.exists(OUTPUT_FILE):
+        return []
 
     try:
-
-        # --------------------------------------------------------------
-        # Αποθήκευση προσωρινού αρχείου
-        # --------------------------------------------------------------
-
         with open(
-            temp_file,
-            "wb"
+            OUTPUT_FILE,
+            "r",
+            encoding="utf-8",
         ) as f:
+            data = json.load(f)
 
-            f.write(file_content)
+        if isinstance(data, list):
+            return data
 
+        return []
 
-        # --------------------------------------------------------------
-        # ΠΟΛΥ ΣΗΜΑΝΤΙΚΟ:
-        #
-        # header=None
-        #
-        # Το ADMIE Excel ΔΕΝ έχει την πραγματική header row
-        # στην πρώτη γραμμή.
-        # --------------------------------------------------------------
-
-        df = pd.read_excel(
-            temp_file,
-            sheet_name=0,
-            header=None
-        )
-
-
-        # --------------------------------------------------------------
-        # 1. TOTAL
-        # --------------------------------------------------------------
-
-        total_val = None
-
-        for index, row in df.iterrows():
-
-            if len(row) <= 10:
-                continue
-
-            label = row.iloc[7]
-
-            if (
-                pd.notna(label)
-                and "Total" in str(label)
-            ):
-
-                try:
-
-                    raw_total = float(
-                        row.iloc[10]
-                    )
-
-                    # ADMIE δίνει fraction.
-                    # 0.43623 -> 43.623%
-                    total_val = round(
-                        raw_total * 100,
-                        4
-                    )
-
-                except (
-                    TypeError,
-                    ValueError
-                ):
-
-                    pass
-
-                break
-
-
-        # --------------------------------------------------------------
-        # 2. INDIVIDUAL RESERVOIRS
-        # --------------------------------------------------------------
-
-        raw_rates = {}
-
-        for index, row in df.iterrows():
-
-            if len(row) <= 2:
-                continue
-
-            entity_value = row.iloc[1]
-            rate_value = row.iloc[2]
-
-            if pd.isna(entity_value):
-                continue
-
-            entity = str(
-                entity_value
-            ).strip().upper()
-
-            # Skip headers / empty rows
-            if entity in (
-                "",
-                "NAN",
-                "ENTITY"
-            ):
-                continue
-
-            try:
-
-                raw_rate = float(
-                    rate_value
-                )
-
-            except (
-                TypeError,
-                ValueError
-            ):
-
-                continue
-
-            # ADMIE fraction -> percentage
-            rate_percent = round(
-                raw_rate * 100,
-                4
-            )
-
-            raw_rates[entity] = rate_percent
-
-
-        # --------------------------------------------------------------
-        # 3. MAPPING
-        # --------------------------------------------------------------
-
-        clean_rates = {}
-
-        for raw_name, rate in raw_rates.items():
-
-            if raw_name in RESERVOIR_MAPPING:
-
-                clean_id = RESERVOIR_MAPPING[
-                    raw_name
-                ]
-
-                # THESAVROS1/2/3 έχουν ίδια τιμή.
-                # Το setdefault μας προστατεύει από
-                # τυχόν διπλοεγγραφή.
-                if clean_id not in clean_rates:
-
-                    clean_rates[
-                        clean_id
-                    ] = rate
-
-
-        # --------------------------------------------------------------
-        # 4. ΕΛΕΓΧΟΣ
-        # --------------------------------------------------------------
-
+    except Exception as exc:
         print(
-            f"  Reservoir {date_str}: "
-            f"{len(clean_rates)} μονάδες"
+            "Προειδοποίηση: δεν ήταν δυνατή η ανάγνωση "
+            "του υπάρχοντος hydro_data.json:",
+            exc,
         )
-
-        if total_val is not None:
-
-            print(
-                f"  Total filling: "
-                f"{total_val:.2f}%"
-            )
-
-        if clean_rates:
-
-            for reservoir, rate in clean_rates.items():
-
-                print(
-                    f"    {reservoir}: "
-                    f"{rate:.2f}%"
-                )
-
-        else:
-
-            print(
-                "  ΠΡΟΣΟΧΗ: Δεν βρέθηκαν "
-                "individual reservoirs!"
-            )
+        return []
 
 
-        # --------------------------------------------------------------
-        # 5. RETURN
-        # --------------------------------------------------------------
+# ============================================================
+# UPDATE JSON
+# ============================================================
 
-        return {
-            "Total": total_val,
-            "Units": clean_rates
-        }
+def update_json(target_date, reservoirs):
 
-
-    except Exception as e:
-
-        print(
-            f"Σφάλμα στην επεξεργασία "
-            f"του Reservoir για {date_str}: {e}"
-        )
-
-        traceback.print_exc()
-
-        return None
-
-
-    finally:
-
-        # Καθαρισμός temporary file
-        if os.path.exists(temp_file):
-
-            try:
-                os.remove(temp_file)
-            except Exception:
-                pass
-
-
-# ==============================================================================
-# SYSTEM REALIZATION
-# ==============================================================================
-
-def process_realization_file(date_str):
-
-    """Κατεβάζει και αναλύει το SystemRealization."""
-
-    date_obj = datetime.strptime(
-        date_str,
-        "%Y-%m-%d"
+    os.makedirs(
+        os.path.dirname(OUTPUT_FILE),
+        exist_ok=True,
     )
 
-    date_format_url = date_obj.strftime(
-        "%Y%m%d"
+    data = load_existing_data()
+
+    date_string = target_date.strftime("%Y-%m-%d")
+
+    # --------------------------------------------------------
+    # Aggregate filling rate
+    #
+    # IMPORTANT:
+    # This is the simple arithmetic mean of the 14 published
+    # reservoir percentages.
+    #
+    # We are NOT converting to GWh here.
+    # --------------------------------------------------------
+
+    system_filling = (
+        sum(reservoirs.values()) / len(reservoirs)
     )
 
-    url = (
-        f"https://admie.gr/get-file/"
-        f"{date_format_url}_SystemRealization_01.xls"
+    system_filling = round(system_filling, 3)
+
+    new_record = {
+        "Date": date_string,
+        "Reservoir": reservoirs,
+        "ReservoirTotal": system_filling,
+    }
+
+    # --------------------------------------------------------
+    # Replace existing record for same date.
+    # --------------------------------------------------------
+
+    replaced = False
+
+    for i, record in enumerate(data):
+
+        if str(record.get("Date", "")) == date_string:
+
+            # Preserve all existing fields.
+            updated = dict(record)
+
+            updated["Reservoir"] = reservoirs
+            updated["ReservoirTotal"] = system_filling
+
+            data[i] = updated
+            replaced = True
+            break
+
+    if not replaced:
+        data.append(new_record)
+
+    # --------------------------------------------------------
+    # Sort newest first.
+    # --------------------------------------------------------
+
+    data.sort(
+        key=lambda x: str(x.get("Date", "")),
+        reverse=True,
     )
 
-    file_content = download_excel(url)
+    # --------------------------------------------------------
+    # Keep the existing history window.
+    #
+    # The previous project used a relatively small rolling
+    # history. We retain all currently existing records and
+    # don't arbitrarily delete historical data.
+    # --------------------------------------------------------
 
-    if not file_content:
-        return None
+    with open(
+        OUTPUT_FILE,
+        "w",
+        encoding="utf-8",
+    ) as f:
 
-    temp_file = f"temp_prod_{date_format_url}.xls"
-
-    try:
-
-        with open(
-            temp_file,
-            "wb"
-        ) as f:
-
-            f.write(file_content)
-
-
-        df = pd.read_excel(
-            temp_file,
-            sheet_name=0,
-            header=None
+        json.dump(
+            data,
+            f,
+            ensure_ascii=False,
+            indent=2,
         )
 
-        hourly_data = {
-            hour: {}
-            for hour in range(1, 25)
-        }
+        f.write("\n")
+
+    print()
+    print("hydro_data.json ενημερώθηκε.")
+    print("Ημερομηνία:", date_string)
+    print(
+        "System Reservoir Filling:",
+        f"{system_filling:.3f}%"
+    )
+
+    if replaced:
+        print("Κατάσταση: ενημερώθηκε υπάρχουσα ημέρα.")
+    else:
+        print("Κατάσταση: προστέθηκε νέα ημέρα.")
 
 
-        # --------------------------------------------------------------
-        # Εντοπισμός μονάδων και Data Type
-        # --------------------------------------------------------------
-
-        unit_columns = {}
-
-        for col_idx in range(
-            df.shape[1]
-        ):
-
-            unit_name = str(
-                df.iloc[2, col_idx]
-            ).strip()
-
-            data_type = str(
-                df.iloc[3, col_idx]
-            ).strip()
-
-            if unit_name in HYDRO_UNITS:
-
-                clean_id = (
-                    unit_name
-                    .replace(" ", "")
-                    .replace(".", "")
-                )
-
-                key = (
-                    f"{data_type}_{clean_id}"
-                )
-
-                unit_columns[
-                    key
-                ] = col_idx
-
-
-        if not unit_columns:
-
-            print(
-                f"Δεν βρέθηκαν "
-                f"hydro units για {date_str}"
-            )
-
-            return None
-
-
-        # --------------------------------------------------------------
-        # Ώρες 1-24
-        # --------------------------------------------------------------
-
-        for hour in range(
-            1,
-            25
-        ):
-
-            row_idx = hour + 3
-
-            if row_idx >= len(df):
-                continue
-
-            for key, col_idx in unit_columns.items():
-
-                value = df.iloc[
-                    row_idx,
-                    col_idx
-                ]
-
-                try:
-
-                    hourly_data[
-                        hour
-                    ][key] = (
-                        float(value)
-                        if pd.notna(value)
-                        else 0.0
-                    )
-
-                except (
-                    TypeError,
-                    ValueError
-                ):
-
-                    hourly_data[
-                        hour
-                    ][key] = 0.0
-
-
-        # --------------------------------------------------------------
-        # Λίστα
-        # --------------------------------------------------------------
-
-        hourly_list = []
-
-        for hour in range(
-            1,
-            25
-        ):
-
-            entry = {
-                "Hour": hour
-            }
-
-            entry.update(
-                hourly_data[hour]
-            )
-
-            hourly_list.append(
-                entry
-            )
-
-
-        return hourly_list
-
-
-    except Exception as e:
-
-        print(
-            f"Σφάλμα στην επεξεργασία "
-            f"της Παραγωγής για {date_str}: {e}"
-        )
-
-        traceback.print_exc()
-
-        return None
-
-
-    finally:
-
-        if os.path.exists(temp_file):
-
-            try:
-                os.remove(temp_file)
-            except Exception:
-                pass
-
-
-# ==============================================================================
+# ============================================================
 # MAIN
-# ==============================================================================
+# ============================================================
 
 def main():
 
-    if not os.path.exists(
-        DATA_DIR
-    ):
+    print("=" * 60)
+    print("HYDRO UPDATE")
+    print("=" * 60)
 
-        os.makedirs(
-            DATA_DIR
+    target_date = get_target_date()
+
+    print()
+    print("Επεξεργασία:", target_date)
+    print("=" * 60)
+
+    # --------------------------------------------------------
+    # 1. Ask ADMIE for the real file URL.
+    # --------------------------------------------------------
+
+    print()
+    print("Βήμα 1: Εύρεση Reservoir μέσω ADMIE API...")
+
+    try:
+
+        file_url = find_reservoir_file(
+            target_date
         )
 
-
-    # ------------------------------------------------------------------
-    # Φόρτωση υπάρχοντος JSON
-    # ------------------------------------------------------------------
-
-    all_data = []
-
-    if os.path.exists(
-        OUTPUT_FILE
-    ):
-
-        try:
-
-            with open(
-                OUTPUT_FILE,
-                "r",
-                encoding="utf-8"
-            ) as f:
-
-                all_data = json.load(f)
-
-        except Exception as e:
-
-            print(
-                f"Σφάλμα ανάγνωσης "
-                f"{OUTPUT_FILE}: {e}"
-            )
-
-            all_data = []
-
-
-    # ------------------------------------------------------------------
-    # INDEX ΑΝΑ ΗΜΕΡΟΜΗΝΙΑ
-    #
-    # Πολύ σημαντικό:
-    # Δεν προσπερνάμε πλέον μια ημερομηνία
-    # μόνο και μόνο επειδή υπάρχει.
-    #
-    # Έτσι μπορούμε να συμπληρώσουμε Reservoir
-    # σε παλιά records.
-    # ------------------------------------------------------------------
-
-    data_by_date = {}
-
-    for item in all_data:
-
-        if (
-            isinstance(item, dict)
-            and "Date" in item
-        ):
-
-            data_by_date[
-                item["Date"]
-            ] = item
-
-
-    # ------------------------------------------------------------------
-    # ΗΜΕΡΟΜΗΝΙΕΣ
-    #
-    # Υποστηρίζουμε:
-    #
-    # START_DATE=2026-09-21
-    # END_DATE=2026-10-05
-    #
-    # για backfill.
-    # ------------------------------------------------------------------
-
-    start_env = os.getenv(
-        "START_DATE",
-        ""
-    ).strip()
-
-    end_env = os.getenv(
-        "END_DATE",
-        ""
-    ).strip()
-
-
-    if start_env or end_env:
-
-        try:
-
-            start_date = datetime.strptime(
-                start_env or end_env,
-                "%Y-%m-%d"
-            )
-
-            end_date = datetime.strptime(
-                end_env or start_env,
-                "%Y-%m-%d"
-            )
-
-            if start_date > end_date:
-
-                start_date, end_date = (
-                    end_date,
-                    start_date
-                )
-
-
-            dates_to_check = [
-
-                (
-                    start_date
-                    + timedelta(days=i)
-                ).strftime("%Y-%m-%d")
-
-                for i in range(
-                    (
-                        end_date
-                        - start_date
-                    ).days + 1
-                )
-            ]
-
-
-        except ValueError:
-
-            print(
-                "Μη έγκυρο "
-                "START_DATE / END_DATE."
-            )
-
-            today = datetime.now()
-
-            dates_to_check = [
-
-                (
-                    today
-                    - timedelta(days=i)
-                ).strftime("%Y-%m-%d")
-
-                for i in range(7)
-            ]
-
-
-    else:
-
-        today = datetime.now()
-
-        dates_to_check = [
-
-            (
-                today
-                - timedelta(days=i)
-            ).strftime("%Y-%m-%d")
-
-            for i in range(7)
-        ]
-
-
-    updates_made = False
-
-
-    # ------------------------------------------------------------------
-    # PROCESS DAYS
-    # ------------------------------------------------------------------
-
-    for date_str in dates_to_check:
+    except Exception as exc:
 
         print(
-            f"\n===================================="
+            "Σφάλμα ADMIE API:",
+            exc,
         )
+
+        return 1
+
+    if not file_url:
 
         print(
-            f"Επεξεργασία: {date_str}"
+            "Reservoir: δεν βρέθηκε αρχείο για",
+            target_date,
         )
 
-        print(
-            f"===================================="
+        return 0
+
+    # --------------------------------------------------------
+    # 2. Download actual file.
+    # --------------------------------------------------------
+
+    temp_file = None
+
+    try:
+
+        print()
+        print("Βήμα 2: Λήψη Reservoir...")
+
+        temp_file = download_file(
+            file_url
         )
 
+        # ----------------------------------------------------
+        # 3. Parse Excel.
+        # ----------------------------------------------------
 
-        # --------------------------------------------------------------
-        # Υπάρχον record ή νέο
-        # --------------------------------------------------------------
+        print()
+        print("Βήμα 3: Ανάλυση Reservoir...")
 
-        if date_str in data_by_date:
-
-            day_entry = data_by_date[
-                date_str
-            ]
-
-        else:
-
-            day_entry = {
-                "Date": date_str
-            }
-
-            data_by_date[
-                date_str
-            ] = day_entry
-
-
-        # --------------------------------------------------------------
-        # 1. RESERVOIR
-        #
-        # ΠΑΝΤΑ το ξαναδιαβάζουμε.
-        #
-        # Αυτό διορθώνει τα ήδη υπάρχοντα records.
-        # --------------------------------------------------------------
-
-        print(
-            "Λήψη Reservoir..."
+        reservoirs = process_reservoir_file(
+            temp_file
         )
 
-        res_data = process_reservoir_file(
-            date_str
+        # ----------------------------------------------------
+        # 4. Update hydro_data.json.
+        # ----------------------------------------------------
+
+        print()
+        print("Βήμα 4: Ενημέρωση hydro_data.json...")
+
+        update_json(
+            target_date,
+            reservoirs,
         )
 
+        print()
+        print("=" * 60)
+        print("HYDRO UPDATE ΟΛΟΚΛΗΡΩΘΗΚΕ ΕΠΙΤΥΧΩΣ")
+        print("=" * 60)
 
-        if res_data:
+        return 0
 
-            day_entry[
-                "Reservoir"
-            ] = res_data
+    except Exception as exc:
 
+        print()
+        print("=" * 60)
+        print("ΣΦΑΛΜΑ HYDRO UPDATE")
+        print("=" * 60)
+        print(exc)
 
-            # Backward compatibility
-            if (
-                res_data.get("Total")
-                is not None
-            ):
+        return 1
 
-                day_entry[
-                    "ReservoirTotalRate"
-                ] = res_data[
-                    "Total"
-                ]
+    finally:
 
+        if temp_file and os.path.exists(temp_file):
 
-            updates_made = True
+            try:
+                os.remove(temp_file)
+            except Exception:
+                pass
 
-
-        else:
-
-            print(
-                "  Reservoir: "
-                "δεν βρέθηκαν δεδομένα."
-            )
-
-
-        # --------------------------------------------------------------
-        # 2. ΠΑΡΑΓΩΓΗ
-        #
-        # Αν υπάρχει ήδη Hourly,
-        # δεν χρειάζεται να το ξανακατεβάσουμε.
-        # --------------------------------------------------------------
-
-        if not day_entry.get(
-            "Hourly"
-        ):
-
-            print(
-                "Λήψη SystemRealization..."
-            )
-
-            prod_data = process_realization_file(
-                date_str
-            )
-
-
-            if prod_data:
-
-                day_entry[
-                    "Hourly"
-                ] = prod_data
-
-                updates_made = True
-
-                print(
-                    "  Παραγωγή: OK"
-                )
-
-            else:
-
-                print(
-                    "  Παραγωγή: "
-                    "δεν βρέθηκαν δεδομένα."
-                )
-
-        else:
-
-            print(
-                "  Παραγωγή: υπάρχει ήδη."
-            )
-
-
-    # ------------------------------------------------------------------
-    # ΑΠΟΘΗΚΕΥΣΗ
-    # ------------------------------------------------------------------
-
-    final_data = sorted(
-        data_by_date.values(),
-        key=lambda x: x["Date"],
-        reverse=True
-    )
-
-
-    if updates_made:
-
-        with open(
-            OUTPUT_FILE,
-            "w",
-            encoding="utf-8"
-        ) as f:
-
-            json.dump(
-                final_data,
-                f,
-                indent=2,
-                ensure_ascii=False
-            )
-
-
-        print(
-            "\n===================================="
-        )
-
-        print(
-            "Το hydro_data.json "
-            "ενημερώθηκε επιτυχώς!"
-        )
-
-        print(
-            "===================================="
-        )
-
-
-    else:
-
-        print(
-            "\nΔεν υπήρχαν αλλαγές."
-        )
-
-
-# ==============================================================================
-# EXECUTION
-# ==============================================================================
 
 if __name__ == "__main__":
-
-    main()
+    sys.exit(main())
