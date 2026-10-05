@@ -1,68 +1,205 @@
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BigHydro, Pump, WaterReserve - Coming Soon</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0b0f19;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-        p {
-            color: #94a3b8;
-            font-size: 15px;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-        .badge {
-            display: inline-block;
-            background-color: rgba(217, 119, 6, 0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(217, 119, 6, 0.3);
-            padding: 6px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 20px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #64748b;
-        }
-    </style>
+    <title id="pageTitle">Greek Hydro, Pump & Reservoir Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/patternomaly@1.3.2/dist/patternomaly.min.js" defer></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col justify-between relative">
 
-    <div class="container">
-        <div class="badge">Coming Soon</div>
-        <h1>BigHydro, Pump, WaterReserve</h1>
-        <p>Reservoir level monitoring, pumped storage scheduling, and hydro generation optimization telemetry.</p>
-        <div class="footer">Konstantinos Pappas | Energy Market Analytics</div>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-500 px-4">
+        <div class="w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3 mb-1 border-b border-slate-700/50 pb-3">
+                <div class="w-5 h-5 border-2 border-slate-600 border-t-emerald-500 rounded-full animate-spin" id="mainSpinner"></div>
+                <h2 class="text-white text-base font-bold tracking-wide">System Initialization</h2>
+            </div>
+            <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 flex flex-col gap-2">
+                <div class="flex items-center gap-2 mb-1">
+                    <svg class="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Data Fetching</span>
+                </div>
+                <div class="opacity-0 transition-opacity duration-300" id="loadRow1">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-xs text-slate-300">Reading telemetry files</span>
+                        <span class="text-[10px] font-mono text-emerald-400 font-bold" id="loadPct1">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-blue-500 h-full rounded-full w-0 transition-all duration-300 ease-out" id="loadBar1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 flex flex-col gap-3 mt-1">
+                <div class="flex items-center gap-2 mb-1">
+                    <svg class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Analytics Engine</span>
+                </div>
+                <div class="opacity-0 transition-opacity duration-300" id="loadRow2">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-xs text-slate-300">Loading Hydro Cascade...</span>
+                        <span class="text-[10px] font-mono text-emerald-400 font-bold" id="loadPct2">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-purple-500 h-full rounded-full w-0 transition-all duration-300 ease-out" id="loadBar2"></div>
+                    </div>
+                </div>
+                <div class="opacity-0 transition-opacity duration-300" id="loadRow3">
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="text-xs text-slate-300">Rendering UI...</span>
+                        <span class="text-[10px] font-mono text-emerald-400 font-bold" id="loadPct3">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-purple-500 h-full rounded-full w-0 transition-all duration-300 ease-out" id="loadBar3"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="opacity-0 transition-all duration-500 transform translate-y-2 flex items-center justify-center p-3 mt-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 gap-2" id="loadRow_FINAL">
+                <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="text-emerald-400 font-bold text-sm tracking-wide">Dashboard is ready!</span>
+            </div>
+        </div>
     </div>
 
+    <div class="max-w-7xl mx-auto space-y-6 w-full">
+        <!-- Header -->
+        <header class="border-b border-slate-700 pb-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex flex-col items-start w-full md:w-auto">
+                    <a href="https://kon-pappas.github.io/" class="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-cyan-300 transition-colors mb-2.5 group w-fit">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                        </svg>
+                        <span class="font-medium tracking-wide">Konstantinos Pappas Hub <span class="text-slate-600 ml-0.5 font-bold">/</span></span>
+                    </a>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-bold text-cyan-400" id="mainTitle">Greek Hydro, Pump & Reservoir Analytics</h1>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-1" id="dataSourceText">Data source: IPTO (SCADA & ISP) & ENTSO-E</p>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                    <div class="order-2 md:order-2 w-full md:w-auto flex gap-1 bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs font-bold shadow-sm h-12 md:h-10">
+                        <button onclick="setLang('el')" id="btnGr" class="flex-1 md:flex-none flex items-center justify-center px-4 rounded text-slate-400 hover:text-white transition">GR</button>
+                        <button onclick="setLang('en')" id="btnEn" class="flex-1 md:flex-none flex items-center justify-center px-4 rounded bg-indigo-500 text-white transition">EN</button>
+                    </div>
+                    <div id="datePickerContainer" class="order-1 md:order-3 w-full md:w-auto flex items-center justify-between md:justify-start gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700 shadow-sm h-12 md:h-10">
+                        <div class="flex items-center gap-2 pl-2">
+                            <label class="text-xs text-slate-300 font-medium" id="dateLabel">Date:</label>
+                            <select id="dateSelect" onchange="renderCharts()" class="bg-slate-900 text-slate-200 text-sm font-semibold rounded p-1 outline-none focus:border-indigo-500 transition cursor-pointer border border-slate-700">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- TABS NAVIGATION -->
+        <div class="pt-5 mt-2 border-t border-slate-700/50 md:border-none md:pt-0 md:mt-0">
+            <div class="grid grid-cols-2 gap-3 md:flex md:space-x-6 md:border-b md:border-slate-800 md:pb-2">
+                <button id="tabBtnTotals" onclick="switchTab('totals')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-indigo-500 text-white border-indigo-500 md:bg-transparent md:border-transparent md:text-cyan-400 md:border-b-cyan-400">Daily Overview (ISP vs SCADA)</button>
+                <button id="tabBtnPump" onclick="switchTab('pump')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Pump & Storage</button>
+                <button id="tabBtnReservoir" onclick="switchTab('reservoir')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Reservoir Levels</button>
+            </div>
+        </div>
+
+        <!-- VIEW 1: HYDRO TOTALS (Overview) -->
+        <div id="viewTotals" class="space-y-6 block">
+            
+            <!-- TOTALS RIBBON (2 BOXES) -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- TOTAL ISP BOX -->
+                <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-6 flex flex-col justify-center shadow-sm">
+                    <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-3" id="labelTotalISP">TOTAL ISP (MWH)</span>
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-8 bg-white rounded-sm"></div>
+                        <span class="text-3xl font-bold text-white" id="valTotalISP">-</span>
+                    </div>
+                </div>
+                
+                <!-- TOTAL SCADA BOX -->
+                <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-6 flex flex-col justify-center shadow-sm">
+                    <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-3" id="labelTotalSCADA">TOTAL SCADA (MWH)</span>
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-8 rounded-sm border border-slate-400" style="background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 2px, transparent 2px, transparent 5px);"></div>
+                        <span class="text-3xl font-bold text-white" id="valTotalSCADA">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN CHART AREA WITH CUSTOM LEGEND -->
+            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 relative">
+                <!-- Header -->
+                <div class="mb-6 md:mb-2">
+                    <h2 class="text-lg font-semibold text-slate-200" id="totalsChartTitle">Daily Generation: ISP vs SCADA</h2>
+                    <p class="text-xs text-slate-400" id="totalsChartSub">Units dynamically sorted by River Cascade</p>
+                </div>
+
+                <!-- Custom HTML Legend Box -->
+                <div class="md:absolute md:top-6 md:right-6 bg-slate-900/60 border border-slate-700/80 rounded-lg p-4 flex gap-8 z-10 mb-4 md:mb-0 shadow-md">
+                    <!-- Column 1: Cascades -->
+                    <div>
+                        <h3 class="text-[10px] font-bold text-slate-400 mb-3 uppercase tracking-wider" id="legendCascadesTitle">RIVER CASCADES</h3>
+                        <div id="legendCascadesList" class="space-y-2">
+                            <!-- Γεμίζει δυναμικά -->
+                        </div>
+                    </div>
+                    <!-- Column 2: Data Type -->
+                    <div>
+                        <h3 class="text-[10px] font-bold text-slate-400 mb-3 uppercase tracking-wider" id="legendDataTypeTitle">DATA TYPE</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-white rounded-sm"></div>
+                                <span class="text-xs text-slate-300 font-medium" id="legendTypeISP">ISP (Solid)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-sm border border-slate-400" style="background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 2px, transparent 2px, transparent 4px);"></div>
+                                <span class="text-xs text-slate-300 font-medium" id="legendTypeSCADA">SCADA (Striped)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Canvas -->
+                <div class="relative h-[500px] mt-4"><canvas id="totalsChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- PLACEHOLDER VIEWS -->
+        <div id="viewPump" class="space-y-6 hidden">
+            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 text-center text-slate-400">
+                <p>Pump Analytics coming soon...</p>
+            </div>
+        </div>
+        <div id="viewReservoir" class="space-y-6 hidden">
+            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 text-center text-slate-400">
+                <p>Reservoir Levels coming soon...</p>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mt-12 pb-2 text-center">
+            <p class="text-slate-400 text-sm font-medium">Konstantinos Pappas <span class="mx-1 text-slate-600">|</span> Energy Market Analyst</p>
+            <p class="text-slate-500 text-xs mt-1">Business Operations & Risk Management <span class="mx-1 text-slate-600">|</span> Data Insights on Energy Transition & Grid Stability</p>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            ['viewTotals', 'viewPump', 'viewReservoir'].forEach(id => { document.getElementById(id).classList.add('hidden'); });
+            const baseClass = "flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer ";
+            const inactiveClass = baseClass + "bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300";
+            const activeDefaultClass = baseClass + "bg-indigo-500 text-white border-indigo-500 md:bg-transparent md:border-transparent md:text-cyan-400 md:border-b-cyan-400";
+            ['tabBtnTotals', 'tabBtnPump', 'tabBtnReservoir'].forEach(id => { document.getElementById(id).className = inactiveClass; });
+            if (tabId === 'totals') { document.getElementById('viewTotals').classList.remove('hidden'); document.getElementById('tabBtnTotals').className = activeDefaultClass; }
+            else if (tabId === 'pump') { document.getElementById('viewPump').classList.remove('hidden'); document.getElementById('tabBtnPump').className = activeDefaultClass; }
+            else if (tabId === 'reservoir') { document.getElementById('viewReservoir').classList.remove('hidden'); document.getElementById('tabBtnReservoir').className = activeDefaultClass; }
+        }
+    </script>
+    <script src="dashboard.js" defer></script>
 </body>
 </html>
