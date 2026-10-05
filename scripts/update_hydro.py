@@ -73,13 +73,48 @@ RESERVOIRS = [
 
 def get_target_date():
 
+    # --------------------------------------------------------
+    # 1. Command-line argument
+    #
+    # Παράδειγμα:
+    # python scripts/update_hydro.py 2026-09-21
+    # --------------------------------------------------------
+
+    if len(sys.argv) > 1:
+
+        value = sys.argv[1]
+
+        try:
+
+            return datetime.strptime(
+                value,
+                "%Y-%m-%d"
+            ).date()
+
+        except ValueError:
+
+            raise ValueError(
+                "Μη έγκυρη ημερομηνία: "
+                f"{value}. "
+                "Χρησιμοποίησε YYYY-MM-DD."
+            )
+
+    # --------------------------------------------------------
+    # 2. GitHub Actions / environment variable
+    # --------------------------------------------------------
+
     value = os.environ.get("TARGET_DATE")
 
     if value:
+
         return datetime.strptime(
             value,
             "%Y-%m-%d"
         ).date()
+
+    # --------------------------------------------------------
+    # 3. Default: σήμερα
+    # --------------------------------------------------------
 
     return datetime.now().date()
 
