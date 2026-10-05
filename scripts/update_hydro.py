@@ -4,7 +4,7 @@ import json
 import os
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 import requests
@@ -68,55 +68,99 @@ RESERVOIRS = [
 
 
 # ============================================================
-# DATE
+# DATE RANGE
 # ============================================================
 
-def get_target_date():
+def parse_date(value, variable_name):
 
-    # --------------------------------------------------------
-    # 1. Command-line argument
-    #
-    # Παράδειγμα:
-    # python scripts/update_hydro.py 2026-09-21
-    # --------------------------------------------------------
-
-    if len(sys.argv) > 1:
-
-        value = sys.argv[1]
-
-        try:
-
-            return datetime.strptime(
-                value,
-                "%Y-%m-%d"
-            ).date()
-
-        except ValueError:
-
-            raise ValueError(
-                "Μη έγκυρη ημερομηνία: "
-                f"{value}. "
-                "Χρησιμοποίησε YYYY-MM-DD."
-            )
-
-    # --------------------------------------------------------
-    # 2. GitHub Actions / environment variable
-    # --------------------------------------------------------
-
-    value = os.environ.get("TARGET_DATE")
-
-    if value:
+    try:
 
         return datetime.strptime(
             value,
             "%Y-%m-%d"
         ).date()
 
+    except ValueError:
+
+        raise ValueError(
+            f"{variable_name}='{value}' "
+            "δεν είναι έγκυρη ημερομηνία. "
+            "Χρησιμοποίησε YYYY-MM-DD."
+        )
+
+
+def get_date_range():
+
     # --------------------------------------------------------
-    # 3. Default: σήμερα
+    # GitHub Actions:
+    #
+    # START_DATE
+    # END_DATE
     # --------------------------------------------------------
 
-    return datetime.now().date()
+    start_value = os.environ.get("START_DATE")
+    end_value = os.environ.get("END_DATE")
+
+    # --------------------------------------------------------
+    # Αν δόθηκε command-line argument:
+    #
+    # python scripts/update_hydro.py 2026-09-21
+    #
+    # τότε επεξεργαζόμαστε μόνο αυτή την ημέρα.
+    # --------------------------------------------------------
+
+    if len(sys.argv) > 1:
+
+        start_date = parse_date(
+            sys.argv[1],
+            "DATE"
+        )
+
+        if len(sys.argv) > 2:
+
+            end_date = parse_date(
+                sys.argv[2],
+                "END_DATE"
+            )
+
+        else:
+
+            end_date = start_date
+
+        return start_date, end_date
+
+    # --------------------------------------------------------
+    # GitHub Actions manual run
+    # --------------------------------------------------------
+
+    if start_value:
+
+        start_date = parse_date(
+            start_value,
+            "START_DATE"
+        )
+
+        if end_value:
+
+            end_date = parse_date(
+                end_value,
+                "END_DATE"
+            )
+
+        else:
+
+            end_date = start_date
+
+        return start_date, end_date
+
+    # --------------------------------------------------------
+    # Default:
+    # σήμερα
+    # --------------------------------------------------------
+
+    today = datetime.now().date()
+
+    return today, today
 
 
 # ============================================================
@@ -125,7 +169,9 @@ def get_target_date():
 
 def find_reservoir_file(target_date):
 
-    date_string = target_date.strftime("%Y-%m-%d")
+    date_string = target_date.strftime(
+        "%Y-%m-%d"
+    )
 
     params = {
         "dateStart": date_string,
@@ -168,16 +214,6 @@ def find_reservoir_file(target_date):
 
         return None
 
-    # --------------------------------------------------------
-    # Το πραγματικό ADMIE API χρησιμοποιεί:
-    #
-    # file_path
-    # file_description
-    # file_fromdate
-    # file_todate
-    # file_published
-    # --------------------------------------------------------
-
     candidates = []
 
     for item in data:
@@ -203,7 +239,7 @@ def find_reservoir_file(target_date):
         return None
 
     # --------------------------------------------------------
-    # Προτίμηση στο αρχείο που έχει ακριβώς την ημερομηνία.
+    # Επιλογή ακριβούς ημερομηνίας
     # --------------------------------------------------------
 
     target_date_text = target_date.strftime(
@@ -221,8 +257,16 @@ def find_reservoir_file(target_date):
     ]
 
     if dated_candidates:
+
         selected = dated_candidates[0]
+
     else:
+
+        print(
+            "ΠΡΟΣΟΧΗ: δεν βρέθηκε αρχείο "
+            "με ακριβή ημερομηνία."
+        )
+
         selected = candidates[0]
 
     file_url = selected["file_path"]
@@ -272,6 +316,7 @@ def download_file(url):
     response.raise_for_status()
 
     if not response.content:
+
         raise RuntimeError(
             "Το αρχείο ADMIE είναι κενό."
         )
@@ -357,18 +402,21 @@ def process_reservoir_file(file_path):
         raw_rate = row.iloc[2]
 
         try:
+
             raw_rate = float(raw_rate)
 
         except (
             TypeError,
             ValueError
         ):
+
             continue
 
         # ADMIE:
         #
         # 0.7196 = 71.96%
         #
+
         rate_percent = raw_rate * 100.0
 
         reservoirs[entity] = round(
@@ -394,6 +442,7 @@ def process_reservoir_file(file_path):
         )
 
         for name in missing:
+
             print(
                 " -",
                 name
@@ -435,6 +484,7 @@ def load_existing_data():
     if not os.path.exists(
         OUTPUT_FILE
     ):
+
         return []
 
     try:
@@ -448,6 +498,7 @@ def load_existing_data():
             data = json.load(f)
 
         if isinstance(data, list):
+
             return data
 
         return []
@@ -487,8 +538,8 @@ def update_json(
     # --------------------------------------------------------
     # Arithmetic mean of the 14 published percentages.
     #
-    # IMPORTANT:
-    # Δεν το μετατρέπουμε σε GWh.
+    # ΠΡΟΣΟΧΗ:
+    # Αυτό ΔΕΝ είναι το official ADMIE Total.
     # --------------------------------------------------------
 
     system_filling = (
@@ -599,23 +650,17 @@ def update_json(
 
 
 # ============================================================
-# MAIN
+# PROCESS ONE DAY
 # ============================================================
 
-def main():
-
-    print("=" * 60)
-    print("HYDRO UPDATE")
-    print("=" * 60)
-
-    target_date = get_target_date()
+def process_one_day(target_date):
 
     print()
+    print("=" * 60)
     print(
         "Επεξεργασία:",
         target_date
     )
-
     print("=" * 60)
 
     # --------------------------------------------------------
@@ -642,7 +687,7 @@ def main():
             exc
         )
 
-        return 1
+        return False
 
     if not file_url:
 
@@ -651,7 +696,7 @@ def main():
             target_date
         )
 
-        return 0
+        return False
 
     # --------------------------------------------------------
     # 2. Download.
@@ -699,23 +744,20 @@ def main():
         )
 
         print()
-        print("=" * 60)
         print(
-            "HYDRO UPDATE "
-            "ΟΛΟΚΛΗΡΩΘΗΚΕ ΕΠΙΤΥΧΩΣ"
+            "Ημέρα ολοκληρώθηκε επιτυχώς:",
+            target_date
         )
-        print("=" * 60)
 
-        return 0
+        return True
 
     except Exception as exc:
 
         print()
-        print("=" * 60)
         print(
-            "ΣΦΑΛΜΑ HYDRO UPDATE"
+            "ΣΦΑΛΜΑ για",
+            target_date
         )
-        print("=" * 60)
 
         print(
             type(exc).__name__,
@@ -723,7 +765,7 @@ def main():
             exc
         )
 
-        return 1
+        return False
 
     finally:
 
@@ -734,10 +776,143 @@ def main():
         ):
 
             try:
+
                 os.remove(temp_file)
 
             except Exception:
+
                 pass
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+def main():
+
+    print("=" * 60)
+    print("HYDRO UPDATE")
+    print("=" * 60)
+
+    try:
+
+        start_date, end_date = get_date_range()
+
+    except ValueError as exc:
+
+        print()
+        print(
+            "Σφάλμα ημερομηνίας:",
+            exc
+        )
+
+        return 1
+
+    print()
+    print(
+        "START_DATE:",
+        start_date
+    )
+
+    print(
+        "END_DATE:",
+        end_date
+    )
+
+    if end_date < start_date:
+
+        print()
+        print(
+            "ΣΦΑΛΜΑ: END_DATE είναι "
+            "πριν από START_DATE."
+        )
+
+        return 1
+
+    total_days = (
+        end_date - start_date
+    ).days + 1
+
+    print()
+    print(
+        "Ημέρες προς επεξεργασία:",
+        total_days
+    )
+
+    # --------------------------------------------------------
+    # Process each date independently.
+    # --------------------------------------------------------
+
+    current_date = start_date
+
+    successful = 0
+    failed = 0
+
+    while current_date <= end_date:
+
+        if process_one_day(current_date):
+
+            successful += 1
+
+        else:
+
+            failed += 1
+
+        current_date += timedelta(
+            days=1
+        )
+
+    # --------------------------------------------------------
+    # Summary
+    # --------------------------------------------------------
+
+    print()
+    print("=" * 60)
+    print("BACKFILL SUMMARY")
+    print("=" * 60)
+
+    print(
+        "Από:",
+        start_date
+    )
+
+    print(
+        "Έως:",
+        end_date
+    )
+
+    print(
+        "Σύνολο ημερών:",
+        total_days
+    )
+
+    print(
+        "Επιτυχίες:",
+        successful
+    )
+
+    print(
+        "Αποτυχίες:",
+        failed
+    )
+
+    if failed > 0:
+
+        print()
+        print(
+            "HYDRO UPDATE ΟΛΟΚΛΗΡΩΘΗΚΕ "
+            "ΜΕ ΑΠΟΤΥΧΙΕΣ ΣΕ ΚΑΠΟΙΕΣ ΗΜΕΡΕΣ."
+        )
+
+        return 1
+
+    print()
+    print(
+        "HYDRO UPDATE "
+        "ΟΛΕΣ ΟΙ ΗΜΕΡΕΣ ΟΛΟΚΛΗΡΩΘΗΚΑΝ ΕΠΙΤΥΧΩΣ"
+    )
+
+    return 0
 
 
 # ============================================================
