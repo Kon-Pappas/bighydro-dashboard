@@ -10377,5 +10377,25 @@
         "ISP_Plastiras": 0.0
       }
     ]
+  },
+  {
+    "Date": "2026-09-21",
+    "Reservoir": {
+      "ASOMATA": 46.7,
+      "ILARIONAS": 15.35,
+      "KASTRAKI": 82.64,
+      "KREMASTA": 45.6,
+      "LADONAS": 39.56,
+      "PLASTIRAS": 55.2,
+      "PLATANOVRYSI": 69.12,
+      "POLYFYTO": 49.3,
+      "POYRNARI1": 22.25,
+      "POYRNARI2": 81.48,
+      "P_AOOU": 70.91,
+      "SFIKIA": 42.86,
+      "STRATOS": 46.89,
+      "THESAVROS": 60.8
+    },
+    "ReservoirTotal": 52.047
   }
 ]
