@@ -1898,7 +1898,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 77.7,
+      "ILARIONAS": 15.36,
+      "KASTRAKI": 125.15,
+      "KREMASTA": 41.94,
+      "LADONAS": 28.1,
+      "PLASTIRAS": 54.85,
+      "PLATANOVRYSI": 71.05,
+      "POLYFYTO": 46.27,
+      "POYRNARI1": 13.95,
+      "POYRNARI2": 83.69,
+      "P_AOOU": 69.35,
+      "SFIKIA": 39.29,
+      "STRATOS": 37.48,
+      "THESAVROS": 58.06
+    },
+    "ReservoirTotal": 54.446
   },
   {
     "Date": "2026-10-03",
@@ -2840,7 +2857,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 77.7,
+      "ILARIONAS": 15.33,
+      "KASTRAKI": 128.76,
+      "KREMASTA": 42.16,
+      "LADONAS": 28.23,
+      "PLASTIRAS": 54.85,
+      "PLATANOVRYSI": 70.85,
+      "POLYFYTO": 46.42,
+      "POYRNARI1": 14.47,
+      "POYRNARI2": 84.83,
+      "P_AOOU": 69.45,
+      "SFIKIA": 36.9,
+      "STRATOS": 43.78,
+      "THESAVROS": 58.28
+    },
+    "ReservoirTotal": 55.144
   },
   {
     "Date": "2026-10-02",
@@ -3782,7 +3816,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 81.15,
+      "ILARIONAS": 15.53,
+      "KASTRAKI": 124.07,
+      "KREMASTA": 42.51,
+      "LADONAS": 27.23,
+      "PLASTIRAS": 54.99,
+      "PLATANOVRYSI": 69.56,
+      "POLYFYTO": 46.47,
+      "POYRNARI1": 15.06,
+      "POYRNARI2": 82.51,
+      "P_AOOU": 69.5,
+      "SFIKIA": 46.43,
+      "STRATOS": 46.89,
+      "THESAVROS": 58.66
+    },
+    "ReservoirTotal": 55.754
   },
   {
     "Date": "2026-10-01",
@@ -4724,7 +4775,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 76.56,
+      "ILARIONAS": 15.53,
+      "KASTRAKI": 122.63,
+      "KREMASTA": 42.69,
+      "LADONAS": 26.62,
+      "PLASTIRAS": 54.99,
+      "PLATANOVRYSI": 70.18,
+      "POLYFYTO": 46.47,
+      "POYRNARI1": 15.54,
+      "POYRNARI2": 83.69,
+      "P_AOOU": 69.55,
+      "SFIKIA": 52.38,
+      "STRATOS": 43.78,
+      "THESAVROS": 58.79
+    },
+    "ReservoirTotal": 55.671
   },
   {
     "Date": "2026-09-30",
@@ -5666,7 +5734,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 89.23,
+      "ILARIONAS": 15.49,
+      "KASTRAKI": 120.82,
+      "KREMASTA": 42.95,
+      "LADONAS": 27.53,
+      "PLASTIRAS": 54.99,
+      "PLATANOVRYSI": 71.81,
+      "POLYFYTO": 46.56,
+      "POYRNARI1": 16.18,
+      "POYRNARI2": 83.69,
+      "P_AOOU": 69.6,
+      "SFIKIA": 51.19,
+      "STRATOS": 50.0,
+      "THESAVROS": 58.75
+    },
+    "ReservoirTotal": 57.056
   },
   {
     "Date": "2026-09-29",
@@ -6608,7 +6693,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 83.44,
+      "ILARIONAS": 15.47,
+      "KASTRAKI": 116.49,
+      "KREMASTA": 43.34,
+      "LADONAS": 28.83,
+      "PLASTIRAS": 55.13,
+      "PLATANOVRYSI": 72.06,
+      "POLYFYTO": 46.76,
+      "POYRNARI1": 16.74,
+      "POYRNARI2": 84.09,
+      "P_AOOU": 69.7,
+      "SFIKIA": 52.38,
+      "STRATOS": 50.0,
+      "THESAVROS": 58.9
+    },
+    "ReservoirTotal": 56.666
   },
   {
     "Date": "2026-09-28",
@@ -7550,7 +7652,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 88.04,
+      "ILARIONAS": 15.44,
+      "KASTRAKI": 113.24,
+      "KREMASTA": 43.61,
+      "LADONAS": 29.91,
+      "PLASTIRAS": 55.13,
+      "PLATANOVRYSI": 70.85,
+      "POLYFYTO": 46.9,
+      "POYRNARI1": 17.08,
+      "POYRNARI2": 84.09,
+      "P_AOOU": 69.7,
+      "SFIKIA": 52.38,
+      "STRATOS": 50.0,
+      "THESAVROS": 59.26
+    },
+    "ReservoirTotal": 56.831
   },
   {
     "Date": "2026-09-27",
@@ -8492,7 +8611,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 85.74,
+      "ILARIONAS": 15.42,
+      "KASTRAKI": 108.54,
+      "KREMASTA": 43.87,
+      "LADONAS": 30.34,
+      "PLASTIRAS": 55.13,
+      "PLATANOVRYSI": 71.32,
+      "POLYFYTO": 47.05,
+      "POYRNARI1": 17.64,
+      "POYRNARI2": 84.09,
+      "P_AOOU": 69.84,
+      "SFIKIA": 50.0,
+      "STRATOS": 46.89,
+      "THESAVROS": 59.39
+    },
+    "ReservoirTotal": 56.09
   },
   {
     "Date": "2026-09-26",
@@ -9434,7 +9570,24 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 62.78,
+      "ILARIONAS": 15.38,
+      "KASTRAKI": 104.21,
+      "KREMASTA": 44.13,
+      "LADONAS": 31.48,
+      "PLASTIRAS": 54.99,
+      "PLATANOVRYSI": 70.55,
+      "POLYFYTO": 47.24,
+      "POYRNARI1": 18.06,
+      "POYRNARI2": 84.09,
+      "P_AOOU": 69.99,
+      "SFIKIA": 57.14,
+      "STRATOS": 46.89,
+      "THESAVROS": 59.56
+    },
+    "ReservoirTotal": 54.749
   },
   {
     "Date": "2026-09-25",
@@ -10376,7 +10529,84 @@
         "SCADA_Plastiras": 0.0,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 69.67,
+      "ILARIONAS": 15.42,
+      "KASTRAKI": 102.79,
+      "KREMASTA": 44.45,
+      "LADONAS": 32.77,
+      "PLASTIRAS": 55.13,
+      "PLATANOVRYSI": 70.52,
+      "POLYFYTO": 47.49,
+      "POYRNARI1": 18.7,
+      "POYRNARI2": 85.34,
+      "P_AOOU": 70.09,
+      "SFIKIA": 52.38,
+      "STRATOS": 40.63,
+      "THESAVROS": 59.73
+    },
+    "ReservoirTotal": 54.651
+  },
+  {
+    "Date": "2026-09-24",
+    "Reservoir": {
+      "ASOMATA": 60.48,
+      "ILARIONAS": 15.4,
+      "KASTRAKI": 97.22,
+      "KREMASTA": 44.72,
+      "LADONAS": 35.24,
+      "PLASTIRAS": 55.13,
+      "PLATANOVRYSI": 71.29,
+      "POLYFYTO": 48.02,
+      "POYRNARI1": 20.03,
+      "POYRNARI2": 71.18,
+      "P_AOOU": 70.33,
+      "SFIKIA": 60.71,
+      "STRATOS": 37.48,
+      "THESAVROS": 59.86
+    },
+    "ReservoirTotal": 53.364
+  },
+  {
+    "Date": "2026-09-23",
+    "Reservoir": {
+      "ASOMATA": 46.7,
+      "ILARIONAS": 15.4,
+      "KASTRAKI": 89.93,
+      "KREMASTA": 44.89,
+      "LADONAS": 36.14,
+      "PLASTIRAS": 55.13,
+      "PLATANOVRYSI": 70.22,
+      "POLYFYTO": 48.41,
+      "POYRNARI1": 20.52,
+      "POYRNARI2": 72.86,
+      "P_AOOU": 70.53,
+      "SFIKIA": 58.33,
+      "STRATOS": 34.37,
+      "THESAVROS": 60.18
+    },
+    "ReservoirTotal": 51.686
+  },
+  {
+    "Date": "2026-09-22",
+    "Reservoir": {
+      "ASOMATA": 55.89,
+      "ILARIONAS": 15.36,
+      "KASTRAKI": 82.29,
+      "KREMASTA": 45.06,
+      "LADONAS": 37.3,
+      "PLASTIRAS": 55.2,
+      "PLATANOVRYSI": 69.59,
+      "POLYFYTO": 48.81,
+      "POYRNARI1": 21.4,
+      "POYRNARI2": 84.48,
+      "P_AOOU": 70.72,
+      "SFIKIA": 41.67,
+      "STRATOS": 53.15,
+      "THESAVROS": 60.54
+    },
+    "ReservoirTotal": 52.961
   },
   {
     "Date": "2026-09-21",
@@ -10397,5 +10627,105 @@
       "THESAVROS": 60.8
     },
     "ReservoirTotal": 52.047
+  },
+  {
+    "Date": "2026-09-20",
+    "Reservoir": {
+      "ASOMATA": 51.29,
+      "ILARIONAS": 15.35,
+      "KASTRAKI": 81.6,
+      "KREMASTA": 45.92,
+      "LADONAS": 40.8,
+      "PLASTIRAS": 55.2,
+      "PLATANOVRYSI": 70.25,
+      "POLYFYTO": 49.49,
+      "POYRNARI1": 22.83,
+      "POYRNARI2": 84.83,
+      "P_AOOU": 70.96,
+      "SFIKIA": 40.48,
+      "STRATOS": 56.3,
+      "THESAVROS": 60.8
+    },
+    "ReservoirTotal": 53.293
+  },
+  {
+    "Date": "2026-09-19",
+    "Reservoir": {
+      "ASOMATA": 33.68,
+      "ILARIONAS": 15.35,
+      "KASTRAKI": 78.47,
+      "KREMASTA": 46.46,
+      "LADONAS": 42.91,
+      "PLASTIRAS": 55.2,
+      "PLATANOVRYSI": 70.32,
+      "POLYFYTO": 49.79,
+      "POYRNARI1": 23.53,
+      "POYRNARI2": 80.79,
+      "P_AOOU": 71.06,
+      "SFIKIA": 84.52,
+      "STRATOS": 53.15,
+      "THESAVROS": 61.03
+    },
+    "ReservoirTotal": 54.733
+  },
+  {
+    "Date": "2026-09-18",
+    "Reservoir": {
+      "ASOMATA": 27.37,
+      "ILARIONAS": 15.35,
+      "KASTRAKI": 77.43,
+      "KREMASTA": 46.84,
+      "LADONAS": 44.16,
+      "PLASTIRAS": 55.34,
+      "PLATANOVRYSI": 70.79,
+      "POLYFYTO": 50.04,
+      "POYRNARI1": 24.07,
+      "POYRNARI2": 86.5,
+      "P_AOOU": 71.2,
+      "SFIKIA": 85.71,
+      "STRATOS": 50.0,
+      "THESAVROS": 61.12
+    },
+    "ReservoirTotal": 54.709
+  },
+  {
+    "Date": "2026-09-17",
+    "Reservoir": {
+      "ASOMATA": 70.81,
+      "ILARIONAS": 15.38,
+      "KASTRAKI": 72.22,
+      "KREMASTA": 47.16,
+      "LADONAS": 44.53,
+      "PLASTIRAS": 55.34,
+      "PLATANOVRYSI": 70.52,
+      "POLYFYTO": 50.23,
+      "POYRNARI1": 24.89,
+      "POYRNARI2": 83.89,
+      "P_AOOU": 71.25,
+      "SFIKIA": 52.38,
+      "STRATOS": 53.15,
+      "THESAVROS": 61.29
+    },
+    "ReservoirTotal": 55.217
+  },
+  {
+    "Date": "2026-09-16",
+    "Reservoir": {
+      "ASOMATA": 49.0,
+      "ILARIONAS": 15.4,
+      "KASTRAKI": 66.32,
+      "KREMASTA": 47.46,
+      "LADONAS": 45.21,
+      "PLASTIRAS": 55.34,
+      "PLATANOVRYSI": 70.92,
+      "POLYFYTO": 50.38,
+      "POYRNARI1": 25.4,
+      "POYRNARI2": 82.0,
+      "P_AOOU": 71.45,
+      "SFIKIA": 61.9,
+      "STRATOS": 46.89,
+      "THESAVROS": 61.35
+    },
+    "ReservoirTotal": 53.501
   }
 ]
