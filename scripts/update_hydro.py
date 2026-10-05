@@ -1,25 +1,45 @@
-import io
+import pandas as pd
 import json
 import os
-from datetime import datetime, timedelta
-
-import pandas as pd
 import requests
+from datetime import datetime, timedelta
 import urllib3
+import traceback
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ==============================================================================
 # ΡΥΘΜΙΣΕΙΣ & ΧΑΡΤΟΓΡΑΦΗΣΗ
 # ==============================================================================
+
 DATA_DIR = "data"
 OUTPUT_FILE = os.path.join(DATA_DIR, "hydro_data.json")
 
+
+# Ονόματα Μονάδων όπως εμφανίζονται στα αρχεία παραγωγής (Realization)
 HYDRO_UNITS = [
-    "AGRAS", "ASOMATA", "EDESSAIOS", "ILARIONAS", "KASTRAKI",
-    "KREMASTA", "LADONAS", "PLASTIRAS", "PLATANOVRYSI", "POLYFYTO",
-    "POURNARI 1", "POURNARI 2", "P. AOOU", "SFIKIA", "STRATOS 1", "THESAVROS"
+    "AGRAS",
+    "ASOMATA",
+    "EDESSAIOS",
+    "ILARIONAS",
+    "KASTRAKI",
+    "KREMASTA",
+    "LADONAS",
+    "PLASTIRAS",
+    "PLATANOVRYSI",
+    "POLYFYTO",
+    "POURNARI 1",
+    "POURNARI 2",
+    "P. AOOU",
+    "SFIKIA",
+    "STRATOS 1",
+    "THESAVROS"
 ]
+
+
+# ==============================================================================
+# ΑΝΤΙΣΤΟΙΧΙΣΗ RESERVOIR
+# ==============================================================================
 
 RESERVOIR_MAPPING = {
     "AGRAS": "Agras",
@@ -32,47 +52,34 @@ RESERVOIR_MAPPING = {
     "PLASTIRAS": "Plastiras",
     "PLATANOVRYSI": "Platanovrysi",
     "POLYFYTO": "Polyfyto",
-    "POURNARI1": "Pournari1",
+
+    # ADMIE χρησιμοποιεί POYRNARI
     "POYRNARI1": "Pournari1",
-    "POURNARI2": "Pournari2",
     "POYRNARI2": "Pournari2",
-    "PAOOU": "PAoou",
+
     "P_AOOU": "PAoou",
+
     "SFIKIA": "Sfikia",
+
+    # Το STRATOS εμφανίζεται ως ένα reservoir
     "STRATOS": "Stratos1",
-    "STRATOS1": "Stratos1",
-    "THESAVROS": "Thesavros",
+
+    # THESAVROS 1/2/3 είναι ο ίδιος ταμιευτήρας
     "THESAVROS1": "Thesavros",
     "THESAVROS2": "Thesavros",
-    "THESAVROS3": "Thesavros",
-}
-
-
-def normalize_name(value):
-    """Καθαρίζει ένα όνομα για ασφαλή αντιστοίχιση."""
-    if value is None or pd.isna(value):
-        return ""
-
-    text = str(value).strip().upper()
-
-    for char in (" ", ".", "-", "_", "/"):
-        text = text.replace(char, "")
-
-    return text
-
-
-NORMALIZED_RESERVOIR_MAPPING = {
-    normalize_name(key): value
-    for key, value in RESERVOIR_MAPPING.items()
+    "THESAVROS3": "Thesavros"
 }
 
 
 # ==============================================================================
-# ΒΟΗΘΗΤΙΚΗ ΣΥΝΑΡΤΗΣΗ ΛΗΨΗΣ ΑΡΧΕΙΩΝ
+# ΒΟΗΘΗΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ
 # ==============================================================================
+
 def download_excel(url):
-    """Κατεβάζει ένα αρχείο Excel από URL και επιστρέφει τα bytes."""
+    """Κατεβάζει ένα αρχείο Excel από ADMIE."""
+
     try:
+
         response = requests.get(
             url,
             verify=False,
@@ -80,34 +87,59 @@ def download_excel(url):
         )
 
         response.raise_for_status()
+
         return response.content
 
-    except Exception as exc:
-        print(f"Σφάλμα λήψης {url}: {exc}")
+    except Exception as e:
+
+        print(
+            f"Σφάλμα λήψης {url}: {e}"
+        )
+
         return None
 
 
 # ==============================================================================
-# ΑΝΑΛΥΣΗ ΑΡΧΕΙΟΥ RESERVOIR
+# RESERVOIR FILLING RATE
 # ==============================================================================
+
 def process_reservoir_file(date_str):
+
     """
-    Κατεβάζει και αναλύει το ReservoirFillingRate.
+    Διαβάζει το ADMIE ReservoirFillingRate.
+
+    Το πραγματικό format του ADMIE είναι:
+
+        column 1 -> Entity
+        column 2 -> Filling Rate
+        column 7 -> "Filling Rate (%) Total"
+        column 10 -> Total
+
+    Οι τιμές του ADMIE είναι fractions:
+
+        0.7196 -> 71.96%
+        0.43623 -> 43.623%
 
     Επιστρέφει:
 
     {
-        "Total": 45.27,
+        "Total": 43.623,
         "Units": {
-            "Kremasta": 43.87,
-            "Kastraki": 108.54,
+            "Asomata": 71.96,
+            "Ilarionas": 15.38,
             ...
         }
     }
     """
 
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-    date_format_url = date_obj.strftime("%Y%m%d")
+    date_obj = datetime.strptime(
+        date_str,
+        "%Y-%m-%d"
+    )
+
+    date_format_url = date_obj.strftime(
+        "%Y%m%d"
+    )
 
     url = (
         f"https://admie.gr/get-file/"
@@ -119,200 +151,236 @@ def process_reservoir_file(date_str):
     if not file_content:
         return None
 
+    temp_file = f"temp_res_{date_format_url}.xls"
+
     try:
-        # Διαβάζουμε απευθείας από memory.
+
+        # --------------------------------------------------------------
+        # Αποθήκευση προσωρινού αρχείου
+        # --------------------------------------------------------------
+
+        with open(
+            temp_file,
+            "wb"
+        ) as f:
+
+            f.write(file_content)
+
+
+        # --------------------------------------------------------------
+        # ΠΟΛΥ ΣΗΜΑΝΤΙΚΟ:
+        #
+        # header=None
+        #
+        # Το ADMIE Excel ΔΕΝ έχει την πραγματική header row
+        # στην πρώτη γραμμή.
+        # --------------------------------------------------------------
+
         df = pd.read_excel(
-            io.BytesIO(file_content),
+            temp_file,
             sheet_name=0,
             header=None
         )
 
-        if df.empty:
-            print(f"  Reservoir {date_str}: κενό αρχείο.")
-            return None
 
-        # ------------------------------------------------------------------
-        # ΕΝΤΟΠΙΣΜΟΣ ΣΤΗΛΩΝ ENTITY / FILLING RATE
-        # ------------------------------------------------------------------
-        entity_col = None
-        rate_col = None
+        # --------------------------------------------------------------
+        # 1. TOTAL
+        # --------------------------------------------------------------
 
-        for r in range(min(len(df), 20)):
-
-            for c in range(df.shape[1]):
-
-                cell = normalize_name(df.iat[r, c])
-
-                if cell == "ENTITY":
-                    entity_col = c
-
-                if (
-                    "FILLINGRATE" in cell
-                    or "FILLING" in cell
-                    or "RATE" in cell
-                ):
-                    if "TOTAL" not in cell and rate_col is None:
-                        rate_col = c
-
-            if entity_col is not None and rate_col is not None:
-                break
-
-        # Fallback στην γνωστή διάταξη του ADMIE Excel.
-        if entity_col is None and df.shape[1] > 1:
-            entity_col = 1
-
-        if rate_col is None and df.shape[1] > 2:
-            rate_col = 2
-
-        if entity_col is None or rate_col is None:
-
-            print(
-                f"  Reservoir {date_str}: "
-                f"δεν εντοπίστηκαν οι στήλες Entity/Filling Rate."
-            )
-
-            return None
-
-        # ------------------------------------------------------------------
-        # ΕΞΑΓΩΓΗ ΠΟΣΟΣΤΩΝ ΑΝΑ ΤΑΜΙΕΥΤΗΡΑ
-        # ------------------------------------------------------------------
-        mapped_values = {}
-
-        for row_idx in range(len(df)):
-
-            raw_entity = df.iat[row_idx, entity_col]
-            entity_norm = normalize_name(raw_entity)
-
-            if not entity_norm or entity_norm == "ENTITY":
-                continue
-
-            clean_id = NORMALIZED_RESERVOIR_MAPPING.get(entity_norm)
-
-            if clean_id is None:
-                continue
-
-            raw_rate = df.iat[row_idx, rate_col]
-
-            try:
-                rate = float(raw_rate)
-            except (TypeError, ValueError):
-                continue
-
-            mapped_values.setdefault(clean_id, []).append(rate)
-
-        # Σε THESAVROS1/2/3 κρατάμε τον μέσο όρο.
-        clean_rates = {
-            reservoir_id: round(
-                sum(values) / len(values),
-                4
-            )
-            for reservoir_id, values in mapped_values.items()
-            if values
-        }
-
-        # ------------------------------------------------------------------
-        # ΕΞΑΓΩΓΗ ΣΥΝΟΛΙΚΟΥ ΠΟΣΟΣΤΟΥ
-        # ------------------------------------------------------------------
         total_val = None
 
-        for row_idx in range(len(df)):
+        for index, row in df.iterrows():
 
-            total_columns = []
-
-            for col_idx in range(df.shape[1]):
-
-                cell = str(
-                    df.iat[row_idx, col_idx]
-                ).strip().upper()
-
-                if "TOTAL" in cell:
-                    total_columns.append(col_idx)
-
-            if not total_columns:
+            if len(row) <= 10:
                 continue
 
-            # Στο γνωστό ADMIE format το total βρίσκεται στη στήλη 10.
-            candidate_columns = []
+            label = row.iloc[7]
 
-            if df.shape[1] > 10:
-                candidate_columns.append(10)
-
-            # Fallback: ψάχνουμε αριθμητικές τιμές από δεξιά προς τα αριστερά.
-            candidate_columns.extend(
-                c
-                for c in range(df.shape[1] - 1, -1, -1)
-                if c not in candidate_columns
-            )
-
-            for c in candidate_columns:
-
-                value = df.iat[row_idx, c]
+            if (
+                pd.notna(label)
+                and "Total" in str(label)
+            ):
 
                 try:
-                    numeric_value = float(value)
-                except (TypeError, ValueError):
-                    continue
 
-                if 0 <= numeric_value <= 150:
+                    raw_total = float(
+                        row.iloc[10]
+                    )
 
+                    # ADMIE δίνει fraction.
+                    # 0.43623 -> 43.623%
                     total_val = round(
-                        numeric_value,
+                        raw_total * 100,
                         4
                     )
 
-                    break
+                except (
+                    TypeError,
+                    ValueError
+                ):
 
-            if total_val is not None:
+                    pass
+
                 break
 
-        # Αν δεν βρέθηκε τίποτα, το αρχείο δεν μας χρησιμεύει.
-        if not clean_rates and total_val is None:
 
-            print(
-                f"  Reservoir {date_str}: "
-                f"δεν βρέθηκαν αναγνωρισμένοι ταμιευτήρες."
+        # --------------------------------------------------------------
+        # 2. INDIVIDUAL RESERVOIRS
+        # --------------------------------------------------------------
+
+        raw_rates = {}
+
+        for index, row in df.iterrows():
+
+            if len(row) <= 2:
+                continue
+
+            entity_value = row.iloc[1]
+            rate_value = row.iloc[2]
+
+            if pd.isna(entity_value):
+                continue
+
+            entity = str(
+                entity_value
+            ).strip().upper()
+
+            # Skip headers / empty rows
+            if entity in (
+                "",
+                "NAN",
+                "ENTITY"
+            ):
+                continue
+
+            try:
+
+                raw_rate = float(
+                    rate_value
+                )
+
+            except (
+                TypeError,
+                ValueError
+            ):
+
+                continue
+
+            # ADMIE fraction -> percentage
+            rate_percent = round(
+                raw_rate * 100,
+                4
             )
 
-            return None
+            raw_rates[entity] = rate_percent
+
+
+        # --------------------------------------------------------------
+        # 3. MAPPING
+        # --------------------------------------------------------------
+
+        clean_rates = {}
+
+        for raw_name, rate in raw_rates.items():
+
+            if raw_name in RESERVOIR_MAPPING:
+
+                clean_id = RESERVOIR_MAPPING[
+                    raw_name
+                ]
+
+                # THESAVROS1/2/3 έχουν ίδια τιμή.
+                # Το setdefault μας προστατεύει από
+                # τυχόν διπλοεγγραφή.
+                if clean_id not in clean_rates:
+
+                    clean_rates[
+                        clean_id
+                    ] = rate
+
+
+        # --------------------------------------------------------------
+        # 4. ΕΛΕΓΧΟΣ
+        # --------------------------------------------------------------
 
         print(
             f"  Reservoir {date_str}: "
-            f"{len(clean_rates)} reservoirs"
-            +
-            (
-                f", total={total_val:.2f}%"
-                if total_val is not None
-                else ", total=N/A"
-            )
+            f"{len(clean_rates)} μονάδες"
         )
+
+        if total_val is not None:
+
+            print(
+                f"  Total filling: "
+                f"{total_val:.2f}%"
+            )
+
+        if clean_rates:
+
+            for reservoir, rate in clean_rates.items():
+
+                print(
+                    f"    {reservoir}: "
+                    f"{rate:.2f}%"
+                )
+
+        else:
+
+            print(
+                "  ΠΡΟΣΟΧΗ: Δεν βρέθηκαν "
+                "individual reservoirs!"
+            )
+
+
+        # --------------------------------------------------------------
+        # 5. RETURN
+        # --------------------------------------------------------------
 
         return {
             "Total": total_val,
             "Units": clean_rates
         }
 
-    except Exception as exc:
+
+    except Exception as e:
 
         print(
-            f"Σφάλμα στην επεξεργασία του Reservoir "
-            f"για {date_str}: {exc}"
+            f"Σφάλμα στην επεξεργασία "
+            f"του Reservoir για {date_str}: {e}"
         )
+
+        traceback.print_exc()
 
         return None
 
 
+    finally:
+
+        # Καθαρισμός temporary file
+        if os.path.exists(temp_file):
+
+            try:
+                os.remove(temp_file)
+            except Exception:
+                pass
+
+
 # ==============================================================================
-# ΑΝΑΛΥΣΗ ΑΡΧΕΙΟΥ ΠΑΡΑΓΩΓΗΣ
+# SYSTEM REALIZATION
 # ==============================================================================
+
 def process_realization_file(date_str):
-    """Κατεβάζει και αναλύει το αρχείο SystemRealization."""
+
+    """Κατεβάζει και αναλύει το SystemRealization."""
 
     date_obj = datetime.strptime(
         date_str,
         "%Y-%m-%d"
     )
 
-    date_format_url = date_obj.strftime("%Y%m%d")
+    date_format_url = date_obj.strftime(
+        "%Y%m%d"
+    )
 
     url = (
         f"https://admie.gr/get-file/"
@@ -324,10 +392,20 @@ def process_realization_file(date_str):
     if not file_content:
         return None
 
+    temp_file = f"temp_prod_{date_format_url}.xls"
+
     try:
 
+        with open(
+            temp_file,
+            "wb"
+        ) as f:
+
+            f.write(file_content)
+
+
         df = pd.read_excel(
-            io.BytesIO(file_content),
+            temp_file,
             sheet_name=0,
             header=None
         )
@@ -337,10 +415,16 @@ def process_realization_file(date_str):
             for hour in range(1, 25)
         }
 
-        # Εντοπισμός μονάδων και Data Type.
+
+        # --------------------------------------------------------------
+        # Εντοπισμός μονάδων και Data Type
+        # --------------------------------------------------------------
+
         unit_columns = {}
 
-        for col_idx in range(df.shape[1]):
+        for col_idx in range(
+            df.shape[1]
+        ):
 
             unit_name = str(
                 df.iloc[2, col_idx]
@@ -358,21 +442,33 @@ def process_realization_file(date_str):
                     .replace(".", "")
                 )
 
-                key = f"{data_type}_{clean_id}"
+                key = (
+                    f"{data_type}_{clean_id}"
+                )
 
-                unit_columns[key] = col_idx
+                unit_columns[
+                    key
+                ] = col_idx
+
 
         if not unit_columns:
 
             print(
-                f"  Παραγωγή {date_str}: "
-                f"δεν βρέθηκαν υδροηλεκτρικές μονάδες."
+                f"Δεν βρέθηκαν "
+                f"hydro units για {date_str}"
             )
 
             return None
 
-        # Ώρες 1-24.
-        for hour in range(1, 25):
+
+        # --------------------------------------------------------------
+        # Ώρες 1-24
+        # --------------------------------------------------------------
+
+        for hour in range(
+            1,
+            25
+        ):
 
             row_idx = hour + 3
 
@@ -381,52 +477,104 @@ def process_realization_file(date_str):
 
             for key, col_idx in unit_columns.items():
 
-                value = df.iloc[row_idx, col_idx]
+                value = df.iloc[
+                    row_idx,
+                    col_idx
+                ]
 
                 try:
 
-                    hourly_data[hour][key] = (
+                    hourly_data[
+                        hour
+                    ][key] = (
                         float(value)
                         if pd.notna(value)
                         else 0.0
                     )
 
-                except (TypeError, ValueError):
+                except (
+                    TypeError,
+                    ValueError
+                ):
 
-                    hourly_data[hour][key] = 0.0
+                    hourly_data[
+                        hour
+                    ][key] = 0.0
 
-        return [
-            {
-                "Hour": hour,
-                **hourly_data[hour]
+
+        # --------------------------------------------------------------
+        # Λίστα
+        # --------------------------------------------------------------
+
+        hourly_list = []
+
+        for hour in range(
+            1,
+            25
+        ):
+
+            entry = {
+                "Hour": hour
             }
-            for hour in range(1, 25)
-        ]
 
-    except Exception as exc:
+            entry.update(
+                hourly_data[hour]
+            )
+
+            hourly_list.append(
+                entry
+            )
+
+
+        return hourly_list
+
+
+    except Exception as e:
 
         print(
-            f"Σφάλμα στην επεξεργασία της Παραγωγής "
-            f"για {date_str}: {exc}"
+            f"Σφάλμα στην επεξεργασία "
+            f"της Παραγωγής για {date_str}: {e}"
         )
+
+        traceback.print_exc()
 
         return None
 
 
+    finally:
+
+        if os.path.exists(temp_file):
+
+            try:
+                os.remove(temp_file)
+            except Exception:
+                pass
+
+
 # ==============================================================================
-# ΚΥΡΙΟ SCRIPT
+# MAIN
 # ==============================================================================
+
 def main():
 
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR)
+    if not os.path.exists(
+        DATA_DIR
+    ):
+
+        os.makedirs(
+            DATA_DIR
+        )
+
 
     # ------------------------------------------------------------------
-    # ΦΟΡΤΩΣΗ ΥΠΑΡΧΟΝΤΩΝ ΔΕΔΟΜΕΝΩΝ
+    # Φόρτωση υπάρχοντος JSON
     # ------------------------------------------------------------------
+
     all_data = []
 
-    if os.path.exists(OUTPUT_FILE):
+    if os.path.exists(
+        OUTPUT_FILE
+    ):
 
         try:
 
@@ -434,34 +582,56 @@ def main():
                 OUTPUT_FILE,
                 "r",
                 encoding="utf-8"
-            ) as file:
+            ) as f:
 
-                all_data = json.load(file)
+                all_data = json.load(f)
 
-        except Exception as exc:
+        except Exception as e:
 
             print(
-                f"Σφάλμα ανάγνωσης του "
-                f"{OUTPUT_FILE}: {exc}"
+                f"Σφάλμα ανάγνωσης "
+                f"{OUTPUT_FILE}: {e}"
             )
 
             all_data = []
 
-    data_by_date = {
-        item.get("Date"): item
-        for item in all_data
-        if isinstance(item, dict)
-        and item.get("Date")
-    }
+
+    # ------------------------------------------------------------------
+    # INDEX ΑΝΑ ΗΜΕΡΟΜΗΝΙΑ
+    #
+    # Πολύ σημαντικό:
+    # Δεν προσπερνάμε πλέον μια ημερομηνία
+    # μόνο και μόνο επειδή υπάρχει.
+    #
+    # Έτσι μπορούμε να συμπληρώσουμε Reservoir
+    # σε παλιά records.
+    # ------------------------------------------------------------------
+
+    data_by_date = {}
+
+    for item in all_data:
+
+        if (
+            isinstance(item, dict)
+            and "Date" in item
+        ):
+
+            data_by_date[
+                item["Date"]
+            ] = item
+
 
     # ------------------------------------------------------------------
     # ΗΜΕΡΟΜΗΝΙΕΣ
     #
-    # Αν δοθούν START_DATE / END_DATE από GitHub Actions,
-    # κάνουμε backfill ακριβώς αυτού του διαστήματος.
+    # Υποστηρίζουμε:
     #
-    # Αλλιώς χρησιμοποιούμε τις τελευταίες 7 ημέρες.
+    # START_DATE=2026-09-21
+    # END_DATE=2026-10-05
+    #
+    # για backfill.
     # ------------------------------------------------------------------
+
     start_env = os.getenv(
         "START_DATE",
         ""
@@ -471,6 +641,7 @@ def main():
         "END_DATE",
         ""
     ).strip()
+
 
     if start_env or end_env:
 
@@ -487,93 +658,180 @@ def main():
             )
 
             if start_date > end_date:
+
                 start_date, end_date = (
                     end_date,
                     start_date
                 )
 
+
             dates_to_check = [
+
                 (
                     start_date
                     + timedelta(days=i)
                 ).strftime("%Y-%m-%d")
+
                 for i in range(
-                    (end_date - start_date).days + 1
+                    (
+                        end_date
+                        - start_date
+                    ).days + 1
                 )
             ]
 
-            print(
-                f"\nManual date range: "
-                f"{dates_to_check[0]} -> "
-                f"{dates_to_check[-1]}"
-            )
 
         except ValueError:
 
             print(
-                "Μη έγκυρο START_DATE/END_DATE. "
-                "Χρησιμοποιούνται οι τελευταίες 7 ημέρες."
+                "Μη έγκυρο "
+                "START_DATE / END_DATE."
             )
 
             today = datetime.now()
 
             dates_to_check = [
+
                 (
                     today
                     - timedelta(days=i)
                 ).strftime("%Y-%m-%d")
+
                 for i in range(7)
             ]
+
 
     else:
 
         today = datetime.now()
 
         dates_to_check = [
+
             (
                 today
                 - timedelta(days=i)
             ).strftime("%Y-%m-%d")
+
             for i in range(7)
         ]
 
+
     updates_made = False
 
+
     # ------------------------------------------------------------------
-    # ΕΠΕΞΕΡΓΑΣΙΑ ΗΜΕΡΩΝ
+    # PROCESS DAYS
     # ------------------------------------------------------------------
+
     for date_str in dates_to_check:
 
         print(
-            f"\nΕπεξεργασία: {date_str}"
+            f"\n===================================="
         )
 
-        day_entry = data_by_date.get(
-            date_str
+        print(
+            f"Επεξεργασία: {date_str}"
         )
 
-        if day_entry is None:
+        print(
+            f"===================================="
+        )
+
+
+        # --------------------------------------------------------------
+        # Υπάρχον record ή νέο
+        # --------------------------------------------------------------
+
+        if date_str in data_by_date:
+
+            day_entry = data_by_date[
+                date_str
+            ]
+
+        else:
 
             day_entry = {
                 "Date": date_str
             }
 
-            data_by_date[date_str] = day_entry
+            data_by_date[
+                date_str
+            ] = day_entry
+
 
         # --------------------------------------------------------------
-        # 1. ΠΑΡΑΓΩΓΗ
+        # 1. RESERVOIR
         #
-        # Αν υπάρχει ήδη Hourly, δεν το ξανακατεβάζουμε.
+        # ΠΑΝΤΑ το ξαναδιαβάζουμε.
+        #
+        # Αυτό διορθώνει τα ήδη υπάρχοντα records.
         # --------------------------------------------------------------
-        if not day_entry.get("Hourly"):
+
+        print(
+            "Λήψη Reservoir..."
+        )
+
+        res_data = process_reservoir_file(
+            date_str
+        )
+
+
+        if res_data:
+
+            day_entry[
+                "Reservoir"
+            ] = res_data
+
+
+            # Backward compatibility
+            if (
+                res_data.get("Total")
+                is not None
+            ):
+
+                day_entry[
+                    "ReservoirTotalRate"
+                ] = res_data[
+                    "Total"
+                ]
+
+
+            updates_made = True
+
+
+        else:
+
+            print(
+                "  Reservoir: "
+                "δεν βρέθηκαν δεδομένα."
+            )
+
+
+        # --------------------------------------------------------------
+        # 2. ΠΑΡΑΓΩΓΗ
+        #
+        # Αν υπάρχει ήδη Hourly,
+        # δεν χρειάζεται να το ξανακατεβάσουμε.
+        # --------------------------------------------------------------
+
+        if not day_entry.get(
+            "Hourly"
+        ):
+
+            print(
+                "Λήψη SystemRealization..."
+            )
 
             prod_data = process_realization_file(
                 date_str
             )
 
+
             if prod_data:
 
-                day_entry["Hourly"] = prod_data
+                day_entry[
+                    "Hourly"
+                ] = prod_data
 
                 updates_made = True
 
@@ -591,84 +849,20 @@ def main():
         else:
 
             print(
-                "  Παραγωγή: υπάρχει ήδη, "
-                "δεν ξανακατεβαίνει."
+                "  Παραγωγή: υπάρχει ήδη."
             )
 
-        # --------------------------------------------------------------
-        # 2. RESERVOIR
-        #
-        # ΠΑΝΤΑ ζητάμε το Reservoir.
-        #
-        # Αυτό είναι το βασικό fix:
-        # ακόμα κι αν η ημερομηνία υπάρχει ήδη,
-        # ενημερώνουμε το Reservoir.Units.
-        # --------------------------------------------------------------
-        res_data = process_reservoir_file(
-            date_str
-        )
-
-        if res_data:
-
-            old_reservoir = day_entry.get(
-                "Reservoir"
-            )
-
-            if old_reservoir != res_data:
-
-                day_entry["Reservoir"] = res_data
-
-                updates_made = True
-
-            # Κρατάμε το παλιό flat πεδίο
-            # για backward compatibility.
-            if res_data.get("Total") is not None:
-
-                old_total = day_entry.get(
-                    "ReservoirTotalRate"
-                )
-
-                new_total = res_data["Total"]
-
-                if old_total != new_total:
-
-                    day_entry[
-                        "ReservoirTotalRate"
-                    ] = new_total
-
-                    updates_made = True
-
-        else:
-
-            # Αν το ADMIE αρχείο δεν είναι διαθέσιμο,
-            # δεν σβήνουμε υπάρχοντα δεδομένα.
-            if day_entry.get("Reservoir"):
-
-                print(
-                    "  Reservoir: κρατάμε "
-                    "το ήδη αποθηκευμένο data."
-                )
-
-            elif day_entry.get(
-                "ReservoirTotalRate"
-            ) is not None:
-
-                print(
-                    "  Reservoir: υπάρχει μόνο "
-                    "legacy TotalRate."
-                )
 
     # ------------------------------------------------------------------
     # ΑΠΟΘΗΚΕΥΣΗ
     # ------------------------------------------------------------------
+
     final_data = sorted(
         data_by_date.values(),
-        key=lambda item: item.get(
-            "Date",
-            ""
-        ),
+        key=lambda x: x["Date"],
         reverse=True
     )
+
 
     if updates_made:
 
@@ -676,26 +870,41 @@ def main():
             OUTPUT_FILE,
             "w",
             encoding="utf-8"
-        ) as file:
+        ) as f:
 
             json.dump(
                 final_data,
-                file,
+                f,
                 indent=2,
                 ensure_ascii=False
             )
 
+
         print(
-            f"\nΤο {OUTPUT_FILE} "
-            f"ενημερώθηκε επιτυχώς!"
+            "\n===================================="
         )
+
+        print(
+            "Το hydro_data.json "
+            "ενημερώθηκε επιτυχώς!"
+        )
+
+        print(
+            "===================================="
+        )
+
 
     else:
 
         print(
-            "\nΔεν υπήρχαν νέες αλλαγές."
+            "\nΔεν υπήρχαν αλλαγές."
         )
 
 
+# ==============================================================================
+# EXECUTION
+# ==============================================================================
+
 if __name__ == "__main__":
+
     main()
