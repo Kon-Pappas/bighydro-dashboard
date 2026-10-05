@@ -939,7 +939,24 @@
         "SCADA_Plastiras": null,
         "ISP_Plastiras": 0.0
       }
-    ]
+    ],
+    "Reservoir": {
+      "ASOMATA": 71.96,
+      "ILARIONAS": 15.38,
+      "KASTRAKI": 115.04,
+      "KREMASTA": 41.76,
+      "LADONAS": 28.27,
+      "PLASTIRAS": 54.85,
+      "PLATANOVRYSI": 70.65,
+      "POLYFYTO": 46.13,
+      "POYRNARI1": 13.58,
+      "POYRNARI2": 71.18,
+      "P_AOOU": 69.35,
+      "SFIKIA": 29.76,
+      "STRATOS": 56.3,
+      "THESAVROS": 58.02
+    },
+    "ReservoirTotal": 53.016
   },
   {
     "Date": "2026-10-04",
