@@ -102,17 +102,15 @@
         <div class="pt-5 mt-2 border-t border-slate-700/50 md:border-none md:pt-0 md:mt-0">
             <div class="grid grid-cols-2 gap-3 md:flex md:space-x-6 md:border-b md:border-slate-800 md:pb-2">
                 <button id="tabBtnTotals" onclick="switchTab('totals')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-indigo-500 text-white border-indigo-500 md:bg-transparent md:border-transparent md:text-cyan-400 md:border-b-cyan-400">Daily Overview (ISP vs SCADA)</button>
-                <button id="tabBtnPump" onclick="switchTab('pump')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Pump & Storage</button>
+                <button id="tabBtnPump" onclick="switchTab('pump')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Pump & River Cascades</button>
                 <button id="tabBtnReservoir" onclick="switchTab('reservoir')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Reservoir Levels</button>
             </div>
         </div>
 
         <!-- VIEW 1: HYDRO TOTALS (Overview) -->
         <div id="viewTotals" class="space-y-6 block">
-            
             <!-- TOTALS RIBBON (2 BOXES) -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- TOTAL ISP BOX -->
                 <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-6 flex flex-col justify-center shadow-sm">
                     <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-3" id="labelTotalISP">TOTAL ISP (MWH)</span>
                     <div class="flex items-center gap-3">
@@ -120,8 +118,6 @@
                         <span class="text-3xl font-bold text-white" id="valTotalISP">-</span>
                     </div>
                 </div>
-                
-                <!-- TOTAL SCADA BOX -->
                 <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-6 flex flex-col justify-center shadow-sm">
                     <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-3" id="labelTotalSCADA">TOTAL SCADA (MWH)</span>
                     <div class="flex items-center gap-3">
@@ -133,22 +129,16 @@
 
             <!-- MAIN CHART AREA WITH CUSTOM LEGEND -->
             <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 relative">
-                <!-- Header -->
                 <div class="mb-6 md:mb-2">
                     <h2 class="text-lg font-semibold text-slate-200" id="totalsChartTitle">Daily Generation: ISP vs SCADA</h2>
                     <p class="text-xs text-slate-400" id="totalsChartSub">Units dynamically sorted by River Cascade</p>
                 </div>
 
-                <!-- Custom HTML Legend Box -->
                 <div class="md:absolute md:top-6 md:right-6 bg-slate-900/60 border border-slate-700/80 rounded-lg p-4 flex gap-8 z-10 mb-4 md:mb-0 shadow-md">
-                    <!-- Column 1: Cascades -->
                     <div>
                         <h3 class="text-[10px] font-bold text-slate-400 mb-3 uppercase tracking-wider" id="legendCascadesTitle">RIVER CASCADES</h3>
-                        <div id="legendCascadesList" class="space-y-2">
-                            <!-- Γεμίζει δυναμικά -->
-                        </div>
+                        <div id="legendCascadesList" class="space-y-2"></div>
                     </div>
-                    <!-- Column 2: Data Type -->
                     <div>
                         <h3 class="text-[10px] font-bold text-slate-400 mb-3 uppercase tracking-wider" id="legendDataTypeTitle">DATA TYPE</h3>
                         <div class="space-y-2">
@@ -164,20 +154,29 @@
                     </div>
                 </div>
 
-                <!-- Chart Canvas -->
                 <div class="relative h-[500px] mt-4"><canvas id="totalsChart"></canvas></div>
             </div>
         </div>
 
-        <!-- PLACEHOLDER VIEWS -->
+        <!-- VIEW 2: PUMP & RIVER CASCADES -->
         <div id="viewPump" class="space-y-6 hidden">
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 text-center text-slate-400">
-                <p>Pump Analytics coming soon...</p>
+            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700">
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold text-slate-200" id="cascadeTitle">River Cascades & Pumping Topology</h2>
+                    <p class="text-xs text-slate-400" id="cascadeSub">Upstream to Downstream flow, reservoir filling rates, volumes and hourly dynamics</p>
+                </div>
+
+                <!-- River Cascades Accordion Container -->
+                <div id="riverCascadesContainer" class="space-y-4">
+                    <!-- Γεμίζει δυναμικά από τη JavaScript -->
+                </div>
             </div>
         </div>
+
+        <!-- VIEW 3: RESERVOIR LEVELS (Placeholder for next step) -->
         <div id="viewReservoir" class="space-y-6 hidden">
             <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 text-center text-slate-400">
-                <p>Reservoir Levels coming soon...</p>
+                <p>Reservoir Levels Detailed View coming soon...</p>
             </div>
         </div>
 
@@ -196,7 +195,11 @@
             const activeDefaultClass = baseClass + "bg-indigo-500 text-white border-indigo-500 md:bg-transparent md:border-transparent md:text-cyan-400 md:border-b-cyan-400";
             ['tabBtnTotals', 'tabBtnPump', 'tabBtnReservoir'].forEach(id => { document.getElementById(id).className = inactiveClass; });
             if (tabId === 'totals') { document.getElementById('viewTotals').classList.remove('hidden'); document.getElementById('tabBtnTotals').className = activeDefaultClass; }
-            else if (tabId === 'pump') { document.getElementById('viewPump').classList.remove('hidden'); document.getElementById('tabBtnPump').className = activeDefaultClass; }
+            else if (tabId === 'pump') { 
+                document.getElementById('viewPump').classList.remove('hidden'); 
+                document.getElementById('tabBtnPump').className = activeDefaultClass;
+                if (typeof renderRiverCascades === 'function') renderRiverCascades();
+            }
             else if (tabId === 'reservoir') { document.getElementById('viewReservoir').classList.remove('hidden'); document.getElementById('tabBtnReservoir').className = activeDefaultClass; }
         }
     </script>
