@@ -646,50 +646,99 @@ def write_json(records):
 # DIAGNOSE
 # ============================================================
 
+def _entsoe_structure(text):
+    """Περίληψη ανά TimeSeries/Period, για να φανεί γιατί τα σημεία δεν είναι 96."""
+    root = ET.fromstring(text)
+    strip = lambda t: t.split("}")[-1]
+    n_ts = 0
+    for ts in root.iter():
+        if strip(ts.tag) != "TimeSeries":
+            continue
+        n_ts += 1
+        info = {strip(c.tag): (c.text or "").strip() for c in ts if len(c) == 0 and (c.text or "").strip()}
+        log(f"  TimeSeries #{n_ts}: {info}")
+        for per in ts:
+            if strip(per.tag) != "Period":
+                continue
+            d = {}
+            pts = []
+            for c in per.iter():
+                t = strip(c.tag)
+                if t in ("start", "end", "resolution"):
+                    d[t] = (c.text or "").strip()
+            for pt in per:
+                if strip(pt.tag) == "Point":
+                    v = {strip(x.tag): x.text for x in pt}
+                    pts.append((v.get("position"), v.get("price.amount")))
+            first = pts[0] if pts else None
+            last = pts[-1] if pts else None
+            log(f"    Period {d} points={len(pts)} first={first} last={last}")
+    log(f"  σύνολο TimeSeries: {n_ts}")
+
+
 def diagnose(d):
+    """Στοχευμένο diagnose: δεν γράφει JSON. Τυπώνει μόνο ό,τι χρειάζεται για να διορθωθούν οι parsers."""
     log(f"=== DIAGNOSE {d} (δεν γράφεται JSON) ===")
-    for cat, label_col in ((CAT_SCADA, SCADA_LABEL_COL), (CAT_ISP, ISP_LABEL_COL)):
+    extra_kw = [norm(x) for x in ("PUMP", "TOTAL", "ΑΝΤΛ", "ΕΔΕΣ", "EDES", "ΑΓΡΑ", "AGRA")]
+    for cat, label_col, c0, pref in ((CAT_SCADA, SCADA_LABEL_COL, SCADA_H0, "System_Production"),
+                                     (CAT_ISP, ISP_LABEL_COL, ISP_Q0, None)):
         log(f"\n--- {cat} ---")
         c = fetch_admie_file(cat, d)
         if not c:
             continue
         xls = pd.ExcelFile(io.BytesIO(c))
         log(f"φύλλα: {xls.sheet_names}")
-        for sn in xls.sheet_names[:3]:
-            df = xls.parse(sn, header=None)
-            log(f"[{sn}] shape={df.shape}")
-            if df.shape[1] > label_col:
-                for i, v in enumerate(df[label_col].tolist()[:120]):
-                    if norm(v):
-                        log(f"   r{i:03d}: {v!r}")
+        df, name = read_sheet(c, pref)
+        log(f"φύλλο που διαβάζει το pipeline: '{name}'  shape={df.shape}")
+        if df.shape[1] <= label_col:
+            log("   ! δεν υπάρχει η στήλη ετικετών")
+            continue
+        labels = [norm(x) for x in df[label_col]]
+        log("Αντιστοίχιση μονάδων:")
+        for key, scada_names, isp_names in HYDRO_UNITS:
+            idx, how = find_row(labels, scada_names if cat == CAT_SCADA else isp_names,
+                                exclude=("PUMP", "ΑΝΤΛ"))
+            if idx is None:
+                log(f"   NOT FOUND  {key}")
+            else:
+                v = to_numeric_array(df.iloc[idx, c0:c0 + 4], 4)
+                log(f"   {how:<8} {key:<13} r{idx:03d} {df.iloc[idx, label_col]!r}  πρώτες τιμές={nan_to_none_list(v)}")
+        log("Γραμμές με pump / total / Εδεσσαίο / Άγρα:")
+        for i, l in enumerate(labels):
+            if l and any(k in l for k in extra_kw):
+                v = to_numeric_array(df.iloc[i, c0:c0 + 4], 4)
+                log(f"   r{i:03d} {df.iloc[i, label_col]!r}  πρώτες τιμές={nan_to_none_list(v)}")
+
     log(f"\n--- {CAT_RESMV} ---")
     c = fetch_admie_file(CAT_RESMV, d)
     if c:
         df = pd.read_excel(io.BytesIO(c))
-        log(f"shape={df.shape} στήλες={list(df.columns)}")
+        log(f"shape={df.shape}")
+        log(df.iloc[:, :6].to_string())
+
     log(f"\n--- {CAT_RESERVOIR} ---")
     c = fetch_admie_file(CAT_RESERVOIR, d)
     if c:
-        xls = pd.ExcelFile(io.BytesIO(c))
-        df = xls.parse(xls.sheet_names[0], header=None)
-        log(f"φύλλα: {xls.sheet_names} shape={df.shape}")
-        log(df.head(40).to_string())
+        parsed = parse_reservoir(c)
+        log(f"επίσημο total = {parsed[1] if parsed else None}")
+
     log("\n--- ENTSO-E ---")
-    if ENTSOE_TOKEN:
-        start, end = entsoe_window(d)
-        r = http_get(ENTSOE_URL, params={
-            "securityToken": ENTSOE_TOKEN, "documentType": "A44",
-            "in_Domain": ENTSOE_GR, "out_Domain": ENTSOE_GR,
-            "periodStart": start.strftime("%Y%m%d%H%M"), "periodEnd": end.strftime("%Y%m%d%H%M")},
-            what="ENTSO-E", use_session=False)
-        if r is not None and r.status_code == 200:
-            res = re.findall(r"<resolution>(.*?)</resolution>", r.text)
-            pts = len(re.findall(r"<Point>", r.text))
-            log(f"resolution={sorted(set(res))} points={pts}")
-        else:
-            log(f"HTTP {getattr(r, 'status_code', None)}")
-    else:
+    if not ENTSOE_TOKEN:
         log("δεν υπάρχει ENTSOE_TOKEN")
+        return
+    start, end = entsoe_window(d)
+    log(f"παράθυρο αιτήματος (UTC): {start:%Y-%m-%d %H:%M} -> {end:%Y-%m-%d %H:%M}")
+    r = http_get(ENTSOE_URL, params={
+        "securityToken": ENTSOE_TOKEN, "documentType": "A44",
+        "in_Domain": ENTSOE_GR, "out_Domain": ENTSOE_GR,
+        "periodStart": start.strftime("%Y%m%d%H%M"), "periodEnd": end.strftime("%Y%m%d%H%M")},
+        what="ENTSO-E", use_session=False)
+    if r is None or r.status_code != 200:
+        log(f"HTTP {getattr(r, 'status_code', None)}")
+        return
+    _entsoe_structure(r.text)
+    hourly = parse_entsoe_xml(r.text, start)
+    log(f"ωριαίες τιμές όπως τις βγάζει το pipeline: {hourly}")
 
 
 # ============================================================
