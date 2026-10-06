@@ -704,10 +704,16 @@ def diagnose(d):
         log(f"επίσημο total = {parsed[1] if parsed else None}")
 
     log(f"\n--- {CAT_RESMV} ---")
+    pv_resmv = scada_res = None
     c = fetch_admie_file(CAT_RESMV, d)
     if c:
         small = parse_resmv(c)
         log(f"ΜΥΗΣ MWh ανά ώρα: {small}")
+        rdf = pd.read_excel(io.BytesIO(c))
+        pcols = [col for col in rdf.columns if "Φ/Β ΕΝΕΡΓΕΙΑ" in norm(col)]
+        if pcols:
+            pv = pd.to_numeric(rdf[pcols[0]], errors="coerce").dropna().to_numpy(dtype=float)[:24]
+            pv_resmv = nan_to_none_list(pv / 1000.0)
 
     log("\n--- ENTSO-E ---")
     mcp_market = mcp_local = None
@@ -758,10 +764,28 @@ def diagnose(d):
             pi, _ = find_row(labels, ["TOTAL PUMPING"])
             if pi is not None:
                 pumps["scada"] = nan_to_none_list(to_numeric_array(df.iloc[pi, SCADA_H0:SCADA_H1], 24))
+            ti, _ = find_row(labels, ["TOTAL HYDRO"])
+            matched = [find_row(labels, names, exclude=("PUMP", "ΑΝΤΛ"))[0] for _k, names, _i in HYDRO_UNITS]
+            matched = [m for m in matched if m is not None]
+            if ti is not None and matched:
+                log("υδροηλεκτρικό μπλοκ (όλες οι γραμμές, [m] = έχει αντιστοιχιστεί σε μονάδα):")
+                for i in range(max(0, min(matched) - 3), ti + 1):
+                    v = to_numeric_array(df.iloc[i, SCADA_H0:SCADA_H0 + 4], 4)
+                    log(f"   r{i:03d} {'[m]' if i in matched else '   '} {df.iloc[i, label_col]!r} -> {nan_to_none_list(v)}")
+                tot = to_numeric_array(df.iloc[ti, SCADA_H0:SCADA_H1], 24)
+                ssum = np.nansum([to_numeric_array(df.iloc[m, SCADA_H0:SCADA_H1], 24) for m in matched], axis=0)
+                log(f"TOTAL HYDRO - Σ(αντιστοιχισμένες μονάδες), ανά ώρα: {nan_to_none_list(tot - ssum)}")
+            ri, _ = find_row(labels, ["TOTAL RES"])
+            if ri is not None:
+                scada_res = nan_to_none_list(to_numeric_array(df.iloc[ri, SCADA_H0:SCADA_H1], 24))
         else:
             hp = _isp_rows_to_hourly(df, labels, ISP_PUMP_UNITS, exact_only=True)
             if hp is not None:
                 pumps["isp"] = nan_to_none_list(-hp)
+
+    log("\n--- ΕΛΕΓΧΟΣ ΩΡΩΝ RESMV: Φ/Β του RESMV (MWh) vs TOTAL RES του SCADA (MW) ---")
+    log(f"RESMV Φ/Β : {pv_resmv}")
+    log(f"SCADA RES : {scada_res}")
 
     log("\n--- ΕΛΕΓΧΟΣ ΩΡΩΝ: η άντληση πρέπει να τρέχει μόνο στις ώρες με αρνητική τιμή ---")
     log(" H   SCADA_pump  ISP_pump   MCP(ώρες αγοράς/CET)   MCP(ώρες Ελλάδας)")
