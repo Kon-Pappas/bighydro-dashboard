@@ -2,50 +2,50 @@
  "Schema": 3,
  "Month": "2026-07",
  "Clock": "Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time and are shifted +1 h by the pipeline.",
- "DaysCount": 15,
+ "DaysCount": 31,
  "Totals": {
   "SCADA_MWh": {
-   "Kremasta": 33886.0,
-   "Kastraki": 22959.0,
-   "Stratos1": 7104.0,
+   "Kremasta": 73716.0,
+   "Kastraki": 50138.0,
+   "Stratos1": 16522.0,
    "Ilarionas": 0.0,
-   "Polyfyto": 32575.0,
-   "Sfikia": 20759.0,
-   "Asomata": 10209.0,
-   "Thesavros": 32101.0,
-   "Platanovrysi": 11650.0,
-   "PAoou": 4583.0,
-   "Pournari1": 6363.0,
-   "Pournari2": 609.0,
-   "Agras": 906.0,
+   "Polyfyto": 66998.0,
+   "Sfikia": 45290.0,
+   "Asomata": 20751.0,
+   "Thesavros": 60412.0,
+   "Platanovrysi": 21609.0,
+   "PAoou": 9142.0,
+   "Pournari1": 14016.0,
+   "Pournari2": 1439.0,
+   "Agras": 1653.0,
    "Edessaios": 0.0,
-   "Ladonas": 6081.0,
-   "Plastiras": 27723.0
+   "Ladonas": 13815.0,
+   "Plastiras": 58225.0
   },
   "ISP_MWh": {
-   "Kremasta": 35394.0,
-   "Kastraki": 23863.0,
-   "Stratos1": 7693.8,
+   "Kremasta": 76859.4,
+   "Kastraki": 51849.9,
+   "Stratos1": 17191.6,
    "Ilarionas": 0.0,
-   "Polyfyto": 35586.0,
-   "Sfikia": 18666.0,
-   "Asomata": 10856.2,
-   "Thesavros": 36619.3,
-   "Platanovrysi": 11496.5,
-   "PAoou": 5055.2,
-   "Pournari1": 8302.1,
-   "Pournari2": 796.8,
-   "Agras": 780.0,
-   "Edessaios": 572.0,
-   "Ladonas": 6302.2,
-   "Plastiras": 27603.4
+   "Polyfyto": 72565.8,
+   "Sfikia": 39890.7,
+   "Asomata": 22171.4,
+   "Thesavros": 66937.3,
+   "Platanovrysi": 22697.6,
+   "PAoou": 10694.5,
+   "Pournari1": 16822.5,
+   "Pournari2": 1581.9,
+   "Agras": 1430.0,
+   "Edessaios": 1014.0,
+   "Ladonas": 14810.8,
+   "Plastiras": 59284.9
   },
-  "SCADA_OtherHydro_MWh": 7337.0,
-  "SCADA_TotalHydro_MWh": 224845.0,
-  "SmallHydro_MWh": 15789.1,
+  "SCADA_OtherHydro_MWh": 14739.0,
+  "SCADA_TotalHydro_MWh": 468465.0,
+  "SmallHydro_MWh": 29009.9,
   "Pump_MWh": {
-   "SCADA": 22078.0,
-   "ISP": 23174.7
+   "SCADA": 47497.0,
+   "ISP": 44750.3
   }
  },
  "Days": [
@@ -1000,6 +1000,1030 @@
    "Reservoir": {
     "official": 69.36,
     "mean14": 68.179
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-16",
+   "SCADA_MWh": {
+    "Kremasta": 2982.0,
+    "Kastraki": 1680.0,
+    "Stratos1": 573.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2603.0,
+    "Sfikia": 1612.0,
+    "Asomata": 709.0,
+    "Thesavros": 3448.0,
+    "Platanovrysi": 1028.0,
+    "PAoou": 376.0,
+    "Pournari1": 619.0,
+    "Pournari2": 71.0,
+    "Agras": 48.0,
+    "Edessaios": 0.0,
+    "Ladonas": 432.0,
+    "Plastiras": 2106.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2705.7,
+    "Kastraki": 1552.0,
+    "Stratos1": 506.2,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2747.0,
+    "Sfikia": 1652.2,
+    "Asomata": 791.5,
+    "Thesavros": 4253.1,
+    "Platanovrysi": 1061.4,
+    "PAoou": 283.9,
+    "Pournari1": 604.8,
+    "Pournari2": 52.6,
+    "Agras": 52.0,
+    "Edessaios": 39.0,
+    "Ladonas": 435.0,
+    "Plastiras": 2097.0
+   },
+   "SCADA_OtherHydro_MWh": 489.0,
+   "SCADA_TotalHydro_MWh": 18776.0,
+   "SmallHydro_MWh": 949.1,
+   "Pump_MWh": {
+    "SCADA": 1019.0,
+    "ISP": 1032.5
+   },
+   "MCP": {
+    "mean": 141.87,
+    "min": 11.88,
+    "max": 230.03,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 69.03,
+    "mean14": 68.8
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-17",
+   "SCADA_MWh": {
+    "Kremasta": 3044.0,
+    "Kastraki": 1817.0,
+    "Stratos1": 713.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 1951.0,
+    "Sfikia": 1164.0,
+    "Asomata": 680.0,
+    "Thesavros": 1925.0,
+    "Platanovrysi": 858.0,
+    "PAoou": 273.0,
+    "Pournari1": 388.0,
+    "Pournari2": 34.0,
+    "Agras": 54.0,
+    "Edessaios": 0.0,
+    "Ladonas": 421.0,
+    "Plastiras": 2110.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2754.3,
+    "Kastraki": 1733.9,
+    "Stratos1": 662.5,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2297.9,
+    "Sfikia": 1149.0,
+    "Asomata": 760.2,
+    "Thesavros": 1964.0,
+    "Platanovrysi": 852.2,
+    "PAoou": 226.2,
+    "Pournari1": 537.5,
+    "Pournari2": 31.0,
+    "Agras": 52.0,
+    "Edessaios": 39.0,
+    "Ladonas": 430.2,
+    "Plastiras": 2097.0
+   },
+   "SCADA_OtherHydro_MWh": 491.0,
+   "SCADA_TotalHydro_MWh": 15923.0,
+   "SmallHydro_MWh": 955.9,
+   "Pump_MWh": {
+    "SCADA": 1425.0,
+    "ISP": 2156.1
+   },
+   "MCP": {
+    "mean": 136.66,
+    "min": 39.67,
+    "max": 198.33,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 68.69,
+    "mean14": 70.796
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-18",
+   "SCADA_MWh": {
+    "Kremasta": 3084.0,
+    "Kastraki": 2238.0,
+    "Stratos1": 860.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2564.0,
+    "Sfikia": 1789.0,
+    "Asomata": 754.0,
+    "Thesavros": 2388.0,
+    "Platanovrysi": 849.0,
+    "PAoou": 464.0,
+    "Pournari1": 677.0,
+    "Pournari2": 89.0,
+    "Agras": 48.0,
+    "Edessaios": 0.0,
+    "Ladonas": 555.0,
+    "Plastiras": 2173.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2800.0,
+    "Kastraki": 2129.0,
+    "Stratos1": 883.6,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2501.1,
+    "Sfikia": 1751.7,
+    "Asomata": 863.0,
+    "Thesavros": 2711.6,
+    "Platanovrysi": 861.8,
+    "PAoou": 891.8,
+    "Pournari1": 831.5,
+    "Pournari2": 72.8,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 582.7,
+    "Plastiras": 2177.5
+   },
+   "SCADA_OtherHydro_MWh": 494.0,
+   "SCADA_TotalHydro_MWh": 19026.0,
+   "SmallHydro_MWh": 951.3,
+   "Pump_MWh": {
+    "SCADA": 2737.0,
+    "ISP": 1960.0
+   },
+   "MCP": {
+    "mean": 101.64,
+    "min": 8.16,
+    "max": 187.48,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 68.33,
+    "mean14": 69.054
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-19",
+   "SCADA_MWh": {
+    "Kremasta": 2462.0,
+    "Kastraki": 1633.0,
+    "Stratos1": 541.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2292.0,
+    "Sfikia": 1619.0,
+    "Asomata": 723.0,
+    "Thesavros": 1241.0,
+    "Platanovrysi": 502.0,
+    "PAoou": 351.0,
+    "Pournari1": 527.0,
+    "Pournari2": 62.0,
+    "Agras": 43.0,
+    "Edessaios": 0.0,
+    "Ladonas": 575.0,
+    "Plastiras": 2217.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2355.6,
+    "Kastraki": 1773.7,
+    "Stratos1": 582.5,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2298.7,
+    "Sfikia": 1505.8,
+    "Asomata": 843.5,
+    "Thesavros": 1832.0,
+    "Platanovrysi": 568.0,
+    "PAoou": 997.3,
+    "Pournari1": 834.0,
+    "Pournari2": 95.6,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 616.9,
+    "Plastiras": 2206.0
+   },
+   "SCADA_OtherHydro_MWh": 500.0,
+   "SCADA_TotalHydro_MWh": 15288.0,
+   "SmallHydro_MWh": 935.3,
+   "Pump_MWh": {
+    "SCADA": 2282.0,
+    "ISP": 1383.8
+   },
+   "MCP": {
+    "mean": 87.02,
+    "min": 0.04,
+    "max": 156.77,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 67.16,
+    "mean14": 66.895
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-20",
+   "SCADA_MWh": {
+    "Kremasta": 2452.0,
+    "Kastraki": 1577.0,
+    "Stratos1": 527.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2082.0,
+    "Sfikia": 1644.0,
+    "Asomata": 709.0,
+    "Thesavros": 2323.0,
+    "Platanovrysi": 841.0,
+    "PAoou": 442.0,
+    "Pournari1": 743.0,
+    "Pournari2": 97.0,
+    "Agras": 49.0,
+    "Edessaios": 0.0,
+    "Ladonas": 590.0,
+    "Plastiras": 2214.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2688.7,
+    "Kastraki": 1970.0,
+    "Stratos1": 600.9,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2228.2,
+    "Sfikia": 1402.9,
+    "Asomata": 740.0,
+    "Thesavros": 2417.1,
+    "Platanovrysi": 862.2,
+    "PAoou": 591.5,
+    "Pournari1": 756.9,
+    "Pournari2": 68.7,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 615.0,
+    "Plastiras": 2206.0
+   },
+   "SCADA_OtherHydro_MWh": 496.0,
+   "SCADA_TotalHydro_MWh": 16786.0,
+   "SmallHydro_MWh": 887.0,
+   "Pump_MWh": {
+    "SCADA": 1548.0,
+    "ISP": 1771.2
+   },
+   "MCP": {
+    "mean": 123.77,
+    "min": 42.59,
+    "max": 190.27,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 66.86,
+    "mean14": 66.431
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-21",
+   "SCADA_MWh": {
+    "Kremasta": 2692.0,
+    "Kastraki": 1937.0,
+    "Stratos1": 786.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2419.0,
+    "Sfikia": 1973.0,
+    "Asomata": 643.0,
+    "Thesavros": 2344.0,
+    "Platanovrysi": 784.0,
+    "PAoou": 250.0,
+    "Pournari1": 512.0,
+    "Pournari2": 45.0,
+    "Agras": 48.0,
+    "Edessaios": 0.0,
+    "Ladonas": 639.0,
+    "Plastiras": 2215.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2880.0,
+    "Kastraki": 2021.1,
+    "Stratos1": 1026.6,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2553.4,
+    "Sfikia": 1840.8,
+    "Asomata": 689.2,
+    "Thesavros": 2377.7,
+    "Platanovrysi": 830.3,
+    "PAoou": 225.0,
+    "Pournari1": 624.9,
+    "Pournari2": 77.2,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 622.5,
+    "Plastiras": 2206.0
+   },
+   "SCADA_OtherHydro_MWh": 456.0,
+   "SCADA_TotalHydro_MWh": 17743.0,
+   "SmallHydro_MWh": 881.2,
+   "Pump_MWh": {
+    "SCADA": 1625.0,
+    "ISP": 971.2
+   },
+   "MCP": {
+    "mean": 142.3,
+    "min": 63.55,
+    "max": 216.5,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 66.51,
+    "mean14": 65.996
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-22",
+   "SCADA_MWh": {
+    "Kremasta": 2257.0,
+    "Kastraki": 2598.0,
+    "Stratos1": 688.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2017.0,
+    "Sfikia": 1091.0,
+    "Asomata": 728.0,
+    "Thesavros": 1734.0,
+    "Platanovrysi": 525.0,
+    "PAoou": 315.0,
+    "Pournari1": 362.0,
+    "Pournari2": 35.0,
+    "Agras": 48.0,
+    "Edessaios": 0.0,
+    "Ladonas": 422.0,
+    "Plastiras": 2213.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2413.3,
+    "Kastraki": 2006.7,
+    "Stratos1": 633.3,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2208.5,
+    "Sfikia": 1186.7,
+    "Asomata": 645.0,
+    "Thesavros": 1555.3,
+    "Platanovrysi": 513.0,
+    "PAoou": 243.8,
+    "Pournari1": 424.8,
+    "Pournari2": 52.4,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 420.0,
+    "Plastiras": 2206.0
+   },
+   "SCADA_OtherHydro_MWh": 486.0,
+   "SCADA_TotalHydro_MWh": 15519.0,
+   "SmallHydro_MWh": 877.6,
+   "Pump_MWh": {
+    "SCADA": 362.0,
+    "ISP": 1422.5
+   },
+   "MCP": {
+    "mean": 116.49,
+    "min": 47.7,
+    "max": 162.92,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 66.14,
+    "mean14": 66.345
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-23",
+   "SCADA_MWh": {
+    "Kremasta": 2017.0,
+    "Kastraki": 1926.0,
+    "Stratos1": 707.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 1951.0,
+    "Sfikia": 1737.0,
+    "Asomata": 657.0,
+    "Thesavros": 1673.0,
+    "Platanovrysi": 448.0,
+    "PAoou": 188.0,
+    "Pournari1": 372.0,
+    "Pournari2": 32.0,
+    "Agras": 49.0,
+    "Edessaios": 0.0,
+    "Ladonas": 434.0,
+    "Plastiras": 2208.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2802.3,
+    "Kastraki": 2151.0,
+    "Stratos1": 733.8,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2223.8,
+    "Sfikia": 1120.3,
+    "Asomata": 684.0,
+    "Thesavros": 1680.3,
+    "Platanovrysi": 771.0,
+    "PAoou": 287.5,
+    "Pournari1": 381.4,
+    "Pournari2": 58.6,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 525.0,
+    "Plastiras": 2206.0
+   },
+   "SCADA_OtherHydro_MWh": 476.0,
+   "SCADA_TotalHydro_MWh": 14875.0,
+   "SmallHydro_MWh": 851.8,
+   "Pump_MWh": {
+    "SCADA": 2927.0,
+    "ISP": 1785.9
+   },
+   "MCP": {
+    "mean": 110.8,
+    "min": 9.21,
+    "max": 190.0,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.79,
+    "mean14": 66.588
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-24",
+   "SCADA_MWh": {
+    "Kremasta": 1505.0,
+    "Kastraki": 1271.0,
+    "Stratos1": 491.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 1772.0,
+    "Sfikia": 1344.0,
+    "Asomata": 669.0,
+    "Thesavros": 1934.0,
+    "Platanovrysi": 658.0,
+    "PAoou": 210.0,
+    "Pournari1": 382.0,
+    "Pournari2": 49.0,
+    "Agras": 44.0,
+    "Edessaios": 0.0,
+    "Ladonas": 494.0,
+    "Plastiras": 1024.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2318.6,
+    "Kastraki": 1675.3,
+    "Stratos1": 516.7,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2286.7,
+    "Sfikia": 1181.4,
+    "Asomata": 677.5,
+    "Thesavros": 1842.5,
+    "Platanovrysi": 786.7,
+    "PAoou": 181.2,
+    "Pournari1": 368.7,
+    "Pournari2": 16.0,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 442.5,
+    "Plastiras": 2206.0
+   },
+   "SCADA_OtherHydro_MWh": 465.0,
+   "SCADA_TotalHydro_MWh": 12312.0,
+   "SmallHydro_MWh": 780.2,
+   "Pump_MWh": {
+    "SCADA": 1980.0,
+    "ISP": 493.8
+   },
+   "MCP": {
+    "mean": 126.1,
+    "min": 72.23,
+    "max": 170.42,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.49,
+    "mean14": 65.799
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-25",
+   "SCADA_MWh": {
+    "Kremasta": 2134.0,
+    "Kastraki": 1260.0,
+    "Stratos1": 333.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 1804.0,
+    "Sfikia": 924.0,
+    "Asomata": 529.0,
+    "Thesavros": 1120.0,
+    "Platanovrysi": 434.0,
+    "PAoou": 62.0,
+    "Pournari1": 360.0,
+    "Pournari2": 32.0,
+    "Agras": 40.0,
+    "Edessaios": 0.0,
+    "Ladonas": 438.0,
+    "Plastiras": 0.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2302.6,
+    "Kastraki": 1422.0,
+    "Stratos1": 398.8,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2208.2,
+    "Sfikia": 872.0,
+    "Asomata": 650.5,
+    "Thesavros": 1211.0,
+    "Platanovrysi": 515.0,
+    "PAoou": 125.0,
+    "Pournari1": 316.8,
+    "Pournari2": 20.0,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 561.2,
+    "Plastiras": 114.0
+   },
+   "SCADA_OtherHydro_MWh": 459.0,
+   "SCADA_TotalHydro_MWh": 9929.0,
+   "SmallHydro_MWh": 706.8,
+   "Pump_MWh": {
+    "SCADA": 1449.0,
+    "ISP": 1456.2
+   },
+   "MCP": {
+    "mean": 78.53,
+    "min": -0.02,
+    "max": 164.68,
+    "negative_hours": 7,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.23,
+    "mean14": 63.834
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-26",
+   "SCADA_MWh": {
+    "Kremasta": 2628.0,
+    "Kastraki": 1219.0,
+    "Stratos1": 423.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2092.0,
+    "Sfikia": 1188.0,
+    "Asomata": 546.0,
+    "Thesavros": 1731.0,
+    "Platanovrysi": 446.0,
+    "PAoou": 276.0,
+    "Pournari1": 480.0,
+    "Pournari2": 58.0,
+    "Agras": 46.0,
+    "Edessaios": 0.0,
+    "Ladonas": 405.0,
+    "Plastiras": 0.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2598.2,
+    "Kastraki": 1687.7,
+    "Stratos1": 435.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2284.0,
+    "Sfikia": 1031.8,
+    "Asomata": 624.0,
+    "Thesavros": 1651.5,
+    "Platanovrysi": 470.9,
+    "PAoou": 262.5,
+    "Pournari1": 473.0,
+    "Pournari2": 16.0,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 460.6,
+    "Plastiras": 0.0
+   },
+   "SCADA_OtherHydro_MWh": 477.0,
+   "SCADA_TotalHydro_MWh": 12015.0,
+   "SmallHydro_MWh": 679.2,
+   "Pump_MWh": {
+    "SCADA": 1424.0,
+    "ISP": 1410.0
+   },
+   "MCP": {
+    "mean": 82.67,
+    "min": -0.01,
+    "max": 160.0,
+    "negative_hours": 7,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.8,
+    "mean14": 64.628
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-27",
+   "SCADA_MWh": {
+    "Kremasta": 2161.0,
+    "Kastraki": 1241.0,
+    "Stratos1": 438.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 1937.0,
+    "Sfikia": 1309.0,
+    "Asomata": 612.0,
+    "Thesavros": 899.0,
+    "Platanovrysi": 437.0,
+    "PAoou": 191.0,
+    "Pournari1": 303.0,
+    "Pournari2": 22.0,
+    "Agras": 49.0,
+    "Edessaios": 0.0,
+    "Ladonas": 410.0,
+    "Plastiras": 2092.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2343.2,
+    "Kastraki": 1373.8,
+    "Stratos1": 411.2,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2221.5,
+    "Sfikia": 1097.9,
+    "Asomata": 644.0,
+    "Thesavros": 1067.2,
+    "Platanovrysi": 519.0,
+    "PAoou": 200.0,
+    "Pournari1": 361.0,
+    "Pournari2": 23.1,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 486.7,
+    "Plastiras": 2088.0
+   },
+   "SCADA_OtherHydro_MWh": 478.0,
+   "SCADA_TotalHydro_MWh": 12579.0,
+   "SmallHydro_MWh": 698.3,
+   "Pump_MWh": {
+    "SCADA": 209.0,
+    "ISP": 495.0
+   },
+   "MCP": {
+    "mean": 100.73,
+    "min": 10.39,
+    "max": 167.66,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.56,
+    "mean14": 65.476
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-28",
+   "SCADA_MWh": {
+    "Kremasta": 2743.0,
+    "Kastraki": 1498.0,
+    "Stratos1": 553.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2269.0,
+    "Sfikia": 1508.0,
+    "Asomata": 646.0,
+    "Thesavros": 1078.0,
+    "Platanovrysi": 470.0,
+    "PAoou": 264.0,
+    "Pournari1": 449.0,
+    "Pournari2": 31.0,
+    "Agras": 50.0,
+    "Edessaios": 0.0,
+    "Ladonas": 524.0,
+    "Plastiras": 2489.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2605.1,
+    "Kastraki": 1478.6,
+    "Stratos1": 445.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2279.0,
+    "Sfikia": 1278.2,
+    "Asomata": 664.1,
+    "Thesavros": 1367.5,
+    "Platanovrysi": 728.0,
+    "PAoou": 262.5,
+    "Pournari1": 425.6,
+    "Pournari2": 46.8,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 584.7,
+    "Plastiras": 2468.0
+   },
+   "SCADA_OtherHydro_MWh": 463.0,
+   "SCADA_TotalHydro_MWh": 15035.0,
+   "SmallHydro_MWh": 716.1,
+   "Pump_MWh": {
+    "SCADA": 845.0,
+    "ISP": 412.5
+   },
+   "MCP": {
+    "mean": 106.47,
+    "min": 4.98,
+    "max": 217.95,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.29,
+    "mean14": 64.749
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-29",
+   "SCADA_MWh": {
+    "Kremasta": 2868.0,
+    "Kastraki": 2264.0,
+    "Stratos1": 577.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2454.0,
+    "Sfikia": 1465.0,
+    "Asomata": 656.0,
+    "Thesavros": 1717.0,
+    "Platanovrysi": 636.0,
+    "PAoou": 393.0,
+    "Pournari1": 529.0,
+    "Pournari2": 67.0,
+    "Agras": 49.0,
+    "Edessaios": 0.0,
+    "Ladonas": 508.0,
+    "Plastiras": 2487.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2539.2,
+    "Kastraki": 1945.6,
+    "Stratos1": 521.4,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2184.5,
+    "Sfikia": 1188.0,
+    "Asomata": 709.0,
+    "Thesavros": 1752.0,
+    "Platanovrysi": 586.3,
+    "PAoou": 281.2,
+    "Pournari1": 530.5,
+    "Pournari2": 60.4,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 584.2,
+    "Plastiras": 2468.0
+   },
+   "SCADA_OtherHydro_MWh": 461.0,
+   "SCADA_TotalHydro_MWh": 17131.0,
+   "SmallHydro_MWh": 754.5,
+   "Pump_MWh": {
+    "SCADA": 1723.0,
+    "ISP": 1786.2
+   },
+   "MCP": {
+    "mean": 96.06,
+    "min": 0.0,
+    "max": 173.92,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 65.0,
+    "mean14": 65.64
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-30",
+   "SCADA_MWh": {
+    "Kremasta": 2539.0,
+    "Kastraki": 1590.0,
+    "Stratos1": 728.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2048.0,
+    "Sfikia": 1873.0,
+    "Asomata": 637.0,
+    "Thesavros": 1115.0,
+    "Platanovrysi": 592.0,
+    "PAoou": 270.0,
+    "Pournari1": 461.0,
+    "Pournari2": 48.0,
+    "Agras": 41.0,
+    "Edessaios": 0.0,
+    "Ladonas": 437.0,
+    "Plastiras": 2480.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2834.7,
+    "Kastraki": 1463.5,
+    "Stratos1": 667.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2202.8,
+    "Sfikia": 1337.7,
+    "Asomata": 671.5,
+    "Thesavros": 1322.7,
+    "Platanovrysi": 690.1,
+    "PAoou": 330.2,
+    "Pournari1": 505.2,
+    "Pournari2": 47.5,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 593.4,
+    "Plastiras": 2468.0
+   },
+   "SCADA_OtherHydro_MWh": 381.0,
+   "SCADA_TotalHydro_MWh": 15240.0,
+   "SmallHydro_MWh": 787.5,
+   "Pump_MWh": {
+    "SCADA": 1712.0,
+    "ISP": 1407.5
+   },
+   "MCP": {
+    "mean": 93.04,
+    "min": -0.01,
+    "max": 167.51,
+    "negative_hours": 7,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 64.65,
+    "mean14": 67.405
+   },
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-07-31",
+   "SCADA_MWh": {
+    "Kremasta": 2262.0,
+    "Kastraki": 1430.0,
+    "Stratos1": 480.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2168.0,
+    "Sfikia": 2291.0,
+    "Asomata": 644.0,
+    "Thesavros": 1641.0,
+    "Platanovrysi": 451.0,
+    "PAoou": 234.0,
+    "Pournari1": 489.0,
+    "Pournari2": 58.0,
+    "Agras": 41.0,
+    "Edessaios": 0.0,
+    "Ladonas": 450.0,
+    "Plastiras": 2474.0
+   },
+   "ISP_MWh": {
+    "Kremasta": 2523.9,
+    "Kastraki": 1603.0,
+    "Stratos1": 473.3,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2254.5,
+    "Sfikia": 1628.3,
+    "Asomata": 658.2,
+    "Thesavros": 1312.5,
+    "Platanovrysi": 585.2,
+    "PAoou": 249.7,
+    "Pournari1": 543.8,
+    "Pournari2": 46.4,
+    "Agras": 39.0,
+    "Edessaios": 26.0,
+    "Ladonas": 548.0,
+    "Plastiras": 2468.0
+   },
+   "SCADA_OtherHydro_MWh": 330.0,
+   "SCADA_TotalHydro_MWh": 15443.0,
+   "SmallHydro_MWh": 809.0,
+   "Pump_MWh": {
+    "SCADA": 2152.0,
+    "ISP": 1631.2
+   },
+   "MCP": {
+    "mean": 90.92,
+    "min": -0.01,
+    "max": 155.19,
+    "negative_hours": 7,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": 64.31,
+    "mean14": 66.666
    },
    "Status": {
     "reservoir": "ok",
