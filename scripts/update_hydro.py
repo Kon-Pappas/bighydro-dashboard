@@ -1,28 +1,40 @@
 #!/usr/bin/env python3
 """
-BigHydro pipeline v2
+BigHydro pipeline v3
 ====================
 
-Ενοποιεί:
+Πηγές -> πεδία:
   * Reservoir (ADMIE ReservoirFillingRate)  -> Reservoir, ReservoirTotal, ReservoirTotalRate
-  * SCADA     (ADMIE SystemRealizationSCADA) -> Hourly SCADA_*
+  * SCADA     (ADMIE SystemRealizationSCADA) -> Hourly SCADA_*  (+ SCADA_OtherHydro, SCADA_TotalHydro)
   * ISP       (ADMIE ISP2ISPResults)         -> Hourly ISP_*
   * RESMV     (ADMIE RESMV)                  -> Hourly SCADA_SmallHydro
   * MCP       (ENTSO-E day-ahead, GR)        -> Hourly MCP_GR
 
+ΡΟΛΟΙ (επαληθευμένο με δεδομένα 15/9-6/10/2026):
+  * SCADA, RESMV: ώρα Ελλάδας.   * ISP, ΤΙΜΕΣ: ώρα αγοράς (CET) = ώρα Ελλάδας - 1.
+  Το pipeline αποθηκεύει ΟΛΑ σε ώρα Ελλάδας (H01 = 00:00-01:00 τοπική).
+  Το ISP μετατοπίζεται +1 ώρα (H01 = τελευταία ώρα αγοράς της προηγούμενης ημέρας),
+  γι' αυτό κατεβαίνει και το αρχείο ISP της D-1.  Το MCP ζητείται απευθείας με παράθυρο ώρας Ελλάδας.
+
+ΑΠΟΘΗΚΕΥΣΗ:
+  data/days/YYYY-MM-DD.json      μία εγγραφή ανά ημέρα (raw ωριαία)
+  data/index.json                διαθέσιμες ημέρες + κατάσταση πηγών
+  data/reservoir_history.json    ιστορικό ταμιευτήρων (αύξουσα σειρά)
+  data/monthly/YYYY-MM.json      ημερήσια/μηνιαία αθροίσματα (MWh) για reports
+
 Χρήση:
-  python scripts/update_hydro.py                      # τελευταίες 4 ημέρες (σήμερα-3 .. σήμερα)
-  python scripts/update_hydro.py 2026-09-16           # μία ημέρα
-  python scripts/update_hydro.py 2026-09-16 2026-09-24  # backfill
-  python scripts/update_hydro.py --diagnose 2026-10-04  # δεν γράφει JSON, δείχνει τη δομή των αρχείων
+  python scripts/update_hydro.py                        # τελευταίες 4 ημέρες (σήμερα-3 .. σήμερα)
+  python scripts/update_hydro.py 2026-09-16             # μία ημέρα
+  python scripts/update_hydro.py 2026-09-16 2026-09-30  # backfill (προτείνεται ανά 15 ημέρες)
+  python scripts/update_hydro.py --diagnose 2026-10-04  # δεν γράφει τίποτα, δείχνει τη δομή των αρχείων
 
 Env (GitHub Actions): START_DATE, END_DATE, ENTSOE_TOKEN
 
 Κανόνες:
-  * null  = δεν υπάρχει τιμή (δεν βρέθηκε αρχείο / μονάδα / ώρα)
-  * 0     = πραγματικό μηδέν
-  * Ένα source που αποτυγχάνει ΔΕΝ σβήνει όσα υπήρχαν ήδη στο JSON (merge, όχι overwrite).
-  * Αν το υπάρχον JSON δεν διαβάζεται, το script σταματά (δεν το αντικαθιστά με κενό).
+  * null  = δεν υπάρχει τιμή (δεν βρέθηκε αρχείο / μονάδα / ώρα).   0 = πραγματικό μηδέν.
+  * Ένα source που αποτυγχάνει ΔΕΝ σβήνει όσα υπήρχαν ήδη (merge, όχι overwrite).
+  * Αν ένα υπάρχον αρχείο ημέρας δεν διαβάζεται, το script σταματά (δεν το αντικαθιστά).
+  * Ημέρες αλλαγής ώρας (23/25 ώρες): κρατούνται οι πρώτες 24 ώρες (γνωστός περιορισμός).
 """
 
 import io
@@ -50,7 +62,16 @@ warnings.filterwarnings("ignore", message="Workbook contains no default style")
 
 BASE_URL = "https://www.admie.gr"
 API_FILES = BASE_URL + "/getOperationMarketFile"
-OUTPUT_FILE = "data/hydro_data.json"
+DATA_DIR = "data"
+DAYS_DIR = os.path.join(DATA_DIR, "days")
+MONTHLY_DIR = os.path.join(DATA_DIR, "monthly")
+INDEX_FILE = os.path.join(DATA_DIR, "index.json")
+RES_HISTORY_FILE = os.path.join(DATA_DIR, "reservoir_history.json")
+SCHEMA_VERSION = 3
+RECON_TOL = 3.0          # MW: ανοχή TOTAL HYDRO έναντι αθροίσματος μονάδων (το SCADA δημοσιεύει ακέραια MW)
+CLOCK_NOTE = ("Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. "
+              "SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time "
+              "and are shifted +1 h by the pipeline.")
 TIMEOUT = 60
 LOOKBACK_DAYS = 4                      # default run: σήμερα-3 .. σήμερα
 ATHENS = ZoneInfo("Europe/Athens")
@@ -89,6 +110,15 @@ HYDRO_UNITS = [
     ("Plastiras",    ["ΠΛΑΣΤΗΡΑΣ"],                                 ["PLASTIRAS"]),
 ]
 UNIT_KEYS = [u[0] for u in HYDRO_UNITS]
+
+# Μικρά υδροηλεκτρικά που υπάρχουν στο SCADA (και στο TOTAL HYDRO) αλλά ΟΧΙ στο ISP.
+# Αποθηκεύονται αθροιστικά ως SCADA_OtherHydro.
+OTHER_HYDRO_SCADA = [
+    ("Stratos2",   ["ΣΤΡΑΤΟΣ 2"]),
+    ("Makrochori", ["ΜΑΚΡΟΧΩΡΙ"]),
+    ("Louros",     ["ΛΟΥΡΟΣ"]),
+    ("Gkiona",     ["ΓΚΙΩΝΑ"]),
+]
 
 ISP_PUMP_UNITS = ["SFIKIA_PUMP", "THESAVROS1_PUMP", "THESAVROS2_PUMP", "THESAVROS3_PUMP"]
 
@@ -248,8 +278,18 @@ def fetch_admie_file(category, d):
 # PARSERS
 # ============================================================
 
+def _sum_series(arrays):
+    if not arrays:
+        return None
+    stack = np.vstack(arrays)
+    tot = np.nansum(stack, axis=0)
+    tot[np.isnan(stack).all(axis=0)] = np.nan
+    return tot
+
+
 def parse_scada(content):
-    """-> ({unit_key: [24]|None}, pump[24]|None)"""
+    """-> ({unit_key: [24]|None}, pump[24]|None, {"OtherHydro": [24]|None, "TotalHydro": [24]|None})
+    Ώρες: ώρα Ελλάδας (όπως δημοσιεύονται)."""
     df, _ = read_sheet(content, "System_Production")
     labels = [norm(x) for x in df[SCADA_LABEL_COL]] if df.shape[1] > SCADA_LABEL_COL else []
     out, missing = {}, []
@@ -270,7 +310,43 @@ def parse_scada(content):
         pump = nan_to_none_list(to_numeric_array(df.iloc[pidx, SCADA_H0:SCADA_H1], 24))
     else:
         log("   ! SCADA: δεν βρέθηκε γραμμή 'TOTAL PUMPING'")
-    return out, pump
+
+    # άλλα υδροηλεκτρικά (δεν υπάρχουν στο ISP)
+    arrs, miss_o = [], []
+    for key, aliases in OTHER_HYDRO_SCADA:
+        idx, _ = find_row(labels, aliases, contains=False)
+        if idx is None:
+            miss_o.append(key)
+        else:
+            arrs.append(to_numeric_array(df.iloc[idx, SCADA_H0:SCADA_H1], 24))
+    if miss_o:
+        log_not_found("SCADA άλλα υδροηλεκτρικά", miss_o, labels)
+    other = _sum_series(arrs)
+
+    tidx, _ = find_row(labels, ["TOTAL HYDRO"], contains=False)
+    total = None
+    if tidx is None:
+        log("   ! SCADA: δεν βρέθηκε γραμμή 'TOTAL HYDRO'")
+    else:
+        total = to_numeric_array(df.iloc[tidx, SCADA_H0:SCADA_H1], 24)
+        # συμφωνία: TOTAL HYDRO ~ Σ(16 μονάδες) + άλλα υδροηλεκτρικά
+        worst, worst_h = 0.0, None
+        for h in range(24):
+            if np.isnan(total[h]):
+                continue
+            ssum = sum(v[h] for v in out.values() if v is not None and v[h] is not None)
+            ssum += 0.0 if other is None or np.isnan(other[h]) else float(other[h])
+            gap = float(total[h]) - ssum
+            if abs(gap) > abs(worst):
+                worst, worst_h = gap, h
+        if abs(worst) > RECON_TOL:
+            log(f"   ! SCADA TOTAL HYDRO ασυμφωνία: μέγιστη διαφορά {worst:+.1f} MW στην ώρα H{worst_h + 1:02d} "
+                f"(πιθανή νέα/άγνωστη μονάδα στο υδροηλεκτρικό μπλοκ)")
+    extra = {
+        "OtherHydro": None if other is None else nan_to_none_list(other),
+        "TotalHydro": None if total is None else nan_to_none_list(total),
+    }
+    return out, pump, extra
 
 
 def _isp_rows_to_hourly(df, labels, names, exact_only=False):
@@ -439,10 +515,12 @@ def parse_entsoe_xml(text, start_utc):
 
 
 def fetch_mcp(d):
+    """Ωριαίο MCP σε ώρα Ελλάδας: ζητάμε παράθυρο από τα ελληνικά μεσάνυχτα, οπότε το ENTSO-E επιστρέφει
+    και την προηγούμενη ημέρα αγοράς (η H01 της τοπικής ημέρας = τελευταία ώρα αγοράς της D-1)."""
     if not ENTSOE_TOKEN:
         log("   - MCP: δεν υπάρχει ENTSOE_TOKEN, παραλείπεται")
         return None
-    start, end = entsoe_window(d)
+    start, end = entsoe_window(d, ATHENS)
     params = {
         "securityToken": ENTSOE_TOKEN, "documentType": "A44",
         "in_Domain": ENTSOE_GR, "out_Domain": ENTSOE_GR,
@@ -469,22 +547,51 @@ def fetch_mcp(d):
 
 
 # ============================================================
-# JSON: φόρτωση / merge / εγγραφή
+# ΑΠΟΘΗΚΕΥΣΗ: ένα αρχείο ανά ημέρα + παράγωγα
 # ============================================================
 
-def load_existing():
-    if not os.path.exists(OUTPUT_FILE) or os.path.getsize(OUTPUT_FILE) == 0:
-        return []
-    with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
-        data = json.load(f)           # αν σπάσει, σταματάμε: ΔΕΝ γράφουμε από πάνω
-    if not isinstance(data, list):
-        raise ValueError(f"{OUTPUT_FILE}: αναμενόταν λίστα")
-    return data
+def day_path(d):
+    return os.path.join(DAYS_DIR, f"{d.isoformat()}.json")
+
+
+def atomic_write_json(path, obj, indent=2):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=indent)
+        f.write("\n")
+    os.replace(tmp, path)
+
+
+def load_day(d):
+    """Επιστρέφει dict ή None. Αν το αρχείο υπάρχει αλλά είναι χαλασμένο -> exception (σταματάμε)."""
+    p = day_path(d)
+    if not os.path.exists(p) or os.path.getsize(p) == 0:
+        return None
+    with open(p, "r", encoding="utf-8") as f:
+        rec = json.load(f)
+    if not isinstance(rec, dict):
+        raise ValueError(f"{p}: αναμενόταν αντικείμενο")
+    return rec
+
+
+def load_all_days():
+    out = []
+    if os.path.isdir(DAYS_DIR):
+        for name in sorted(os.listdir(DAYS_DIR)):
+            if re.fullmatch(r"\d{4}-\d{2}-\d{2}\.json", name):
+                try:
+                    with open(os.path.join(DAYS_DIR, name), "r", encoding="utf-8") as f:
+                        out.append(json.load(f))
+                except (OSError, ValueError) as e:
+                    log(f"   ! {name}: δεν διαβάζεται ({type(e).__name__}) - παραλείπεται από τα παράγωγα, "
+                        "το αρχείο δεν πειράζεται")
+    return out
 
 
 def blank_row(h):
     row = {"Hour": f"H{h + 1:02d}", "SCADA_Pump": None, "ISP_Pump": None,
-           "SCADA_SmallHydro": None, "MCP_GR": None}
+           "SCADA_SmallHydro": None, "SCADA_OtherHydro": None, "SCADA_TotalHydro": None, "MCP_GR": None}
     for k in UNIT_KEYS:
         row[f"SCADA_{k}"] = None
         row[f"ISP_{k}"] = None
@@ -502,11 +609,34 @@ def build_rows(existing_hourly):
 
 
 def apply_series(rows, key, series):
+    """Γράφει τη σειρά. Μια νέα τιμή null ΔΕΝ σβήνει υπάρχουσα τιμή."""
     if series is None:
         return False
     for h in range(24):
-        rows[h][key] = series[h]
+        if series[h] is not None or rows[h].get(key) is None:
+            rows[h][key] = series[h]
     return True
+
+
+def isp_to_local(cur, prev):
+    """cur/prev: [24] ώρες αγοράς (CET) των ημερών D και D-1 (ή None).
+    -> [24] ώρα Ελλάδας της D:  H01 = τελευταία ώρα αγοράς της D-1,  H02.. = ώρες αγοράς 1..23 της D."""
+    if cur is None:
+        return None
+    first = prev[23] if prev is not None else None
+    return [first] + list(cur[:23])
+
+
+def get_isp(d, cache):
+    if d not in cache:
+        cache[d] = None
+        content = fetch_admie_file(CAT_ISP, d)
+        if content:
+            try:
+                cache[d] = parse_isp(content)
+            except Exception as e:
+                log(f"   ! ISP parse ({d}): {type(e).__name__}: {e}")
+    return cache[d]
 
 
 def _share(values):
@@ -530,9 +660,11 @@ def source_status(rec):
         reservoir = "ok"
     else:
         reservoir = "partial"
+    scada_keys = ([f"SCADA_{k}" for k in UNIT_KEYS]
+                  + ["SCADA_Pump", "SCADA_OtherHydro", "SCADA_TotalHydro"])
     return {
         "reservoir": reservoir,
-        "scada": _share(col([f"SCADA_{k}" for k in UNIT_KEYS] + ["SCADA_Pump"])),
+        "scada": _share(col(scada_keys)),
         "isp": _share(col([f"ISP_{k}" for k in UNIT_KEYS] + ["ISP_Pump"])),
         "resmv": _share(col(["SCADA_SmallHydro"])),
         "mcp": _share(col(["MCP_GR"])),
@@ -552,8 +684,9 @@ def content_key(rec):
     return json.dumps({k: v for k, v in rec.items() if k != "Meta"}, sort_keys=True, ensure_ascii=False)
 
 
-def process_day(d, existing):
+def process_day(d, existing, isp_cache=None):
     """Επιστρέφει (record, got_anything)."""
+    isp_cache = {} if isp_cache is None else isp_cache
     log()
     log("=" * 60)
     log(f"Επεξεργασία: {d}")
@@ -579,49 +712,50 @@ def process_day(d, existing):
         except Exception as e:
             log(f"   ! Reservoir parse: {type(e).__name__}: {e}")
 
-    # --- Hourly sources ---
+    # --- Hourly sources (όλα σε ώρα Ελλάδας) ---
     rows = build_rows(rec.get("Hourly"))
-    hourly_touched = False
+    touched = False
 
     content = fetch_admie_file(CAT_SCADA, d)
     if content:
         try:
-            units, pump = parse_scada(content)
+            units, pump, extra = parse_scada(content)
             for k, series in units.items():
-                hourly_touched |= apply_series(rows, f"SCADA_{k}", series)
-            hourly_touched |= apply_series(rows, "SCADA_Pump", pump)
+                touched |= apply_series(rows, f"SCADA_{k}", series)
+            touched |= apply_series(rows, "SCADA_Pump", pump)
+            touched |= apply_series(rows, "SCADA_OtherHydro", extra["OtherHydro"])
+            touched |= apply_series(rows, "SCADA_TotalHydro", extra["TotalHydro"])
         except Exception as e:
             log(f"   ! SCADA parse: {type(e).__name__}: {e}")
 
-    content = fetch_admie_file(CAT_ISP, d)
-    if content:
-        try:
-            units, pump = parse_isp(content)
-            for k, series in units.items():
-                hourly_touched |= apply_series(rows, f"ISP_{k}", series)
-            hourly_touched |= apply_series(rows, "ISP_Pump", pump)
-        except Exception as e:
-            log(f"   ! ISP parse: {type(e).__name__}: {e}")
+    cur = get_isp(d, isp_cache)
+    if cur is not None:
+        prev = get_isp(d - timedelta(days=1), isp_cache)
+        if prev is None:
+            log("   ! ISP: λείπει το αρχείο της προηγούμενης ημέρας -> H01 (00:00-01:00) = null")
+        for k, series in cur[0].items():
+            touched |= apply_series(rows, f"ISP_{k}", isp_to_local(series, prev[0].get(k) if prev else None))
+        touched |= apply_series(rows, "ISP_Pump", isp_to_local(cur[1], prev[1] if prev else None))
 
     content = fetch_admie_file(CAT_RESMV, d)
     if content:
         try:
-            hourly_touched |= apply_series(rows, "SCADA_SmallHydro", parse_resmv(content))
+            touched |= apply_series(rows, "SCADA_SmallHydro", parse_resmv(content))
         except Exception as e:
             log(f"   ! RESMV parse: {type(e).__name__}: {e}")
 
-    hourly_touched |= apply_series(rows, "MCP_GR", fetch_mcp(d))
+    touched |= apply_series(rows, "MCP_GR", fetch_mcp(d))
 
-    if hourly_touched or rec.get("Hourly"):
+    if touched or rec.get("Hourly"):
         rec["Hourly"] = rows
-        got = got or hourly_touched
+        got = got or touched
 
     # --- Meta ---
     rec = ordered(rec)
     changed = content_key(rec) != before
     status = source_status(rec)
     old_meta = rec.get("Meta") or {}
-    meta = {"Status": status, "Updated": old_meta.get("Updated")}
+    meta = {"Schema": SCHEMA_VERSION, "Status": status, "Updated": old_meta.get("Updated")}
     if changed or not meta["Updated"]:
         meta["Updated"] = datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z")
     rec["Meta"] = meta
@@ -629,22 +763,77 @@ def process_day(d, existing):
     return rec, got
 
 
-def stamp_meta(rec):
-    """Εγγραφές εκτός lookback: Meta.Status παράγεται από τα ίδια τα δεδομένα (χωρίς δίκτυο)."""
-    if "Meta" not in rec:
-        rec = dict(rec)
-        rec["Meta"] = {"Status": source_status(rec), "Updated": None}
-    return ordered(rec)
+# ---------- παράγωγα: index / reservoir history / monthly ----------
+
+def _tot(H, key):
+    v = [h.get(key) for h in H if h.get(key) is not None]
+    return round(sum(v), 1) if v else None
 
 
-def write_json(records):
-    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-    records = sorted(records, key=lambda r: str(r.get("Date", "")), reverse=True)
-    tmp = OUTPUT_FILE + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
-        f.write("\n")
-    os.replace(tmp, OUTPUT_FILE)
+def day_summary(rec):
+    H = rec.get("Hourly") or []
+    mcp = [h["MCP_GR"] for h in H if h.get("MCP_GR") is not None]
+    return {
+        "Date": rec["Date"],
+        "SCADA_MWh": {k: _tot(H, f"SCADA_{k}") for k in UNIT_KEYS},
+        "ISP_MWh": {k: _tot(H, f"ISP_{k}") for k in UNIT_KEYS},
+        "SCADA_OtherHydro_MWh": _tot(H, "SCADA_OtherHydro"),
+        "SCADA_TotalHydro_MWh": _tot(H, "SCADA_TotalHydro"),
+        "SmallHydro_MWh": _tot(H, "SCADA_SmallHydro"),
+        "Pump_MWh": {"SCADA": _tot(H, "SCADA_Pump"), "ISP": _tot(H, "ISP_Pump")},
+        "MCP": ({"mean": round(sum(mcp) / len(mcp), 2), "min": min(mcp), "max": max(mcp),
+                 "negative_hours": sum(m < 0 for m in mcp), "hours": len(mcp)} if mcp else None),
+        "Reservoir": {"official": rec.get("ReservoirTotalRate"), "mean14": rec.get("ReservoirTotal")},
+        "Status": (rec.get("Meta") or {}).get("Status"),
+    }
+
+
+def month_summary(month, recs):
+    days = [day_summary(r) for r in sorted(recs, key=lambda r: r["Date"])]
+
+    def acc(group):
+        out = {}
+        for k in UNIT_KEYS:
+            vals = [dd[group][k] for dd in days if dd[group][k] is not None]
+            out[k] = round(sum(vals), 1) if vals else None
+        return out
+
+    def acc_scalar(key):
+        vals = [dd[key] for dd in days if dd[key] is not None]
+        return round(sum(vals), 1) if vals else None
+
+    return {
+        "Schema": SCHEMA_VERSION, "Month": month, "Clock": CLOCK_NOTE, "DaysCount": len(days),
+        "Totals": {
+            "SCADA_MWh": acc("SCADA_MWh"), "ISP_MWh": acc("ISP_MWh"),
+            "SCADA_OtherHydro_MWh": acc_scalar("SCADA_OtherHydro_MWh"),
+            "SCADA_TotalHydro_MWh": acc_scalar("SCADA_TotalHydro_MWh"),
+            "SmallHydro_MWh": acc_scalar("SmallHydro_MWh"),
+            "Pump_MWh": {"SCADA": round(sum(dd["Pump_MWh"]["SCADA"] or 0 for dd in days), 1),
+                         "ISP": round(sum(dd["Pump_MWh"]["ISP"] or 0 for dd in days), 1)},
+        },
+        "Days": days,
+    }
+
+
+def rebuild_derived(touched_months):
+    days = load_all_days()
+    by_date = sorted(days, key=lambda r: r["Date"])
+    index = {
+        "Schema": SCHEMA_VERSION, "Clock": CLOCK_NOTE, "Count": len(by_date),
+        "First": by_date[0]["Date"] if by_date else None, "Last": by_date[-1]["Date"] if by_date else None,
+        "Days": [{"Date": r["Date"], "Status": (r.get("Meta") or {}).get("Status"),
+                  "Updated": (r.get("Meta") or {}).get("Updated")} for r in reversed(by_date)],
+    }
+    atomic_write_json(INDEX_FILE, index, indent=1)
+    history = [{"Date": r["Date"], "ReservoirTotalRate": r.get("ReservoirTotalRate"),
+                "ReservoirTotal": r.get("ReservoirTotal"), "Reservoir": r.get("Reservoir")}
+               for r in by_date if r.get("Reservoir")]
+    atomic_write_json(RES_HISTORY_FILE, history, indent=1)
+    for m in sorted(touched_months):
+        recs = [r for r in by_date if r["Date"].startswith(m)]
+        if recs:
+            atomic_write_json(os.path.join(MONTHLY_DIR, f"{m}.json"), month_summary(m, recs), indent=1)
 
 
 # ============================================================
@@ -838,28 +1027,33 @@ def main():
         return 0
 
     log("=" * 60)
-    log(f"HYDRO UPDATE v2  {start} -> {end}  ({(end - start).days + 1} ημέρες)")
+    log(f"HYDRO UPDATE v3  {start} -> {end}  ({(end - start).days + 1} ημέρες)")
     log("=" * 60)
 
+    any_got, touched_months, isp_cache, written = False, set(), {}, 0
+    d = start
     try:
-        records = load_existing()
+        while d <= end:
+            existing = load_day(d)           # χαλασμένο αρχείο -> exception -> σταματάμε
+            rec, got = process_day(d, existing, isp_cache)
+            any_got |= got
+            if existing is None and not got:
+                log("   - καμία πηγή δεν είχε δεδομένα: δεν δημιουργείται αρχείο ημέρας")
+            elif existing is None or json.dumps(rec, sort_keys=True) != json.dumps(existing, sort_keys=True):
+                atomic_write_json(day_path(d), rec)
+                touched_months.add(d.strftime("%Y-%m"))
+                written += 1
+            d += timedelta(days=1)
     except Exception as exc:
-        log(f"ΣΤΑΜΑΤΑΜΕ: το υπάρχον {OUTPUT_FILE} δεν διαβάζεται ({type(exc).__name__}: {exc}). "
-            "Δεν γράφω τίποτα για να μη χαθούν δεδομένα.")
+        log(f"ΣΤΑΜΑΤΑΜΕ στην ημέρα {d}: {type(exc).__name__}: {exc}. "
+            "Τα ήδη γραμμένα αρχεία ημερών παραμένουν έγκυρα, τίποτα δεν αντικαταστάθηκε από κενό.")
+        rebuild_derived(touched_months)
         return 1
-    by_date = {str(r.get("Date")): r for r in records}
 
-    any_got, d = False, start
-    while d <= end:
-        rec, got = process_day(d, by_date.get(d.isoformat()))
-        any_got |= got
-        by_date[d.isoformat()] = rec
-        d += timedelta(days=1)
-
-    write_json([stamp_meta(r) for r in by_date.values()])
+    rebuild_derived(touched_months)
     log()
     log("=" * 60)
-    log(f"Ολοκληρώθηκε. Εγγραφές στο JSON: {len(by_date)}")
+    log(f"Ολοκληρώθηκε. Αρχεία ημερών που γράφτηκαν/ενημερώθηκαν: {written}")
     if not any_got:
         log("ΠΡΟΣΟΧΗ: δεν ανακτήθηκε ΚΑΝΕΝΑ δεδομένο για το διάστημα (έλεγξε ADMIE/ENTSO-E).")
         return 1
