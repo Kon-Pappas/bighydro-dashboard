@@ -1,7 +1,7 @@
 {
  "Schema": 3,
  "Clock": "Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time and are shifted +1 h by the pipeline.",
- "Count": 19,
+ "Count": 34,
  "First": "2026-06-01",
  "Last": "2026-10-06",
  "Days": [
@@ -48,6 +48,171 @@
     "mcp": "ok"
    },
    "Updated": "2026-10-06T14:19:04+0300"
+  },
+  {
+   "Date": "2026-06-30",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:30+0300"
+  },
+  {
+   "Date": "2026-06-29",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:27+0300"
+  },
+  {
+   "Date": "2026-06-28",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:23+0300"
+  },
+  {
+   "Date": "2026-06-27",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:19+0300"
+  },
+  {
+   "Date": "2026-06-26",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:13+0300"
+  },
+  {
+   "Date": "2026-06-25",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:08+0300"
+  },
+  {
+   "Date": "2026-06-24",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:04:02+0300"
+  },
+  {
+   "Date": "2026-06-23",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:58+0300"
+  },
+  {
+   "Date": "2026-06-22",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:53+0300"
+  },
+  {
+   "Date": "2026-06-21",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:50+0300"
+  },
+  {
+   "Date": "2026-06-20",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:45+0300"
+  },
+  {
+   "Date": "2026-06-19",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:38+0300"
+  },
+  {
+   "Date": "2026-06-18",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:30+0300"
+  },
+  {
+   "Date": "2026-06-17",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:25+0300"
+  },
+  {
+   "Date": "2026-06-16",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-06T22:03:16+0300"
   },
   {
    "Date": "2026-06-15",
