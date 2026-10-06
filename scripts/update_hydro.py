@@ -54,6 +54,7 @@ OUTPUT_FILE = "data/hydro_data.json"
 TIMEOUT = 60
 LOOKBACK_DAYS = 4                      # default run: σήμερα-3 .. σήμερα
 ATHENS = ZoneInfo("Europe/Athens")
+BRUSSELS = ZoneInfo("Europe/Brussels")   # η ημέρα αγοράς (SDAC) ορίζεται σε CET/CEST
 
 ENTSOE_TOKEN = os.environ.get("ENTSOE_TOKEN")
 ENTSOE_URL = "https://web-api.tp.entsoe.eu/api"
@@ -389,9 +390,13 @@ def parse_reservoir(content):
 # ENTSO-E MCP (day-ahead, GR) - υποστηρίζει PT60M και PT15M
 # ============================================================
 
-def entsoe_window(d):
-    start = datetime.combine(d, dtime(0, 0), tzinfo=ATHENS).astimezone(timezone.utc)
-    end = datetime.combine(d + timedelta(days=1), dtime(0, 0), tzinfo=ATHENS).astimezone(timezone.utc)
+def entsoe_window(d, tz=BRUSSELS):
+    """Ημέρα παράδοσης d = 00:00-24:00 ώρα Κεντρικής Ευρώπης (όπως ορίζεται η αγορά).
+    Τα ωριαία πεδία του ADMIE (ISP/SCADA) ακολουθούν αυτή την ημέρα: H01 = πρώτη ώρα της ημέρας αγοράς.
+    Επαληθεύτηκε με την άντληση (pump), που τρέχει μόνο στις ώρες με αρνητική τιμή.
+    Ημέρες αλλαγής ώρας έχουν 23/25 ώρες: κρατάμε τις πρώτες 24."""
+    start = datetime.combine(d, dtime(0, 0), tzinfo=tz).astimezone(timezone.utc)
+    end = datetime.combine(d + timedelta(days=1), dtime(0, 0), tzinfo=tz).astimezone(timezone.utc)
     return start, end
 
 
@@ -676,45 +681,21 @@ def _entsoe_structure(text):
     log(f"  σύνολο TimeSeries: {n_ts}")
 
 
-def diagnose(d):
-    """Στοχευμένο diagnose: δεν γράφει JSON. Τυπώνει μόνο ό,τι χρειάζεται για να διορθωθούν οι parsers."""
-    log(f"=== DIAGNOSE {d} (δεν γράφεται JSON) ===")
-    extra_kw = [norm(x) for x in ("PUMP", "TOTAL", "ΑΝΤΛ", "ΕΔΕΣ", "EDES", "ΑΓΡΑ", "AGRA")]
-    for cat, label_col, c0, pref in ((CAT_SCADA, SCADA_LABEL_COL, SCADA_H0, "System_Production"),
-                                     (CAT_ISP, ISP_LABEL_COL, ISP_Q0, None)):
-        log(f"\n--- {cat} ---")
-        c = fetch_admie_file(cat, d)
-        if not c:
-            continue
-        xls = pd.ExcelFile(io.BytesIO(c))
-        log(f"φύλλα: {xls.sheet_names}")
-        df, name = read_sheet(c, pref)
-        log(f"φύλλο που διαβάζει το pipeline: '{name}'  shape={df.shape}")
-        if df.shape[1] <= label_col:
-            log("   ! δεν υπάρχει η στήλη ετικετών")
-            continue
-        labels = [norm(x) for x in df[label_col]]
-        log("Αντιστοίχιση μονάδων:")
-        for key, scada_names, isp_names in HYDRO_UNITS:
-            idx, how = find_row(labels, scada_names if cat == CAT_SCADA else isp_names,
-                                exclude=("PUMP", "ΑΝΤΛ"))
-            if idx is None:
-                log(f"   NOT FOUND  {key}")
-            else:
-                v = to_numeric_array(df.iloc[idx, c0:c0 + 4], 4)
-                log(f"   {how:<8} {key:<13} r{idx:03d} {df.iloc[idx, label_col]!r}  πρώτες τιμές={nan_to_none_list(v)}")
-        log("Γραμμές με pump / total / Εδεσσαίο / Άγρα:")
-        for i, l in enumerate(labels):
-            if l and any(k in l for k in extra_kw):
-                v = to_numeric_array(df.iloc[i, c0:c0 + 4], 4)
-                log(f"   r{i:03d} {df.iloc[i, label_col]!r}  πρώτες τιμές={nan_to_none_list(v)}")
+def _entsoe_text(start, end, what="ENTSO-E"):
+    r = http_get(ENTSOE_URL, params={
+        "securityToken": ENTSOE_TOKEN, "documentType": "A44",
+        "in_Domain": ENTSOE_GR, "out_Domain": ENTSOE_GR,
+        "periodStart": start.strftime("%Y%m%d%H%M"), "periodEnd": end.strftime("%Y%m%d%H%M")},
+        what=what, use_session=False)
+    if r is None or r.status_code != 200:
+        log(f"HTTP {getattr(r, 'status_code', None)}")
+        return None
+    return r.text
 
-    log(f"\n--- {CAT_RESMV} ---")
-    c = fetch_admie_file(CAT_RESMV, d)
-    if c:
-        df = pd.read_excel(io.BytesIO(c))
-        log(f"shape={df.shape}")
-        log(df.iloc[:, :6].to_string())
+
+def diagnose(d):
+    """Δεν γράφει JSON. Σειρά εκτύπωσης: τα πιο σημαντικά ΤΕΛΕΥΤΑΙΑ (αν κοπεί το paste, μένουν αυτά)."""
+    log(f"=== DIAGNOSE {d} (δεν γράφεται JSON) ===")
 
     log(f"\n--- {CAT_RESERVOIR} ---")
     c = fetch_admie_file(CAT_RESERVOIR, d)
@@ -722,23 +703,73 @@ def diagnose(d):
         parsed = parse_reservoir(c)
         log(f"επίσημο total = {parsed[1] if parsed else None}")
 
+    log(f"\n--- {CAT_RESMV} ---")
+    c = fetch_admie_file(CAT_RESMV, d)
+    if c:
+        small = parse_resmv(c)
+        log(f"ΜΥΗΣ MWh ανά ώρα: {small}")
+
     log("\n--- ENTSO-E ---")
+    mcp_market = mcp_local = None
     if not ENTSOE_TOKEN:
         log("δεν υπάρχει ENTSOE_TOKEN")
-        return
-    start, end = entsoe_window(d)
-    log(f"παράθυρο αιτήματος (UTC): {start:%Y-%m-%d %H:%M} -> {end:%Y-%m-%d %H:%M}")
-    r = http_get(ENTSOE_URL, params={
-        "securityToken": ENTSOE_TOKEN, "documentType": "A44",
-        "in_Domain": ENTSOE_GR, "out_Domain": ENTSOE_GR,
-        "periodStart": start.strftime("%Y%m%d%H%M"), "periodEnd": end.strftime("%Y%m%d%H%M")},
-        what="ENTSO-E", use_session=False)
-    if r is None or r.status_code != 200:
-        log(f"HTTP {getattr(r, 'status_code', None)}")
-        return
-    _entsoe_structure(r.text)
-    hourly = parse_entsoe_xml(r.text, start)
-    log(f"ωριαίες τιμές όπως τις βγάζει το pipeline: {hourly}")
+    else:
+        start, end = entsoe_window(d)
+        log(f"παράθυρο αιτήματος (UTC): {start:%Y-%m-%d %H:%M} -> {end:%Y-%m-%d %H:%M}  (ημέρα αγοράς, CET)")
+        text = _entsoe_text(start, end)
+        if text:
+            _entsoe_structure(text)
+            mcp_market = parse_entsoe_xml(text, start)
+        # για σύγκριση: ωριαία με ώρα Ελλάδας
+        astart, aend = entsoe_window(d, ATHENS)
+        text2 = _entsoe_text(astart, aend, "ENTSO-E (ώρα Ελλάδας)")
+        if text2:
+            mcp_local = parse_entsoe_xml(text2, astart)
+
+    pumps = {}
+    for cat, label_col, c0, pref in ((CAT_SCADA, SCADA_LABEL_COL, SCADA_H0, "System_Production"),
+                                     (CAT_ISP, ISP_LABEL_COL, ISP_Q0, None)):
+        log(f"\n--- {cat} ---")
+        c = fetch_admie_file(cat, d)
+        if not c:
+            continue
+        xls = pd.ExcelFile(io.BytesIO(c))
+        df, name = read_sheet(c, pref)
+        log(f"φύλλα: {xls.sheet_names} | φύλλο pipeline: '{name}' shape={df.shape}")
+        if df.shape[1] <= label_col:
+            log("   ! δεν υπάρχει η στήλη ετικετών")
+            continue
+        labels = [norm(x) for x in df[label_col]]
+        for key, scada_names, isp_names in HYDRO_UNITS:
+            idx, how = find_row(labels, scada_names if cat == CAT_SCADA else isp_names,
+                                exclude=("PUMP", "ΑΝΤΛ"))
+            if idx is None:
+                log(f"   NOT FOUND  {key}")
+            else:
+                v = to_numeric_array(df.iloc[idx, c0:c0 + 4], 4)
+                log(f"   {how:<8} {key:<13} r{idx:03d} {df.iloc[idx, label_col]!r} -> {nan_to_none_list(v)}")
+        extra = [norm(x) for x in ("PUMP", "TOTAL", "ΑΝΤΛ", "ΕΔΕΣ", "EDES", "ΑΓΡΑ", "AGRA")]
+        log("γραμμές pump/total/Εδεσσαίος/Άγρας:")
+        for i, l in enumerate(labels):
+            if l and any(k in l for k in extra):
+                v = to_numeric_array(df.iloc[i, c0:c0 + 4], 4)
+                log(f"   r{i:03d} {df.iloc[i, label_col]!r} -> {nan_to_none_list(v)}")
+        if cat == CAT_SCADA:
+            pi, _ = find_row(labels, ["TOTAL PUMPING"])
+            if pi is not None:
+                pumps["scada"] = nan_to_none_list(to_numeric_array(df.iloc[pi, SCADA_H0:SCADA_H1], 24))
+        else:
+            hp = _isp_rows_to_hourly(df, labels, ISP_PUMP_UNITS, exact_only=True)
+            if hp is not None:
+                pumps["isp"] = nan_to_none_list(-hp)
+
+    log("\n--- ΕΛΕΓΧΟΣ ΩΡΩΝ: η άντληση πρέπει να τρέχει μόνο στις ώρες με αρνητική τιμή ---")
+    log(" H   SCADA_pump  ISP_pump   MCP(ώρες αγοράς/CET)   MCP(ώρες Ελλάδας)")
+    for h in range(24):
+        def g(lst):
+            return "-" if not lst or lst[h] is None else lst[h]
+        log(f"H{h + 1:02d}  {str(g(pumps.get('scada'))):>10}  {str(g(pumps.get('isp'))):>8}   "
+            f"{str(g(mcp_market)):>18}   {str(g(mcp_local)):>16}")
 
 
 # ============================================================
