@@ -3,7 +3,7 @@
  "Source": "ENTSO-E Transparency 16.1.D (documentType A72, processType A16)",
  "Domain": "10YGR-HTSO-----Y",
  "Unit": "MWh",
- "Updated": "2026-10-07T21:46:43+0300",
+ "Updated": "2026-10-07T21:49:40+0300",
  "Note": "Start/End σε UTC. Η αντιστοίχιση εβδομάδας -> ημέρες (μέσος όρος/αρχή/τέλος) δεν υποτίθεται εδώ.",
  "Weeks": [
   {
