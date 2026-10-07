@@ -71,6 +71,10 @@ def _iso(d):
     return d.strftime("%Y-%m-%dT%H:%MZ")
 
 
+def _local_midnight_utc(d):
+    return datetime.combine(d, dtime(0, 0), tzinfo=ATHENS).astimezone(timezone.utc)
+
+
 def parse_xml(text):
     """-> (weeks[list], series_info[list], reason|None).
     weeks: [{"Start","End","StartLocal","MWh"}]  (Start/End σε UTC)."""
@@ -107,9 +111,16 @@ def parse_xml(text):
             if not (start and end and m):
                 log(f"   ! Period με άγνωστη δομή/ανάλυση: start={start} end={end} res={res}")
                 continue
-            step = timedelta(days=int(m.group(1)) * (7 if m.group(2) == "W" else 1))
+            step_days = int(m.group(1)) * (7 if m.group(2) == "W" else 1)
             p_start, p_end = _dt(start), _dt(end)
-            n = int(round((p_end - p_start) / step))
+            # Οι περίοδοι του ENTSO-E ξεκινούν στα μεσάνυχτα ώρας Ελλάδας (22:00Z χειμώνα, 21:00Z καλοκαίρι).
+            # Τα βήματα μετριούνται σε ΗΜΕΡΟΛΟΓΙΑΚΕΣ ημέρες Ελλάδας (όχι 7*24h σε UTC), ώστε η αλλαγή ώρας
+            # να μη μετατοπίζει τις εβδομάδες.
+            loc = p_start.astimezone(ATHENS)
+            base = loc.date() if loc.hour < 12 else loc.date() + timedelta(days=1)
+            if loc.hour not in (0,):
+                log(f"   ! η περίοδος δεν ξεκινά σε τοπικά μεσάνυχτα (ώρα {loc:%H:%M}) - χρήση ημερομηνίας {base}")
+            n = int(round((p_end - p_start).total_seconds() / 86400 / step_days))
             info.append({"series": meta, "start": start, "end": end, "resolution": res,
                          "points": len(pts), "expected": n,
                          "first": sorted(pts.items())[:3], "last": sorted(pts.items())[-2:]})
@@ -121,13 +132,16 @@ def parse_xml(text):
                     pass
                 else:
                     continue
-                w_start = p_start + (pos - 1) * step
+                d0 = base + timedelta(days=step_days * (pos - 1))
+                d1 = d0 + timedelta(days=step_days)
+                w_start = _local_midnight_utc(d0)
                 key = _iso(w_start)
                 if key in weeks:
                     log(f"   ! διπλή εβδομάδα {key} (διαφορετικές σειρές) - κρατάω την πρώτη")
                     continue
-                weeks[key] = {"Start": key, "End": _iso(w_start + step),
-                              "StartLocal": w_start.astimezone(ATHENS).date().isoformat(), "MWh": last}
+                iso = d0.isocalendar()
+                weeks[key] = {"Start": key, "End": _iso(_local_midnight_utc(d1)),
+                              "StartLocal": d0.isoformat(), "IsoWeek": f"{iso[0]}-W{iso[1]:02d}", "MWh": last}
     return [weeks[k] for k in sorted(weeks)], info, None
 
 
@@ -193,7 +207,7 @@ def diagnose(start, end):
         log(f"  πρώτα σημεία={i['first']}  τελευταία={i['last']}")
     log(f"εβδομάδες συνολικά: {len(weeks)}")
     for w in weeks[-8:]:
-        log(f"  {w['StartLocal']}  ({w['Start']} -> {w['End']})  {w['MWh']:,.0f} MWh")
+        log(f"  {w['StartLocal']} {w['IsoWeek']}  ({w['Start']} -> {w['End']})  {w['MWh']:,.0f} MWh")
     return 0
 
 
