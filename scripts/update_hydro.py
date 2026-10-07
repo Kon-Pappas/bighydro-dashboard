@@ -26,9 +26,10 @@ BigHydro pipeline v3
   python scripts/update_hydro.py                        # τελευταίες 4 ημέρες (σήμερα-3 .. σήμερα)
   python scripts/update_hydro.py 2026-09-16             # μία ημέρα
   python scripts/update_hydro.py 2026-09-16 2026-09-30  # backfill (προτείνεται ανά 15 ημέρες)
+  python scripts/update_hydro.py --only=reservoir 2026-01-01 2026-05-31   # μόνο ορισμένες πηγές (reservoir,scada,isp,resmv,mcp)
   python scripts/update_hydro.py --diagnose 2026-10-04  # δεν γράφει τίποτα, δείχνει τη δομή των αρχείων
 
-Env (GitHub Actions): START_DATE, END_DATE, ENTSOE_TOKEN
+Env (GitHub Actions): START_DATE, END_DATE, ONLY, ENTSOE_TOKEN
 
 Κανόνες:
   * null  = δεν υπάρχει τιμή (δεν βρέθηκε αρχείο / μονάδα / ώρα).   0 = πραγματικό μηδέν.
@@ -68,6 +69,7 @@ MONTHLY_DIR = os.path.join(DATA_DIR, "monthly")
 INDEX_FILE = os.path.join(DATA_DIR, "index.json")
 RES_HISTORY_FILE = os.path.join(DATA_DIR, "reservoir_history.json")
 SCHEMA_VERSION = 3
+ALL_SOURCES = {"reservoir", "scada", "isp", "resmv", "mcp"}
 RECON_TOL = 3.0          # MW: ανοχή TOTAL HYDRO έναντι αθροίσματος μονάδων (το SCADA δημοσιεύει ακέραια MW)
 CLOCK_NOTE = ("Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. "
               "SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time "
@@ -684,9 +686,10 @@ def content_key(rec):
     return json.dumps({k: v for k, v in rec.items() if k != "Meta"}, sort_keys=True, ensure_ascii=False)
 
 
-def process_day(d, existing, isp_cache=None):
-    """Επιστρέφει (record, got_anything)."""
+def process_day(d, existing, isp_cache=None, only=None):
+    """Επιστρέφει (record, got_anything). only: σύνολο πηγών (reservoir, scada, isp, resmv, mcp) ή None = όλες."""
     isp_cache = {} if isp_cache is None else isp_cache
+    want = lambda name: only is None or name in only
     log()
     log("=" * 60)
     log(f"Επεξεργασία: {d}")
@@ -697,7 +700,7 @@ def process_day(d, existing, isp_cache=None):
     got = False
 
     # --- Reservoir ---
-    content = fetch_admie_file(CAT_RESERVOIR, d)
+    content = fetch_admie_file(CAT_RESERVOIR, d) if want("reservoir") else None
     if content:
         try:
             parsed = parse_reservoir(content)
@@ -716,7 +719,7 @@ def process_day(d, existing, isp_cache=None):
     rows = build_rows(rec.get("Hourly"))
     touched = False
 
-    content = fetch_admie_file(CAT_SCADA, d)
+    content = fetch_admie_file(CAT_SCADA, d) if want("scada") else None
     if content:
         try:
             units, pump, extra = parse_scada(content)
@@ -728,7 +731,7 @@ def process_day(d, existing, isp_cache=None):
         except Exception as e:
             log(f"   ! SCADA parse: {type(e).__name__}: {e}")
 
-    cur = get_isp(d, isp_cache)
+    cur = get_isp(d, isp_cache) if want("isp") else None
     if cur is not None:
         prev = get_isp(d - timedelta(days=1), isp_cache)
         if prev is None:
@@ -737,14 +740,15 @@ def process_day(d, existing, isp_cache=None):
             touched |= apply_series(rows, f"ISP_{k}", isp_to_local(series, prev[0].get(k) if prev else None))
         touched |= apply_series(rows, "ISP_Pump", isp_to_local(cur[1], prev[1] if prev else None))
 
-    content = fetch_admie_file(CAT_RESMV, d)
+    content = fetch_admie_file(CAT_RESMV, d) if want("resmv") else None
     if content:
         try:
             touched |= apply_series(rows, "SCADA_SmallHydro", parse_resmv(content))
         except Exception as e:
             log(f"   ! RESMV parse: {type(e).__name__}: {e}")
 
-    touched |= apply_series(rows, "MCP_GR", fetch_mcp(d))
+    if want("mcp"):
+        touched |= apply_series(rows, "MCP_GR", fetch_mcp(d))
 
     if touched or rec.get("Hourly"):
         rec["Hourly"] = rows
@@ -1013,6 +1017,11 @@ def main():
     argv = sys.argv[1:]
     diag = "--diagnose" in argv
     args = [a for a in argv if not a.startswith("--")]
+    only_raw = next((a.split("=", 1)[1] for a in argv if a.startswith("--only=")), os.environ.get("ONLY", ""))
+    only = {x.strip().lower() for x in only_raw.split(",") if x.strip()} or None
+    if only is not None and not only <= ALL_SOURCES:
+        log(f"Σφάλμα: άγνωστη πηγή στο --only: {sorted(only - ALL_SOURCES)} (επιτρεπτές: {sorted(ALL_SOURCES)})")
+        return 1
     try:
         start, end = get_date_range(args)
     except ValueError as exc:
@@ -1027,7 +1036,8 @@ def main():
         return 0
 
     log("=" * 60)
-    log(f"HYDRO UPDATE v3  {start} -> {end}  ({(end - start).days + 1} ημέρες)")
+    log(f"HYDRO UPDATE v3  {start} -> {end}  ({(end - start).days + 1} ημέρες)"
+        + (f"  [μόνο: {', '.join(sorted(only))}]" if only else ""))
     log("=" * 60)
 
     any_got, touched_months, isp_cache, written = False, set(), {}, 0
@@ -1035,7 +1045,7 @@ def main():
     try:
         while d <= end:
             existing = load_day(d)           # χαλασμένο αρχείο -> exception -> σταματάμε
-            rec, got = process_day(d, existing, isp_cache)
+            rec, got = process_day(d, existing, isp_cache, only)
             any_got |= got
             if existing is None and not got:
                 log("   - καμία πηγή δεν είχε δεδομένα: δεν δημιουργείται αρχείο ημέρας")
