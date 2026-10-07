@@ -14,6 +14,10 @@ on:
         description: 'End Date (π.χ. 2026-09-24). Κενό = μόνο η start_date'
         required: false
         type: string
+      only:
+        description: 'Μόνο ορισμένες πηγές (π.χ. reservoir ή scada,isp). Κενό = όλες. Επιτρεπτές: reservoir, scada, isp, resmv, mcp'
+        required: false
+        type: string
       diagnose:
         description: 'Diagnose: τυπώνει τη δομή των αρχείων ADMIE/ENTSO-E για τη start_date (δεν γράφει JSON)'
         required: false
@@ -51,6 +55,7 @@ jobs:
           ENTSOE_TOKEN: ${{ secrets.ENTSOE_TOKEN }}
           START_DATE: ${{ inputs.start_date }}
           END_DATE: ${{ inputs.end_date }}
+          ONLY: ${{ inputs.only }}
           DIAGNOSE: ${{ inputs.diagnose }}
         run: |
           if [ "$DIAGNOSE" = "true" ]; then
@@ -63,6 +68,8 @@ jobs:
         continue-on-error: true
         env:
           ENTSOE_TOKEN: ${{ secrets.ENTSOE_TOKEN }}
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
           DIAGNOSE: ${{ inputs.diagnose }}
         run: |
           if [ "$DIAGNOSE" = "true" ]; then
