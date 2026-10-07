@@ -1,0 +1,32 @@
+{
+  "Date": "2026-01-07",
+  "Reservoir": {
+    "ASOMATA": 65.07,
+    "ILARIONAS": 26.58,
+    "KASTRAKI": 113.6,
+    "KREMASTA": 51.94,
+    "LADONAS": 40.8,
+    "PLASTIRAS": 55.34,
+    "PLATANOVRYSI": 70.38,
+    "POLYFYTO": 74.75,
+    "POYRNARI1": 48.9,
+    "POYRNARI2": 99.85,
+    "P_AOOU": 75.86,
+    "SFIKIA": 73.81,
+    "STRATOS": 37.48,
+    "THESAVROS": 65.85
+  },
+  "ReservoirTotal": 64.301,
+  "ReservoirTotalRate": 57.57,
+  "Meta": {
+    "Schema": 3,
+    "Status": {
+      "reservoir": "ok",
+      "scada": "missing",
+      "isp": "missing",
+      "resmv": "missing",
+      "mcp": "missing"
+    },
+    "Updated": "2026-10-07T21:43:12+0300"
+  }
+}
