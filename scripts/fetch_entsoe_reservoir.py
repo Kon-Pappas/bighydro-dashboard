@@ -16,7 +16,7 @@ ENTSO-E 16.1.D "Water Reservoirs and Hydro Storage Plants"  ->  data/entsoe_rese
   python scripts/fetch_entsoe_reservoir.py 2026-01-01 2026-10-07
   python scripts/fetch_entsoe_reservoir.py --diagnose            # δεν γράφει τίποτα
 
-Env: ENTSOE_TOKEN
+Env: ENTSOE_TOKEN, (προαιρετικά) START_DATE, END_DATE
 """
 
 import json
@@ -230,6 +230,9 @@ def main():
         if args:
             start = datetime.strptime(args[0], "%Y-%m-%d").date()
             end = datetime.strptime(args[1], "%Y-%m-%d").date() if len(args) > 1 else today
+        elif os.environ.get("START_DATE"):
+            start = datetime.strptime(os.environ["START_DATE"], "%Y-%m-%d").date()
+            end = datetime.strptime(os.environ["END_DATE"], "%Y-%m-%d").date() if os.environ.get("END_DATE") else today
         else:
             start, end = DEFAULT_START, today
             if existing["Weeks"]:
