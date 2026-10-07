@@ -59,6 +59,18 @@ jobs:
             python scripts/update_hydro.py
           fi
 
+      - name: Fetch ENTSO-E weekly reservoir (non-blocking)
+        continue-on-error: true
+        env:
+          ENTSOE_TOKEN: ${{ secrets.ENTSOE_TOKEN }}
+          DIAGNOSE: ${{ inputs.diagnose }}
+        run: |
+          if [ "$DIAGNOSE" = "true" ]; then
+            python scripts/fetch_entsoe_reservoir.py --diagnose
+          else
+            python scripts/fetch_entsoe_reservoir.py
+          fi
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
