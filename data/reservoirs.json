@@ -1,0 +1,42 @@
+{
+  "Schema": 1,
+  "Notes": [
+    "Σειρά καταρρακτών (Order): από πάνω προς τα κάτω (ανάντη -> κατάντη). Επιβεβαιωμένη από τον χρήστη: Αχελώος, Αλιάκμονας, Άραχθος (με εκτροπή Αώου). Νέστος: από PDF Στεφανάκου διαφάνεια 2 (Θησαυρός -> Πλατανόβρυση).",
+    "Αντλίες: Ασώματα -> Σφηκιά (επιβεβαιωμένο). Πλατανόβρυση -> Θησαυρός: ΥΠΟΘΕΣΗ, χρειάζεται επιβεβαίωση.",
+    "Χωρητικότητες (ωφέλιμος όγκος, hm3): PDF Ι.Π. Στεφανάκου 2020, διαφάνεια 17. Το PDF γράφει σύνολο 5.700, τα 16 έργα που απαριθμεί αθροίζουν 5.711. Τα 14 του ADMIE: 5.707.",
+    "Το επίσημο ADMIE total είναι σταθμισμένο με όγκο. Με αυτές τις χωρητικότητες η ανασύνθεση βγαίνει κατά μέσο όρο ~1 ποσοστιαία μονάδα χαμηλότερα (εύρος -1,38 έως -0,75, 1/6-6/10/2026). Υποψήφια εξήγηση: ο ωφέλιμος όγκος του Ιλαρίωνα (~300 αντί 412) - ΜΗ επαληθευμένο.",
+    "Ο Στράτος II (SCADA 'ΣΤΡΑΤΟΣ 2') είναι σήμερα μέσα στο SCADA_OtherHydro. Θα αποθηκευτεί χωριστά για να αθροίζεται με τον Στράτο I ('Στράτος 1+2').",
+    "Καστράκι: στάθμη πάνω από 100% είναι συνήθης (σε 73 από 128 μέρες, 1/6-6/10/2026). Κάτω ταμιευτήρας της ΑΑΣ Αμφιλοχίας (πληροφορία χρήστη: έναρξη περίπου τέλη 2026, πλήρωση άνω ταμιευτήρων περίπου 9% της λίμνης ~ 4,8 hm3). Δεν αντιμετωπίζεται ως ανωμαλία."
+  ],
+  "Rivers": [
+    {"Id": "acheloos", "Name": "Αχελώος", "Order": ["KREMASTA", "KASTRAKI", "STRATOS"], "Pump": null},
+    {"Id": "aliakmonas", "Name": "Αλιάκμονας", "Order": ["ILARIONAS", "POLYFYTO", "SFIKIA", "ASOMATA"],
+     "Pump": {"From": "ASOMATA", "To": "SFIKIA", "Confirmed": true}},
+    {"Id": "nestos", "Name": "Νέστος", "Order": ["THESAVROS", "PLATANOVRYSI"],
+     "Pump": {"From": "PLATANOVRYSI", "To": "THESAVROS", "Confirmed": false}},
+    {"Id": "arachthos", "Name": "Άραχθος (με εκτροπή Πηγών Αώου)", "Order": ["P_AOOU", "POYRNARI1", "POYRNARI2"], "Pump": null},
+    {"Id": "plastiras", "Name": "Πλαστήρας (Ταυρωπός)", "Order": ["PLASTIRAS"], "Pump": null},
+    {"Id": "ladonas", "Name": "Λάδωνας", "Order": ["LADONAS"], "Pump": null}
+  ],
+  "Reservoirs": {
+    "KREMASTA":     {"NameEl": "Κρεμαστά",     "CapacityHm3": 2805, "Units": ["Kremasta"]},
+    "KASTRAKI":     {"NameEl": "Καστράκι",     "CapacityHm3": 53,   "Units": ["Kastraki"], "AllowsOver100": true, "FutureRole": "Κάτω ταμιευτήρας ΑΑΣ Αμφιλοχίας"},
+    "STRATOS":      {"NameEl": "Στράτος",      "CapacityHm3": 11,   "Units": ["Stratos1", "Stratos2"]},
+    "ILARIONAS":    {"NameEl": "Ιλαρίων",      "CapacityHm3": 412,  "Units": ["Ilarionas"], "CapacityNote": "Προς επαλήθευση (ADMIE-fit ~300)"},
+    "POLYFYTO":     {"NameEl": "Πολύφυτο",     "CapacityHm3": 1020, "Units": ["Polyfyto"]},
+    "SFIKIA":       {"NameEl": "Σφηκιά",       "CapacityHm3": 16,   "Units": ["Sfikia"]},
+    "ASOMATA":      {"NameEl": "Ασώματα",      "CapacityHm3": 10,   "Units": ["Asomata"]},
+    "THESAVROS":    {"NameEl": "Θησαυρός",     "CapacityHm3": 570,  "Units": ["Thesavros"]},
+    "PLATANOVRYSI": {"NameEl": "Πλατανόβρυση", "CapacityHm3": 12,   "Units": ["Platanovrysi"]},
+    "P_AOOU":       {"NameEl": "Πηγές Αώου",   "CapacityHm3": 145,  "Units": ["PAoou"]},
+    "POYRNARI1":    {"NameEl": "Πουρνάρι I",   "CapacityHm3": 303,  "Units": ["Pournari1"]},
+    "POYRNARI2":    {"NameEl": "Πουρνάρι II",  "CapacityHm3": 3.6,  "Units": ["Pournari2"]},
+    "PLASTIRAS":    {"NameEl": "Πλαστήρας",    "CapacityHm3": 300,  "Units": ["Plastiras"]},
+    "LADONAS":      {"NameEl": "Λάδωνας",      "CapacityHm3": 46.2, "Units": ["Ladonas"]}
+  },
+  "WithoutReservoir": [
+    {"Name": "Άγρας", "Units": ["Agras"]},
+    {"Name": "Εδεσσαίος", "Units": ["Edessaios"]}
+  ],
+  "OtherHydro": ["Makrochori", "Louros", "Gkiona"]
+}
