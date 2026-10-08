@@ -1,0 +1,201 @@
+{
+ "Schema": 1,
+ "Generated": "2026-10-08T10:44:21+0300",
+ "Method": "e_i = άθροισμα συντελεστών k_j των σταθμών κατάντη (συμπεριλαμβανομένου του i). k_j από NNLS στα εβδομαδιαία ENTSO-E.",
+ "WeekConvention": "ENTSO-E εβδομάδα = μέσος όρος των αρχείων ADMIE Δευτέρα+1 ... Δευτέρα+7 (τιμές τέλους ημέρας)",
+ "Weeks": {
+  "Used": 38,
+  "From": "2026-01-05",
+  "To": "2026-09-28"
+ },
+ "Fit": {
+  "RmsGWh": 3.35,
+  "LeaveOneOutRmsGWh": 4.31,
+  "LeaveOneOutPercentOfMean": 0.17,
+  "TrainBeforeTestAfter": {
+   "Split": "2026-06-01",
+   "RmsGWh": 10.22
+  },
+  "SingleFactor": {
+   "MWhPerHm3": 647.3,
+   "LeaveOneOutRmsGWh": 19.52
+  }
+ },
+ "Factors": {
+  "KREMASTA": {
+   "EnergyMWhPerHm3": 628.8,
+   "P5": 604.8,
+   "P95": 649.2,
+   "Identifiable": "ok",
+   "CapacityHm3": 2805.0
+  },
+  "KASTRAKI": {
+   "EnergyMWhPerHm3": 285.3,
+   "P5": 156.3,
+   "P95": 394.8,
+   "Identifiable": "weak",
+   "CapacityHm3": 53.0
+  },
+  "STRATOS": {
+   "EnergyMWhPerHm3": 0.0,
+   "P5": 0.0,
+   "P95": 0.0,
+   "Identifiable": "none",
+   "CapacityHm3": 11.0
+  },
+  "ILARIONAS": {
+   "EnergyMWhPerHm3": 688.2,
+   "P5": 656.0,
+   "P95": 726.6,
+   "Identifiable": "ok",
+   "CapacityHm3": 412.0
+  },
+  "POLYFYTO": {
+   "EnergyMWhPerHm3": 667.2,
+   "P5": 642.6,
+   "P95": 695.7,
+   "Identifiable": "ok",
+   "CapacityHm3": 1020.0
+  },
+  "SFIKIA": {
+   "EnergyMWhPerHm3": 0.0,
+   "P5": 0.0,
+   "P95": 0.0,
+   "Identifiable": "none",
+   "CapacityHm3": 16.0
+  },
+  "ASOMATA": {
+   "EnergyMWhPerHm3": 0.0,
+   "P5": 0.0,
+   "P95": 0.0,
+   "Identifiable": "none",
+   "CapacityHm3": 10.0
+  },
+  "THESAVROS": {
+   "EnergyMWhPerHm3": 594.7,
+   "P5": 522.7,
+   "P95": 670.5,
+   "Identifiable": "ok",
+   "CapacityHm3": 570.0
+  },
+  "PLATANOVRYSI": {
+   "EnergyMWhPerHm3": 0.0,
+   "P5": 0.0,
+   "P95": 0.0,
+   "Identifiable": "none",
+   "CapacityHm3": 12.0
+  },
+  "P_AOOU": {
+   "EnergyMWhPerHm3": 209.7,
+   "P5": 132.7,
+   "P95": 276.2,
+   "Identifiable": "weak",
+   "CapacityHm3": 145.0
+  },
+  "POYRNARI1": {
+   "EnergyMWhPerHm3": 209.7,
+   "P5": 132.7,
+   "P95": 269.4,
+   "Identifiable": "weak",
+   "CapacityHm3": 303.0
+  },
+  "POYRNARI2": {
+   "EnergyMWhPerHm3": 0.0,
+   "P5": 0.0,
+   "P95": 246.0,
+   "Identifiable": "none",
+   "CapacityHm3": 3.6
+  },
+  "PLASTIRAS": {
+   "EnergyMWhPerHm3": 1478.1,
+   "P5": 1417.7,
+   "P95": 1568.5,
+   "Identifiable": "ok",
+   "CapacityHm3": 300.0
+  },
+  "LADONAS": {
+   "EnergyMWhPerHm3": 751.6,
+   "P5": 456.1,
+   "P95": 1039.0,
+   "Identifiable": "weak",
+   "CapacityHm3": 46.2
+  }
+ },
+ "Latest": {
+  "Date": "2026-10-07",
+  "VolumeHm3": 2421.6,
+  "TotalGWh": 1577.3,
+  "TotalGWhP5": 1573.8,
+  "TotalGWhP95": 1580.9,
+  "TotalGWhAcrossModels": {
+   "Min": 1575.4,
+   "Max": 1583.6,
+   "Models": [
+    "cascade",
+    "river-level",
+    "cascade-train-only",
+    "cascade-kastraki-capped"
+   ]
+  },
+  "ByRiver": {
+   "acheloos": {
+    "GWh": 745.4,
+    "Min": 724.8,
+    "Max": 799.9,
+    "SpreadPercent": 10.1,
+    "Reliability": "fair"
+   },
+   "aliakmonas": {
+    "GWh": 353.4,
+    "Min": 315.1,
+    "Max": 389.1,
+    "SpreadPercent": 20.9,
+    "Reliability": "poor"
+   },
+   "nestos": {
+    "GWh": 195.8,
+    "Min": 173.0,
+    "Max": 203.8,
+    "SpreadPercent": 15.7,
+    "Reliability": "poor"
+   },
+   "arachthos": {
+    "GWh": 29.1,
+    "Min": 25.7,
+    "Max": 57.6,
+    "SpreadPercent": 109.5,
+    "Reliability": "poor"
+   },
+   "plastiras": {
+    "GWh": 242.9,
+    "Min": 226.2,
+    "Max": 243.9,
+    "SpreadPercent": 7.3,
+    "Reliability": "fair"
+   },
+   "ladonas": {
+    "GWh": 10.7,
+    "Min": 3.6,
+    "Max": 21.1,
+    "SpreadPercent": 163.9,
+    "Reliability": "poor"
+   }
+  }
+ },
+ "Sanitized": [
+  {
+   "Dam": "ILARIONAS",
+   "From": "2026-07-19",
+   "To": "2026-07-25",
+   "Days": 7,
+   "Action": "0,00% θεωρήθηκε άκυρη τιμή, γραμμική παρεμβολή"
+  }
+ ],
+ "Limitations": [
+  "Το συνολικό ενεργειακό απόθεμα προσδιορίζεται καλά. Οι συντελεστές ανά φράγμα όχι πάντα (οι ταμιευτήρες ενός καταρράκτη κινούνται μαζί).",
+  "Φράγματα με Identifiable = weak/none έχουν μικρό όγκο ή ασαφή συντελεστή: μην τα διαβάζεις μεμονωμένα.",
+  "Τα διαστήματα P5-P95 ανά φράγμα (bootstrap) ΥΠΟΤΙΜΟΥΝ την αβεβαιότητα: σε συνθετικά δεδομένα με γνωστούς συντελεστές, 3 από 5 φράγματα 'ok' είχαν την αληθινή τιμή εκτός διαστήματος (π.χ. Ιλαρίων/Πολύφυτο μπερδεύονται). Χρησιμοποίησε την ενέργεια ανά ποταμό (Latest.ByRiver, με Min/Max μεταξύ υποθέσεων) και όχι ανά φράγμα.",
+  "Η εκτίμηση ημερήσιας τιμής εφαρμόζει τους συντελεστές στη μέτρηση 00:00 της ημέρας, ενώ οι συντελεστές βαθμονομήθηκαν σε μέσους όρους εβδομάδας.",
+  "Οι συντελεστές βαθμονομήθηκαν με δεδομένα Ιανουαρίου-Σεπτεμβρίου 2026: να επανεκτιμηθούν όταν προστεθούν Οκτώβριος-Δεκέμβριος (νέα πλήρωση, Αμφιλοχία)."
+ ]
+}
