@@ -1,0 +1,3914 @@
+{
+ "Schema": 1,
+ "Generated": "2026-10-08T10:44:21+0300",
+ "Daily": [
+  {
+   "Date": "2026-01-01",
+   "VolumeHm3": 3028.6,
+   "TotalGWh": 1941.3,
+   "ByRiverGWh": {
+    "acheloos": 856.0,
+    "aliakmonas": 572.5,
+    "nestos": 220.4,
+    "arachthos": 43.2,
+    "plastiras": 239.5,
+    "ladonas": 9.8
+   }
+  },
+  {
+   "Date": "2026-01-02",
+   "VolumeHm3": 3035.0,
+   "TotalGWh": 1944.4,
+   "ByRiverGWh": {
+    "acheloos": 856.8,
+    "aliakmonas": 574.1,
+    "nestos": 220.8,
+    "arachthos": 43.3,
+    "plastiras": 239.5,
+    "ladonas": 10.0
+   }
+  },
+  {
+   "Date": "2026-01-03",
+   "VolumeHm3": 3046.4,
+   "TotalGWh": 1948.9,
+   "ByRiverGWh": {
+    "acheloos": 858.5,
+    "aliakmonas": 575.1,
+    "nestos": 221.2,
+    "arachthos": 44.4,
+    "plastiras": 239.5,
+    "ladonas": 10.2
+   }
+  },
+  {
+   "Date": "2026-01-04",
+   "VolumeHm3": 3072.6,
+   "TotalGWh": 1963.5,
+   "ByRiverGWh": {
+    "acheloos": 868.5,
+    "aliakmonas": 575.6,
+    "nestos": 221.2,
+    "arachthos": 46.2,
+    "plastiras": 240.7,
+    "ladonas": 11.2
+   }
+  },
+  {
+   "Date": "2026-01-05",
+   "VolumeHm3": 3148.3,
+   "TotalGWh": 2001.1,
+   "ByRiverGWh": {
+    "acheloos": 895.2,
+    "aliakmonas": 577.9,
+    "nestos": 221.9,
+    "arachthos": 51.2,
+    "plastiras": 242.3,
+    "ladonas": 12.7
+   }
+  },
+  {
+   "Date": "2026-01-06",
+   "VolumeHm3": 3189.9,
+   "TotalGWh": 2027.9,
+   "ByRiverGWh": {
+    "acheloos": 917.2,
+    "aliakmonas": 581.1,
+    "nestos": 221.2,
+    "arachthos": 50.9,
+    "plastiras": 243.8,
+    "ladonas": 13.6
+   }
+  },
+  {
+   "Date": "2026-01-07",
+   "VolumeHm3": 3241.9,
+   "TotalGWh": 2054.4,
+   "ByRiverGWh": {
+    "acheloos": 933.4,
+    "aliakmonas": 584.1,
+    "nestos": 223.2,
+    "arachthos": 54.1,
+    "plastiras": 245.4,
+    "ladonas": 14.2
+   }
+  },
+  {
+   "Date": "2026-01-08",
+   "VolumeHm3": 3359.4,
+   "TotalGWh": 2125.8,
+   "ByRiverGWh": {
+    "acheloos": 974.4,
+    "aliakmonas": 599.3,
+    "nestos": 225.3,
+    "arachthos": 58.3,
+    "plastiras": 254.1,
+    "ladonas": 14.4
+   }
+  },
+  {
+   "Date": "2026-01-09",
+   "VolumeHm3": 3527.4,
+   "TotalGWh": 2235.8,
+   "ByRiverGWh": {
+    "acheloos": 1025.6,
+    "aliakmonas": 633.2,
+    "nestos": 233.8,
+    "arachthos": 62.6,
+    "plastiras": 265.7,
+    "ladonas": 14.9
+   }
+  },
+  {
+   "Date": "2026-01-10",
+   "VolumeHm3": 3595.0,
+   "TotalGWh": 2288.2,
+   "ByRiverGWh": {
+    "acheloos": 1045.9,
+    "aliakmonas": 656.7,
+    "nestos": 240.7,
+    "arachthos": 61.7,
+    "plastiras": 268.1,
+    "ladonas": 15.0
+   }
+  },
+  {
+   "Date": "2026-01-11",
+   "VolumeHm3": 3720.2,
+   "TotalGWh": 2367.5,
+   "ByRiverGWh": {
+    "acheloos": 1099.8,
+    "aliakmonas": 670.8,
+    "nestos": 245.2,
+    "arachthos": 64.3,
+    "plastiras": 271.2,
+    "ladonas": 16.2
+   }
+  },
+  {
+   "Date": "2026-01-12",
+   "VolumeHm3": 3782.0,
+   "TotalGWh": 2412.2,
+   "ByRiverGWh": {
+    "acheloos": 1119.9,
+    "aliakmonas": 686.8,
+    "nestos": 249.5,
+    "arachthos": 63.2,
+    "plastiras": 274.7,
+    "ladonas": 18.2
+   }
+  },
+  {
+   "Date": "2026-01-13",
+   "VolumeHm3": 3805.7,
+   "TotalGWh": 2436.3,
+   "ByRiverGWh": {
+    "acheloos": 1133.6,
+    "aliakmonas": 697.0,
+    "nestos": 252.2,
+    "arachthos": 59.8,
+    "plastiras": 274.3,
+    "ladonas": 19.3
+   }
+  },
+  {
+   "Date": "2026-01-14",
+   "VolumeHm3": 3816.2,
+   "TotalGWh": 2449.6,
+   "ByRiverGWh": {
+    "acheloos": 1141.3,
+    "aliakmonas": 700.8,
+    "nestos": 252.8,
+    "arachthos": 57.5,
+    "plastiras": 277.8,
+    "ladonas": 19.5
+   }
+  },
+  {
+   "Date": "2026-01-15",
+   "VolumeHm3": 3802.4,
+   "TotalGWh": 2452.4,
+   "ByRiverGWh": {
+    "acheloos": 1145.1,
+    "aliakmonas": 705.0,
+    "nestos": 250.6,
+    "arachthos": 53.7,
+    "plastiras": 278.7,
+    "ladonas": 19.3
+   }
+  },
+  {
+   "Date": "2026-01-16",
+   "VolumeHm3": 3788.9,
+   "TotalGWh": 2451.0,
+   "ByRiverGWh": {
+    "acheloos": 1146.4,
+    "aliakmonas": 706.7,
+    "nestos": 248.5,
+    "arachthos": 50.5,
+    "plastiras": 280.0,
+    "ladonas": 19.0
+   }
+  },
+  {
+   "Date": "2026-01-17",
+   "VolumeHm3": 3776.3,
+   "TotalGWh": 2444.7,
+   "ByRiverGWh": {
+    "acheloos": 1144.3,
+    "aliakmonas": 706.9,
+    "nestos": 244.8,
+    "arachthos": 49.9,
+    "plastiras": 280.6,
+    "ladonas": 18.3
+   }
+  },
+  {
+   "Date": "2026-01-18",
+   "VolumeHm3": 3766.8,
+   "TotalGWh": 2438.9,
+   "ByRiverGWh": {
+    "acheloos": 1141.3,
+    "aliakmonas": 706.7,
+    "nestos": 241.8,
+    "arachthos": 49.9,
+    "plastiras": 281.5,
+    "ladonas": 17.6
+   }
+  },
+  {
+   "Date": "2026-01-19",
+   "VolumeHm3": 3760.4,
+   "TotalGWh": 2433.9,
+   "ByRiverGWh": {
+    "acheloos": 1138.9,
+    "aliakmonas": 706.1,
+    "nestos": 239.4,
+    "arachthos": 50.0,
+    "plastiras": 282.8,
+    "ladonas": 16.8
+   }
+  },
+  {
+   "Date": "2026-01-20",
+   "VolumeHm3": 3747.2,
+   "TotalGWh": 2425.4,
+   "ByRiverGWh": {
+    "acheloos": 1135.4,
+    "aliakmonas": 705.2,
+    "nestos": 235.7,
+    "arachthos": 49.6,
+    "plastiras": 283.7,
+    "ladonas": 15.8
+   }
+  },
+  {
+   "Date": "2026-01-21",
+   "VolumeHm3": 3726.3,
+   "TotalGWh": 2411.3,
+   "ByRiverGWh": {
+    "acheloos": 1128.1,
+    "aliakmonas": 703.5,
+    "nestos": 232.3,
+    "arachthos": 48.4,
+    "plastiras": 284.3,
+    "ladonas": 14.8
+   }
+  },
+  {
+   "Date": "2026-01-22",
+   "VolumeHm3": 3686.2,
+   "TotalGWh": 2394.9,
+   "ByRiverGWh": {
+    "acheloos": 1122.1,
+    "aliakmonas": 698.5,
+    "nestos": 229.0,
+    "arachthos": 45.3,
+    "plastiras": 286.2,
+    "ladonas": 13.9
+   }
+  },
+  {
+   "Date": "2026-01-23",
+   "VolumeHm3": 3664.2,
+   "TotalGWh": 2382.1,
+   "ByRiverGWh": {
+    "acheloos": 1117.0,
+    "aliakmonas": 694.2,
+    "nestos": 226.2,
+    "arachthos": 43.7,
+    "plastiras": 287.1,
+    "ladonas": 13.8
+   }
+  },
+  {
+   "Date": "2026-01-24",
+   "VolumeHm3": 3644.0,
+   "TotalGWh": 2371.7,
+   "ByRiverGWh": {
+    "acheloos": 1112.6,
+    "aliakmonas": 690.6,
+    "nestos": 223.5,
+    "arachthos": 43.2,
+    "plastiras": 287.7,
+    "ladonas": 13.9
+   }
+  },
+  {
+   "Date": "2026-01-25",
+   "VolumeHm3": 3633.8,
+   "TotalGWh": 2363.9,
+   "ByRiverGWh": {
+    "acheloos": 1109.4,
+    "aliakmonas": 685.9,
+    "nestos": 222.9,
+    "arachthos": 43.6,
+    "plastiras": 288.7,
+    "ladonas": 13.5
+   }
+  },
+  {
+   "Date": "2026-01-26",
+   "VolumeHm3": 3630.1,
+   "TotalGWh": 2358.2,
+   "ByRiverGWh": {
+    "acheloos": 1107.5,
+    "aliakmonas": 681.1,
+    "nestos": 222.5,
+    "arachthos": 44.3,
+    "plastiras": 289.9,
+    "ladonas": 12.8
+   }
+  },
+  {
+   "Date": "2026-01-27",
+   "VolumeHm3": 3646.3,
+   "TotalGWh": 2369.8,
+   "ByRiverGWh": {
+    "acheloos": 1107.7,
+    "aliakmonas": 678.7,
+    "nestos": 234.3,
+    "arachthos": 44.0,
+    "plastiras": 292.4,
+    "ladonas": 12.6
+   }
+  },
+  {
+   "Date": "2026-01-28",
+   "VolumeHm3": 3667.8,
+   "TotalGWh": 2388.1,
+   "ByRiverGWh": {
+    "acheloos": 1110.7,
+    "aliakmonas": 677.6,
+    "nestos": 250.5,
+    "arachthos": 42.7,
+    "plastiras": 294.3,
+    "ladonas": 12.4
+   }
+  },
+  {
+   "Date": "2026-01-29",
+   "VolumeHm3": 3676.1,
+   "TotalGWh": 2392.0,
+   "ByRiverGWh": {
+    "acheloos": 1110.9,
+    "aliakmonas": 675.8,
+    "nestos": 254.3,
+    "arachthos": 43.1,
+    "plastiras": 295.8,
+    "ladonas": 12.1
+   }
+  },
+  {
+   "Date": "2026-01-30",
+   "VolumeHm3": 3772.7,
+   "TotalGWh": 2440.0,
+   "ByRiverGWh": {
+    "acheloos": 1141.9,
+    "aliakmonas": 678.2,
+    "nestos": 255.4,
+    "arachthos": 50.3,
+    "plastiras": 301.1,
+    "ladonas": 13.0
+   }
+  },
+  {
+   "Date": "2026-01-31",
+   "VolumeHm3": 3848.6,
+   "TotalGWh": 2480.7,
+   "ByRiverGWh": {
+    "acheloos": 1168.7,
+    "aliakmonas": 679.8,
+    "nestos": 255.9,
+    "arachthos": 55.5,
+    "plastiras": 305.8,
+    "ladonas": 15.1
+   }
+  },
+  {
+   "Date": "2026-02-01",
+   "VolumeHm3": 3886.6,
+   "TotalGWh": 2502.9,
+   "ByRiverGWh": {
+    "acheloos": 1185.3,
+    "aliakmonas": 679.8,
+    "nestos": 256.7,
+    "arachthos": 56.9,
+    "plastiras": 307.8,
+    "ladonas": 16.4
+   }
+  },
+  {
+   "Date": "2026-02-02",
+   "VolumeHm3": 3952.2,
+   "TotalGWh": 2543.3,
+   "ByRiverGWh": {
+    "acheloos": 1203.6,
+    "aliakmonas": 693.5,
+    "nestos": 256.9,
+    "arachthos": 57.5,
+    "plastiras": 312.7,
+    "ladonas": 19.1
+   }
+  },
+  {
+   "Date": "2026-02-03",
+   "VolumeHm3": 3980.1,
+   "TotalGWh": 2566.7,
+   "ByRiverGWh": {
+    "acheloos": 1214.7,
+    "aliakmonas": 703.3,
+    "nestos": 256.1,
+    "arachthos": 55.8,
+    "plastiras": 314.3,
+    "ladonas": 22.6
+   }
+  },
+  {
+   "Date": "2026-02-04",
+   "VolumeHm3": 3985.4,
+   "TotalGWh": 2583.6,
+   "ByRiverGWh": {
+    "acheloos": 1222.5,
+    "aliakmonas": 706.5,
+    "nestos": 254.9,
+    "arachthos": 53.0,
+    "plastiras": 322.5,
+    "ladonas": 24.3
+   }
+  },
+  {
+   "Date": "2026-02-05",
+   "VolumeHm3": 3970.9,
+   "TotalGWh": 2577.5,
+   "ByRiverGWh": {
+    "acheloos": 1225.8,
+    "aliakmonas": 706.0,
+    "nestos": 253.0,
+    "arachthos": 50.1,
+    "plastiras": 317.3,
+    "ladonas": 25.4
+   }
+  },
+  {
+   "Date": "2026-02-06",
+   "VolumeHm3": 4041.7,
+   "TotalGWh": 2620.9,
+   "ByRiverGWh": {
+    "acheloos": 1240.0,
+    "aliakmonas": 712.9,
+    "nestos": 267.9,
+    "arachthos": 52.6,
+    "plastiras": 319.2,
+    "ladonas": 28.3
+   }
+  },
+  {
+   "Date": "2026-02-07",
+   "VolumeHm3": 4118.6,
+   "TotalGWh": 2661.6,
+   "ByRiverGWh": {
+    "acheloos": 1258.0,
+    "aliakmonas": 717.7,
+    "nestos": 276.0,
+    "arachthos": 56.1,
+    "plastiras": 321.5,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-02-08",
+   "VolumeHm3": 4189.2,
+   "TotalGWh": 2704.1,
+   "ByRiverGWh": {
+    "acheloos": 1280.6,
+    "aliakmonas": 725.6,
+    "nestos": 279.1,
+    "arachthos": 59.5,
+    "plastiras": 324.4,
+    "ladonas": 34.8
+   }
+  },
+  {
+   "Date": "2026-02-09",
+   "VolumeHm3": 4240.9,
+   "TotalGWh": 2728.9,
+   "ByRiverGWh": {
+    "acheloos": 1296.5,
+    "aliakmonas": 728.7,
+    "nestos": 280.5,
+    "arachthos": 62.6,
+    "plastiras": 326.0,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-02-10",
+   "VolumeHm3": 4253.9,
+   "TotalGWh": 2738.1,
+   "ByRiverGWh": {
+    "acheloos": 1305.0,
+    "aliakmonas": 728.5,
+    "nestos": 280.8,
+    "arachthos": 62.0,
+    "plastiras": 327.4,
+    "ladonas": 34.5
+   }
+  },
+  {
+   "Date": "2026-02-11",
+   "VolumeHm3": 4247.6,
+   "TotalGWh": 2742.4,
+   "ByRiverGWh": {
+    "acheloos": 1310.4,
+    "aliakmonas": 730.2,
+    "nestos": 278.8,
+    "arachthos": 60.1,
+    "plastiras": 328.7,
+    "ladonas": 34.3
+   }
+  },
+  {
+   "Date": "2026-02-12",
+   "VolumeHm3": 4220.6,
+   "TotalGWh": 2739.0,
+   "ByRiverGWh": {
+    "acheloos": 1315.5,
+    "aliakmonas": 728.2,
+    "nestos": 275.7,
+    "arachthos": 54.9,
+    "plastiras": 330.3,
+    "ladonas": 34.4
+   }
+  },
+  {
+   "Date": "2026-02-13",
+   "VolumeHm3": 4218.6,
+   "TotalGWh": 2747.0,
+   "ByRiverGWh": {
+    "acheloos": 1330.1,
+    "aliakmonas": 726.4,
+    "nestos": 272.4,
+    "arachthos": 50.3,
+    "plastiras": 332.9,
+    "ladonas": 34.9
+   }
+  },
+  {
+   "Date": "2026-02-14",
+   "VolumeHm3": 4253.9,
+   "TotalGWh": 2766.5,
+   "ByRiverGWh": {
+    "acheloos": 1349.0,
+    "aliakmonas": 727.0,
+    "nestos": 269.4,
+    "arachthos": 51.8,
+    "plastiras": 334.5,
+    "ladonas": 34.8
+   }
+  },
+  {
+   "Date": "2026-02-15",
+   "VolumeHm3": 4272.5,
+   "TotalGWh": 2776.0,
+   "ByRiverGWh": {
+    "acheloos": 1360.2,
+    "aliakmonas": 725.9,
+    "nestos": 266.8,
+    "arachthos": 53.5,
+    "plastiras": 335.5,
+    "ladonas": 34.1
+   }
+  },
+  {
+   "Date": "2026-02-16",
+   "VolumeHm3": 4343.1,
+   "TotalGWh": 2812.9,
+   "ByRiverGWh": {
+    "acheloos": 1376.6,
+    "aliakmonas": 726.8,
+    "nestos": 280.4,
+    "arachthos": 56.5,
+    "plastiras": 339.1,
+    "ladonas": 33.6
+   }
+  },
+  {
+   "Date": "2026-02-17",
+   "VolumeHm3": 4430.9,
+   "TotalGWh": 2861.0,
+   "ByRiverGWh": {
+    "acheloos": 1401.1,
+    "aliakmonas": 729.9,
+    "nestos": 295.3,
+    "arachthos": 60.3,
+    "plastiras": 341.1,
+    "ladonas": 33.3
+   }
+  },
+  {
+   "Date": "2026-02-18",
+   "VolumeHm3": 4519.5,
+   "TotalGWh": 2913.3,
+   "ByRiverGWh": {
+    "acheloos": 1431.4,
+    "aliakmonas": 737.8,
+    "nestos": 303.0,
+    "arachthos": 63.4,
+    "plastiras": 343.0,
+    "ladonas": 34.6
+   }
+  },
+  {
+   "Date": "2026-02-19",
+   "VolumeHm3": 4556.8,
+   "TotalGWh": 2937.7,
+   "ByRiverGWh": {
+    "acheloos": 1445.6,
+    "aliakmonas": 740.3,
+    "nestos": 310.1,
+    "arachthos": 62.5,
+    "plastiras": 345.3,
+    "ladonas": 33.8
+   }
+  },
+  {
+   "Date": "2026-02-20",
+   "VolumeHm3": 4554.9,
+   "TotalGWh": 2940.5,
+   "ByRiverGWh": {
+    "acheloos": 1449.2,
+    "aliakmonas": 738.7,
+    "nestos": 312.3,
+    "arachthos": 60.2,
+    "plastiras": 346.6,
+    "ladonas": 33.4
+   }
+  },
+  {
+   "Date": "2026-02-21",
+   "VolumeHm3": 4575.5,
+   "TotalGWh": 2954.3,
+   "ByRiverGWh": {
+    "acheloos": 1459.1,
+    "aliakmonas": 739.1,
+    "nestos": 313.4,
+    "arachthos": 60.3,
+    "plastiras": 348.6,
+    "ladonas": 33.9
+   }
+  },
+  {
+   "Date": "2026-02-22",
+   "VolumeHm3": 4590.5,
+   "TotalGWh": 2965.5,
+   "ByRiverGWh": {
+    "acheloos": 1462.9,
+    "aliakmonas": 743.6,
+    "nestos": 314.6,
+    "arachthos": 60.1,
+    "plastiras": 350.2,
+    "ladonas": 34.0
+   }
+  },
+  {
+   "Date": "2026-02-23",
+   "VolumeHm3": 4608.9,
+   "TotalGWh": 2979.9,
+   "ByRiverGWh": {
+    "acheloos": 1466.7,
+    "aliakmonas": 746.4,
+    "nestos": 321.8,
+    "arachthos": 59.5,
+    "plastiras": 351.5,
+    "ladonas": 34.0
+   }
+  },
+  {
+   "Date": "2026-02-24",
+   "VolumeHm3": 4593.3,
+   "TotalGWh": 2974.9,
+   "ByRiverGWh": {
+    "acheloos": 1464.4,
+    "aliakmonas": 744.3,
+    "nestos": 322.0,
+    "arachthos": 58.6,
+    "plastiras": 352.2,
+    "ladonas": 33.4
+   }
+  },
+  {
+   "Date": "2026-02-25",
+   "VolumeHm3": 4567.9,
+   "TotalGWh": 2962.7,
+   "ByRiverGWh": {
+    "acheloos": 1460.5,
+    "aliakmonas": 738.4,
+    "nestos": 320.7,
+    "arachthos": 57.2,
+    "plastiras": 352.8,
+    "ladonas": 33.1
+   }
+  },
+  {
+   "Date": "2026-02-26",
+   "VolumeHm3": 4544.7,
+   "TotalGWh": 2953.2,
+   "ByRiverGWh": {
+    "acheloos": 1456.6,
+    "aliakmonas": 733.9,
+    "nestos": 319.2,
+    "arachthos": 56.0,
+    "plastiras": 353.8,
+    "ladonas": 33.7
+   }
+  },
+  {
+   "Date": "2026-02-27",
+   "VolumeHm3": 4521.4,
+   "TotalGWh": 2941.5,
+   "ByRiverGWh": {
+    "acheloos": 1450.8,
+    "aliakmonas": 728.1,
+    "nestos": 318.5,
+    "arachthos": 54.9,
+    "plastiras": 354.4,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-02-28",
+   "VolumeHm3": 4488.8,
+   "TotalGWh": 2923.2,
+   "ByRiverGWh": {
+    "acheloos": 1443.6,
+    "aliakmonas": 721.9,
+    "nestos": 314.2,
+    "arachthos": 54.2,
+    "plastiras": 354.4,
+    "ladonas": 34.8
+   }
+  },
+  {
+   "Date": "2026-03-01",
+   "VolumeHm3": 4461.2,
+   "TotalGWh": 2906.5,
+   "ByRiverGWh": {
+    "acheloos": 1435.5,
+    "aliakmonas": 716.2,
+    "nestos": 310.1,
+    "arachthos": 54.8,
+    "plastiras": 355.1,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-03-02",
+   "VolumeHm3": 4441.5,
+   "TotalGWh": 2895.4,
+   "ByRiverGWh": {
+    "acheloos": 1431.0,
+    "aliakmonas": 713.0,
+    "nestos": 306.2,
+    "arachthos": 55.0,
+    "plastiras": 355.4,
+    "ladonas": 34.8
+   }
+  },
+  {
+   "Date": "2026-03-03",
+   "VolumeHm3": 4411.3,
+   "TotalGWh": 2875.0,
+   "ByRiverGWh": {
+    "acheloos": 1424.2,
+    "aliakmonas": 704.0,
+    "nestos": 301.7,
+    "arachthos": 54.3,
+    "plastiras": 356.1,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-03-04",
+   "VolumeHm3": 4384.7,
+   "TotalGWh": 2860.6,
+   "ByRiverGWh": {
+    "acheloos": 1417.2,
+    "aliakmonas": 701.1,
+    "nestos": 297.2,
+    "arachthos": 54.0,
+    "plastiras": 356.4,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-03-05",
+   "VolumeHm3": 4354.4,
+   "TotalGWh": 2843.7,
+   "ByRiverGWh": {
+    "acheloos": 1409.2,
+    "aliakmonas": 697.2,
+    "nestos": 292.3,
+    "arachthos": 53.5,
+    "plastiras": 356.7,
+    "ladonas": 34.8
+   }
+  },
+  {
+   "Date": "2026-03-06",
+   "VolumeHm3": 4330.2,
+   "TotalGWh": 2829.1,
+   "ByRiverGWh": {
+    "acheloos": 1401.3,
+    "aliakmonas": 693.8,
+    "nestos": 288.9,
+    "arachthos": 53.6,
+    "plastiras": 356.7,
+    "ladonas": 34.8
+   }
+  },
+  {
+   "Date": "2026-03-07",
+   "VolumeHm3": 4308.7,
+   "TotalGWh": 2815.3,
+   "ByRiverGWh": {
+    "acheloos": 1393.6,
+    "aliakmonas": 689.9,
+    "nestos": 286.6,
+    "arachthos": 53.5,
+    "plastiras": 357.0,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-03-08",
+   "VolumeHm3": 4291.7,
+   "TotalGWh": 2803.4,
+   "ByRiverGWh": {
+    "acheloos": 1385.2,
+    "aliakmonas": 688.5,
+    "nestos": 284.0,
+    "arachthos": 53.6,
+    "plastiras": 357.4,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-03-09",
+   "VolumeHm3": 4274.7,
+   "TotalGWh": 2793.5,
+   "ByRiverGWh": {
+    "acheloos": 1378.2,
+    "aliakmonas": 688.0,
+    "nestos": 281.2,
+    "arachthos": 53.9,
+    "plastiras": 357.4,
+    "ladonas": 34.7
+   }
+  },
+  {
+   "Date": "2026-03-10",
+   "VolumeHm3": 4266.2,
+   "TotalGWh": 2785.2,
+   "ByRiverGWh": {
+    "acheloos": 1372.1,
+    "aliakmonas": 688.2,
+    "nestos": 278.2,
+    "arachthos": 54.1,
+    "plastiras": 358.0,
+    "ladonas": 34.6
+   }
+  },
+  {
+   "Date": "2026-03-11",
+   "VolumeHm3": 4243.0,
+   "TotalGWh": 2771.3,
+   "ByRiverGWh": {
+    "acheloos": 1365.2,
+    "aliakmonas": 685.1,
+    "nestos": 274.9,
+    "arachthos": 53.6,
+    "plastiras": 358.0,
+    "ladonas": 34.5
+   }
+  },
+  {
+   "Date": "2026-03-12",
+   "VolumeHm3": 4224.2,
+   "TotalGWh": 2758.9,
+   "ByRiverGWh": {
+    "acheloos": 1357.9,
+    "aliakmonas": 683.3,
+    "nestos": 272.1,
+    "arachthos": 53.2,
+    "plastiras": 358.0,
+    "ladonas": 34.3
+   }
+  },
+  {
+   "Date": "2026-03-13",
+   "VolumeHm3": 4206.9,
+   "TotalGWh": 2745.8,
+   "ByRiverGWh": {
+    "acheloos": 1350.9,
+    "aliakmonas": 680.7,
+    "nestos": 268.8,
+    "arachthos": 52.9,
+    "plastiras": 358.4,
+    "ladonas": 34.1
+   }
+  },
+  {
+   "Date": "2026-03-14",
+   "VolumeHm3": 4189.3,
+   "TotalGWh": 2734.6,
+   "ByRiverGWh": {
+    "acheloos": 1343.8,
+    "aliakmonas": 680.0,
+    "nestos": 265.7,
+    "arachthos": 53.0,
+    "plastiras": 358.4,
+    "ladonas": 33.8
+   }
+  },
+  {
+   "Date": "2026-03-15",
+   "VolumeHm3": 4180.5,
+   "TotalGWh": 2727.2,
+   "ByRiverGWh": {
+    "acheloos": 1337.6,
+    "aliakmonas": 679.4,
+    "nestos": 265.0,
+    "arachthos": 53.3,
+    "plastiras": 358.4,
+    "ladonas": 33.5
+   }
+  },
+  {
+   "Date": "2026-03-16",
+   "VolumeHm3": 4171.8,
+   "TotalGWh": 2722.0,
+   "ByRiverGWh": {
+    "acheloos": 1332.6,
+    "aliakmonas": 679.3,
+    "nestos": 264.6,
+    "arachthos": 53.6,
+    "plastiras": 358.7,
+    "ladonas": 33.1
+   }
+  },
+  {
+   "Date": "2026-03-17",
+   "VolumeHm3": 4160.7,
+   "TotalGWh": 2714.9,
+   "ByRiverGWh": {
+    "acheloos": 1327.2,
+    "aliakmonas": 678.5,
+    "nestos": 263.8,
+    "arachthos": 54.0,
+    "plastiras": 358.7,
+    "ladonas": 32.7
+   }
+  },
+  {
+   "Date": "2026-03-18",
+   "VolumeHm3": 4149.3,
+   "TotalGWh": 2705.3,
+   "ByRiverGWh": {
+    "acheloos": 1320.0,
+    "aliakmonas": 677.3,
+    "nestos": 262.6,
+    "arachthos": 54.2,
+    "plastiras": 359.0,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-03-19",
+   "VolumeHm3": 4139.3,
+   "TotalGWh": 2697.0,
+   "ByRiverGWh": {
+    "acheloos": 1312.7,
+    "aliakmonas": 676.3,
+    "nestos": 261.7,
+    "arachthos": 54.5,
+    "plastiras": 360.0,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-03-20",
+   "VolumeHm3": 4131.5,
+   "TotalGWh": 2691.9,
+   "ByRiverGWh": {
+    "acheloos": 1306.7,
+    "aliakmonas": 675.3,
+    "nestos": 260.8,
+    "arachthos": 54.9,
+    "plastiras": 362.9,
+    "ladonas": 31.3
+   }
+  },
+  {
+   "Date": "2026-03-21",
+   "VolumeHm3": 4117.8,
+   "TotalGWh": 2684.0,
+   "ByRiverGWh": {
+    "acheloos": 1299.5,
+    "aliakmonas": 674.0,
+    "nestos": 259.9,
+    "arachthos": 55.1,
+    "plastiras": 364.5,
+    "ladonas": 30.9
+   }
+  },
+  {
+   "Date": "2026-03-22",
+   "VolumeHm3": 4117.9,
+   "TotalGWh": 2681.5,
+   "ByRiverGWh": {
+    "acheloos": 1295.5,
+    "aliakmonas": 674.5,
+    "nestos": 260.6,
+    "arachthos": 55.4,
+    "plastiras": 364.9,
+    "ladonas": 30.5
+   }
+  },
+  {
+   "Date": "2026-03-23",
+   "VolumeHm3": 4115.7,
+   "TotalGWh": 2677.5,
+   "ByRiverGWh": {
+    "acheloos": 1290.8,
+    "aliakmonas": 673.5,
+    "nestos": 262.0,
+    "arachthos": 55.8,
+    "plastiras": 365.2,
+    "ladonas": 30.1
+   }
+  },
+  {
+   "Date": "2026-03-24",
+   "VolumeHm3": 4109.6,
+   "TotalGWh": 2673.0,
+   "ByRiverGWh": {
+    "acheloos": 1287.1,
+    "aliakmonas": 673.3,
+    "nestos": 261.6,
+    "arachthos": 55.5,
+    "plastiras": 365.9,
+    "ladonas": 29.7
+   }
+  },
+  {
+   "Date": "2026-03-25",
+   "VolumeHm3": 4109.1,
+   "TotalGWh": 2673.1,
+   "ByRiverGWh": {
+    "acheloos": 1284.1,
+    "aliakmonas": 675.7,
+    "nestos": 262.0,
+    "arachthos": 55.8,
+    "plastiras": 366.2,
+    "ladonas": 29.2
+   }
+  },
+  {
+   "Date": "2026-03-26",
+   "VolumeHm3": 4111.5,
+   "TotalGWh": 2674.3,
+   "ByRiverGWh": {
+    "acheloos": 1282.7,
+    "aliakmonas": 676.2,
+    "nestos": 263.5,
+    "arachthos": 56.1,
+    "plastiras": 367.1,
+    "ladonas": 28.7
+   }
+  },
+  {
+   "Date": "2026-03-27",
+   "VolumeHm3": 4110.6,
+   "TotalGWh": 2673.8,
+   "ByRiverGWh": {
+    "acheloos": 1280.9,
+    "aliakmonas": 676.7,
+    "nestos": 264.2,
+    "arachthos": 56.2,
+    "plastiras": 367.5,
+    "ladonas": 28.2
+   }
+  },
+  {
+   "Date": "2026-03-28",
+   "VolumeHm3": 4114.5,
+   "TotalGWh": 2674.8,
+   "ByRiverGWh": {
+    "acheloos": 1280.5,
+    "aliakmonas": 676.7,
+    "nestos": 264.7,
+    "arachthos": 56.7,
+    "plastiras": 368.1,
+    "ladonas": 28.1
+   }
+  },
+  {
+   "Date": "2026-03-29",
+   "VolumeHm3": 4121.9,
+   "TotalGWh": 2678.8,
+   "ByRiverGWh": {
+    "acheloos": 1280.6,
+    "aliakmonas": 677.6,
+    "nestos": 265.3,
+    "arachthos": 57.5,
+    "plastiras": 369.5,
+    "ladonas": 28.3
+   }
+  },
+  {
+   "Date": "2026-03-30",
+   "VolumeHm3": 4132.6,
+   "TotalGWh": 2685.5,
+   "ByRiverGWh": {
+    "acheloos": 1282.6,
+    "aliakmonas": 679.2,
+    "nestos": 267.4,
+    "arachthos": 58.0,
+    "plastiras": 369.8,
+    "ladonas": 28.5
+   }
+  },
+  {
+   "Date": "2026-03-31",
+   "VolumeHm3": 4137.4,
+   "TotalGWh": 2689.2,
+   "ByRiverGWh": {
+    "acheloos": 1283.9,
+    "aliakmonas": 679.9,
+    "nestos": 267.9,
+    "arachthos": 58.5,
+    "plastiras": 370.4,
+    "ladonas": 28.6
+   }
+  },
+  {
+   "Date": "2026-04-01",
+   "VolumeHm3": 4139.1,
+   "TotalGWh": 2690.2,
+   "ByRiverGWh": {
+    "acheloos": 1283.6,
+    "aliakmonas": 680.4,
+    "nestos": 268.3,
+    "arachthos": 58.8,
+    "plastiras": 370.7,
+    "ladonas": 28.4
+   }
+  },
+  {
+   "Date": "2026-04-02",
+   "VolumeHm3": 4154.7,
+   "TotalGWh": 2700.2,
+   "ByRiverGWh": {
+    "acheloos": 1284.9,
+    "aliakmonas": 685.2,
+    "nestos": 268.8,
+    "arachthos": 59.6,
+    "plastiras": 373.6,
+    "ladonas": 28.2
+   }
+  },
+  {
+   "Date": "2026-04-03",
+   "VolumeHm3": 4234.7,
+   "TotalGWh": 2759.0,
+   "ByRiverGWh": {
+    "acheloos": 1298.5,
+    "aliakmonas": 708.3,
+    "nestos": 270.0,
+    "arachthos": 60.3,
+    "plastiras": 392.8,
+    "ladonas": 29.0
+   }
+  },
+  {
+   "Date": "2026-04-04",
+   "VolumeHm3": 4283.6,
+   "TotalGWh": 2793.9,
+   "ByRiverGWh": {
+    "acheloos": 1308.4,
+    "aliakmonas": 726.0,
+    "nestos": 272.0,
+    "arachthos": 60.8,
+    "plastiras": 396.4,
+    "ladonas": 30.2
+   }
+  },
+  {
+   "Date": "2026-04-05",
+   "VolumeHm3": 4318.2,
+   "TotalGWh": 2816.9,
+   "ByRiverGWh": {
+    "acheloos": 1316.0,
+    "aliakmonas": 736.4,
+    "nestos": 273.1,
+    "arachthos": 61.5,
+    "plastiras": 398.5,
+    "ladonas": 31.4
+   }
+  },
+  {
+   "Date": "2026-04-06",
+   "VolumeHm3": 4342.2,
+   "TotalGWh": 2831.8,
+   "ByRiverGWh": {
+    "acheloos": 1321.2,
+    "aliakmonas": 743.7,
+    "nestos": 274.1,
+    "arachthos": 62.1,
+    "plastiras": 398.9,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-04-07",
+   "VolumeHm3": 4360.5,
+   "TotalGWh": 2844.6,
+   "ByRiverGWh": {
+    "acheloos": 1324.9,
+    "aliakmonas": 749.3,
+    "nestos": 275.0,
+    "arachthos": 62.3,
+    "plastiras": 401.0,
+    "ladonas": 32.1
+   }
+  },
+  {
+   "Date": "2026-04-08",
+   "VolumeHm3": 4376.4,
+   "TotalGWh": 2857.2,
+   "ByRiverGWh": {
+    "acheloos": 1329.4,
+    "aliakmonas": 754.0,
+    "nestos": 277.0,
+    "arachthos": 62.4,
+    "plastiras": 402.1,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-04-09",
+   "VolumeHm3": 4387.2,
+   "TotalGWh": 2865.3,
+   "ByRiverGWh": {
+    "acheloos": 1332.0,
+    "aliakmonas": 758.2,
+    "nestos": 277.5,
+    "arachthos": 62.5,
+    "plastiras": 402.8,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-04-10",
+   "VolumeHm3": 4396.2,
+   "TotalGWh": 2872.7,
+   "ByRiverGWh": {
+    "acheloos": 1334.1,
+    "aliakmonas": 762.3,
+    "nestos": 277.6,
+    "arachthos": 62.6,
+    "plastiras": 403.9,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-04-11",
+   "VolumeHm3": 4405.2,
+   "TotalGWh": 2878.8,
+   "ByRiverGWh": {
+    "acheloos": 1335.6,
+    "aliakmonas": 765.5,
+    "nestos": 278.5,
+    "arachthos": 63.0,
+    "plastiras": 404.2,
+    "ladonas": 32.0
+   }
+  },
+  {
+   "Date": "2026-04-12",
+   "VolumeHm3": 4413.9,
+   "TotalGWh": 2882.3,
+   "ByRiverGWh": {
+    "acheloos": 1336.2,
+    "aliakmonas": 768.6,
+    "nestos": 277.7,
+    "arachthos": 63.4,
+    "plastiras": 404.6,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-04-13",
+   "VolumeHm3": 4425.7,
+   "TotalGWh": 2889.0,
+   "ByRiverGWh": {
+    "acheloos": 1338.2,
+    "aliakmonas": 772.0,
+    "nestos": 278.4,
+    "arachthos": 63.6,
+    "plastiras": 405.3,
+    "ladonas": 31.5
+   }
+  },
+  {
+   "Date": "2026-04-14",
+   "VolumeHm3": 4433.9,
+   "TotalGWh": 2895.0,
+   "ByRiverGWh": {
+    "acheloos": 1339.5,
+    "aliakmonas": 775.5,
+    "nestos": 278.4,
+    "arachthos": 64.0,
+    "plastiras": 406.3,
+    "ladonas": 31.2
+   }
+  },
+  {
+   "Date": "2026-04-15",
+   "VolumeHm3": 4440.2,
+   "TotalGWh": 2897.6,
+   "ByRiverGWh": {
+    "acheloos": 1339.8,
+    "aliakmonas": 778.2,
+    "nestos": 278.0,
+    "arachthos": 64.5,
+    "plastiras": 406.3,
+    "ladonas": 30.8
+   }
+  },
+  {
+   "Date": "2026-04-16",
+   "VolumeHm3": 4450.3,
+   "TotalGWh": 2902.9,
+   "ByRiverGWh": {
+    "acheloos": 1340.5,
+    "aliakmonas": 781.7,
+    "nestos": 278.3,
+    "arachthos": 65.0,
+    "plastiras": 407.1,
+    "ladonas": 30.3
+   }
+  },
+  {
+   "Date": "2026-04-17",
+   "VolumeHm3": 4461.2,
+   "TotalGWh": 2908.7,
+   "ByRiverGWh": {
+    "acheloos": 1342.9,
+    "aliakmonas": 784.9,
+    "nestos": 278.0,
+    "arachthos": 65.6,
+    "plastiras": 407.5,
+    "ladonas": 29.8
+   }
+  },
+  {
+   "Date": "2026-04-18",
+   "VolumeHm3": 4470.5,
+   "TotalGWh": 2914.9,
+   "ByRiverGWh": {
+    "acheloos": 1344.7,
+    "aliakmonas": 788.6,
+    "nestos": 277.9,
+    "arachthos": 66.2,
+    "plastiras": 408.2,
+    "ladonas": 29.3
+   }
+  },
+  {
+   "Date": "2026-04-19",
+   "VolumeHm3": 4479.5,
+   "TotalGWh": 2920.8,
+   "ByRiverGWh": {
+    "acheloos": 1347.4,
+    "aliakmonas": 792.2,
+    "nestos": 276.5,
+    "arachthos": 66.8,
+    "plastiras": 408.9,
+    "ladonas": 29.0
+   }
+  },
+  {
+   "Date": "2026-04-20",
+   "VolumeHm3": 4487.4,
+   "TotalGWh": 2924.9,
+   "ByRiverGWh": {
+    "acheloos": 1347.8,
+    "aliakmonas": 794.1,
+    "nestos": 277.2,
+    "arachthos": 67.4,
+    "plastiras": 409.7,
+    "ladonas": 28.8
+   }
+  },
+  {
+   "Date": "2026-04-21",
+   "VolumeHm3": 4496.2,
+   "TotalGWh": 2930.5,
+   "ByRiverGWh": {
+    "acheloos": 1349.4,
+    "aliakmonas": 796.5,
+    "nestos": 278.2,
+    "arachthos": 67.9,
+    "plastiras": 410.0,
+    "ladonas": 28.4
+   }
+  },
+  {
+   "Date": "2026-04-22",
+   "VolumeHm3": 4500.8,
+   "TotalGWh": 2932.3,
+   "ByRiverGWh": {
+    "acheloos": 1350.2,
+    "aliakmonas": 796.7,
+    "nestos": 278.7,
+    "arachthos": 68.3,
+    "plastiras": 410.4,
+    "ladonas": 28.0
+   }
+  },
+  {
+   "Date": "2026-04-23",
+   "VolumeHm3": 4499.7,
+   "TotalGWh": 2933.2,
+   "ByRiverGWh": {
+    "acheloos": 1350.0,
+    "aliakmonas": 797.1,
+    "nestos": 279.3,
+    "arachthos": 68.4,
+    "plastiras": 410.8,
+    "ladonas": 27.6
+   }
+  },
+  {
+   "Date": "2026-04-24",
+   "VolumeHm3": 4507.7,
+   "TotalGWh": 2939.0,
+   "ByRiverGWh": {
+    "acheloos": 1351.1,
+    "aliakmonas": 798.6,
+    "nestos": 280.7,
+    "arachthos": 68.9,
+    "plastiras": 412.6,
+    "ladonas": 27.1
+   }
+  },
+  {
+   "Date": "2026-04-25",
+   "VolumeHm3": 4509.2,
+   "TotalGWh": 2940.9,
+   "ByRiverGWh": {
+    "acheloos": 1351.7,
+    "aliakmonas": 799.1,
+    "nestos": 281.6,
+    "arachthos": 69.2,
+    "plastiras": 412.6,
+    "ladonas": 26.6
+   }
+  },
+  {
+   "Date": "2026-04-26",
+   "VolumeHm3": 4515.5,
+   "TotalGWh": 2942.4,
+   "ByRiverGWh": {
+    "acheloos": 1352.4,
+    "aliakmonas": 798.5,
+    "nestos": 282.2,
+    "arachthos": 69.4,
+    "plastiras": 413.0,
+    "ladonas": 26.9
+   }
+  },
+  {
+   "Date": "2026-04-27",
+   "VolumeHm3": 4516.7,
+   "TotalGWh": 2943.4,
+   "ByRiverGWh": {
+    "acheloos": 1352.6,
+    "aliakmonas": 797.4,
+    "nestos": 283.1,
+    "arachthos": 69.8,
+    "plastiras": 413.4,
+    "ladonas": 27.1
+   }
+  },
+  {
+   "Date": "2026-04-28",
+   "VolumeHm3": 4521.7,
+   "TotalGWh": 2945.4,
+   "ByRiverGWh": {
+    "acheloos": 1352.9,
+    "aliakmonas": 796.7,
+    "nestos": 284.7,
+    "arachthos": 70.0,
+    "plastiras": 413.8,
+    "ladonas": 27.3
+   }
+  },
+  {
+   "Date": "2026-04-29",
+   "VolumeHm3": 4520.8,
+   "TotalGWh": 2945.6,
+   "ByRiverGWh": {
+    "acheloos": 1352.9,
+    "aliakmonas": 795.4,
+    "nestos": 285.4,
+    "arachthos": 70.3,
+    "plastiras": 414.1,
+    "ladonas": 27.5
+   }
+  },
+  {
+   "Date": "2026-04-30",
+   "VolumeHm3": 4519.1,
+   "TotalGWh": 2944.2,
+   "ByRiverGWh": {
+    "acheloos": 1352.2,
+    "aliakmonas": 793.1,
+    "nestos": 286.6,
+    "arachthos": 70.6,
+    "plastiras": 414.1,
+    "ladonas": 27.6
+   }
+  },
+  {
+   "Date": "2026-05-01",
+   "VolumeHm3": 4520.1,
+   "TotalGWh": 2945.3,
+   "ByRiverGWh": {
+    "acheloos": 1352.3,
+    "aliakmonas": 791.6,
+    "nestos": 288.1,
+    "arachthos": 71.1,
+    "plastiras": 414.5,
+    "ladonas": 27.7
+   }
+  },
+  {
+   "Date": "2026-05-02",
+   "VolumeHm3": 4528.1,
+   "TotalGWh": 2950.3,
+   "ByRiverGWh": {
+    "acheloos": 1353.0,
+    "aliakmonas": 791.5,
+    "nestos": 291.2,
+    "arachthos": 71.6,
+    "plastiras": 414.9,
+    "ladonas": 28.2
+   }
+  },
+  {
+   "Date": "2026-05-03",
+   "VolumeHm3": 4529.5,
+   "TotalGWh": 2952.2,
+   "ByRiverGWh": {
+    "acheloos": 1353.1,
+    "aliakmonas": 790.0,
+    "nestos": 292.3,
+    "arachthos": 71.9,
+    "plastiras": 416.0,
+    "ladonas": 28.8
+   }
+  },
+  {
+   "Date": "2026-05-04",
+   "VolumeHm3": 4528.5,
+   "TotalGWh": 2952.7,
+   "ByRiverGWh": {
+    "acheloos": 1352.3,
+    "aliakmonas": 788.2,
+    "nestos": 294.1,
+    "arachthos": 72.1,
+    "plastiras": 416.7,
+    "ladonas": 29.4
+   }
+  },
+  {
+   "Date": "2026-05-05",
+   "VolumeHm3": 4523.6,
+   "TotalGWh": 2949.6,
+   "ByRiverGWh": {
+    "acheloos": 1351.3,
+    "aliakmonas": 784.6,
+    "nestos": 295.2,
+    "arachthos": 72.0,
+    "plastiras": 416.7,
+    "ladonas": 29.7
+   }
+  },
+  {
+   "Date": "2026-05-06",
+   "VolumeHm3": 4511.6,
+   "TotalGWh": 2944.1,
+   "ByRiverGWh": {
+    "acheloos": 1349.7,
+    "aliakmonas": 780.2,
+    "nestos": 295.6,
+    "arachthos": 71.6,
+    "plastiras": 416.7,
+    "ladonas": 30.1
+   }
+  },
+  {
+   "Date": "2026-05-07",
+   "VolumeHm3": 4501.2,
+   "TotalGWh": 2937.8,
+   "ByRiverGWh": {
+    "acheloos": 1347.4,
+    "aliakmonas": 775.1,
+    "nestos": 296.7,
+    "arachthos": 71.6,
+    "plastiras": 416.7,
+    "ladonas": 30.5
+   }
+  },
+  {
+   "Date": "2026-05-08",
+   "VolumeHm3": 4495.2,
+   "TotalGWh": 2933.4,
+   "ByRiverGWh": {
+    "acheloos": 1346.7,
+    "aliakmonas": 769.7,
+    "nestos": 297.7,
+    "arachthos": 71.7,
+    "plastiras": 417.1,
+    "ladonas": 30.6
+   }
+  },
+  {
+   "Date": "2026-05-09",
+   "VolumeHm3": 4488.9,
+   "TotalGWh": 2928.5,
+   "ByRiverGWh": {
+    "acheloos": 1345.0,
+    "aliakmonas": 766.1,
+    "nestos": 297.8,
+    "arachthos": 72.0,
+    "plastiras": 417.1,
+    "ladonas": 30.6
+   }
+  },
+  {
+   "Date": "2026-05-10",
+   "VolumeHm3": 4482.9,
+   "TotalGWh": 2925.3,
+   "ByRiverGWh": {
+    "acheloos": 1342.4,
+    "aliakmonas": 762.7,
+    "nestos": 299.6,
+    "arachthos": 72.0,
+    "plastiras": 417.8,
+    "ladonas": 30.8
+   }
+  },
+  {
+   "Date": "2026-05-11",
+   "VolumeHm3": 4480.5,
+   "TotalGWh": 2923.0,
+   "ByRiverGWh": {
+    "acheloos": 1340.5,
+    "aliakmonas": 759.6,
+    "nestos": 301.6,
+    "arachthos": 72.4,
+    "plastiras": 417.8,
+    "ladonas": 31.1
+   }
+  },
+  {
+   "Date": "2026-05-12",
+   "VolumeHm3": 4479.2,
+   "TotalGWh": 2919.3,
+   "ByRiverGWh": {
+    "acheloos": 1339.9,
+    "aliakmonas": 756.1,
+    "nestos": 301.5,
+    "arachthos": 72.5,
+    "plastiras": 418.2,
+    "ladonas": 31.1
+   }
+  },
+  {
+   "Date": "2026-05-13",
+   "VolumeHm3": 4472.1,
+   "TotalGWh": 2915.4,
+   "ByRiverGWh": {
+    "acheloos": 1337.6,
+    "aliakmonas": 752.3,
+    "nestos": 303.3,
+    "arachthos": 72.6,
+    "plastiras": 418.2,
+    "ladonas": 31.3
+   }
+  },
+  {
+   "Date": "2026-05-14",
+   "VolumeHm3": 4464.6,
+   "TotalGWh": 2910.8,
+   "ByRiverGWh": {
+    "acheloos": 1336.6,
+    "aliakmonas": 748.7,
+    "nestos": 303.3,
+    "arachthos": 72.9,
+    "plastiras": 417.8,
+    "ladonas": 31.4
+   }
+  },
+  {
+   "Date": "2026-05-15",
+   "VolumeHm3": 4460.3,
+   "TotalGWh": 2908.7,
+   "ByRiverGWh": {
+    "acheloos": 1336.1,
+    "aliakmonas": 746.3,
+    "nestos": 303.9,
+    "arachthos": 72.9,
+    "plastiras": 417.8,
+    "ladonas": 31.7
+   }
+  },
+  {
+   "Date": "2026-05-16",
+   "VolumeHm3": 4457.7,
+   "TotalGWh": 2906.0,
+   "ByRiverGWh": {
+    "acheloos": 1334.7,
+    "aliakmonas": 742.7,
+    "nestos": 305.6,
+    "arachthos": 73.2,
+    "plastiras": 417.8,
+    "ladonas": 31.9
+   }
+  },
+  {
+   "Date": "2026-05-17",
+   "VolumeHm3": 4457.9,
+   "TotalGWh": 2904.8,
+   "ByRiverGWh": {
+    "acheloos": 1335.8,
+    "aliakmonas": 738.9,
+    "nestos": 306.9,
+    "arachthos": 73.6,
+    "plastiras": 417.5,
+    "ladonas": 32.0
+   }
+  },
+  {
+   "Date": "2026-05-18",
+   "VolumeHm3": 4460.4,
+   "TotalGWh": 2904.4,
+   "ByRiverGWh": {
+    "acheloos": 1334.8,
+    "aliakmonas": 736.5,
+    "nestos": 309.3,
+    "arachthos": 73.8,
+    "plastiras": 417.5,
+    "ladonas": 32.5
+   }
+  },
+  {
+   "Date": "2026-05-19",
+   "VolumeHm3": 4451.0,
+   "TotalGWh": 2899.6,
+   "ByRiverGWh": {
+    "acheloos": 1333.3,
+    "aliakmonas": 733.4,
+    "nestos": 309.4,
+    "arachthos": 73.6,
+    "plastiras": 417.5,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-05-20",
+   "VolumeHm3": 4448.7,
+   "TotalGWh": 2894.2,
+   "ByRiverGWh": {
+    "acheloos": 1331.5,
+    "aliakmonas": 730.0,
+    "nestos": 309.9,
+    "arachthos": 73.8,
+    "plastiras": 416.7,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-05-21",
+   "VolumeHm3": 4449.8,
+   "TotalGWh": 2894.0,
+   "ByRiverGWh": {
+    "acheloos": 1330.5,
+    "aliakmonas": 728.0,
+    "nestos": 312.3,
+    "arachthos": 73.8,
+    "plastiras": 416.7,
+    "ladonas": 32.6
+   }
+  },
+  {
+   "Date": "2026-05-22",
+   "VolumeHm3": 4441.9,
+   "TotalGWh": 2889.6,
+   "ByRiverGWh": {
+    "acheloos": 1329.2,
+    "aliakmonas": 725.4,
+    "nestos": 312.1,
+    "arachthos": 73.7,
+    "plastiras": 416.7,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-05-23",
+   "VolumeHm3": 4441.4,
+   "TotalGWh": 2888.6,
+   "ByRiverGWh": {
+    "acheloos": 1328.2,
+    "aliakmonas": 722.7,
+    "nestos": 314.3,
+    "arachthos": 73.9,
+    "plastiras": 417.1,
+    "ladonas": 32.5
+   }
+  },
+  {
+   "Date": "2026-05-24",
+   "VolumeHm3": 4444.2,
+   "TotalGWh": 2887.9,
+   "ByRiverGWh": {
+    "acheloos": 1326.7,
+    "aliakmonas": 720.2,
+    "nestos": 316.8,
+    "arachthos": 74.2,
+    "plastiras": 417.5,
+    "ladonas": 32.5
+   }
+  },
+  {
+   "Date": "2026-05-25",
+   "VolumeHm3": 4446.4,
+   "TotalGWh": 2887.3,
+   "ByRiverGWh": {
+    "acheloos": 1325.7,
+    "aliakmonas": 717.9,
+    "nestos": 319.1,
+    "arachthos": 74.5,
+    "plastiras": 417.5,
+    "ladonas": 32.6
+   }
+  },
+  {
+   "Date": "2026-05-26",
+   "VolumeHm3": 4446.7,
+   "TotalGWh": 2886.8,
+   "ByRiverGWh": {
+    "acheloos": 1323.3,
+    "aliakmonas": 716.2,
+    "nestos": 322.9,
+    "arachthos": 74.7,
+    "plastiras": 417.1,
+    "ladonas": 32.5
+   }
+  },
+  {
+   "Date": "2026-05-27",
+   "VolumeHm3": 4445.5,
+   "TotalGWh": 2883.1,
+   "ByRiverGWh": {
+    "acheloos": 1321.9,
+    "aliakmonas": 713.8,
+    "nestos": 323.2,
+    "arachthos": 75.0,
+    "plastiras": 416.7,
+    "ladonas": 32.5
+   }
+  },
+  {
+   "Date": "2026-05-28",
+   "VolumeHm3": 4439.7,
+   "TotalGWh": 2877.9,
+   "ByRiverGWh": {
+    "acheloos": 1320.4,
+    "aliakmonas": 711.2,
+    "nestos": 322.7,
+    "arachthos": 75.2,
+    "plastiras": 416.4,
+    "ladonas": 32.1
+   }
+  },
+  {
+   "Date": "2026-05-29",
+   "VolumeHm3": 4429.8,
+   "TotalGWh": 2870.2,
+   "ByRiverGWh": {
+    "acheloos": 1317.5,
+    "aliakmonas": 708.4,
+    "nestos": 321.1,
+    "arachthos": 75.4,
+    "plastiras": 416.0,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-05-30",
+   "VolumeHm3": 4425.0,
+   "TotalGWh": 2865.6,
+   "ByRiverGWh": {
+    "acheloos": 1316.3,
+    "aliakmonas": 705.5,
+    "nestos": 320.7,
+    "arachthos": 75.7,
+    "plastiras": 415.6,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-05-31",
+   "VolumeHm3": 4406.1,
+   "TotalGWh": 2856.5,
+   "ByRiverGWh": {
+    "acheloos": 1312.5,
+    "aliakmonas": 702.6,
+    "nestos": 319.6,
+    "arachthos": 75.4,
+    "plastiras": 414.9,
+    "ladonas": 31.5
+   }
+  },
+  {
+   "Date": "2026-06-01",
+   "VolumeHm3": 4390.2,
+   "TotalGWh": 2847.1,
+   "ByRiverGWh": {
+    "acheloos": 1308.3,
+    "aliakmonas": 699.7,
+    "nestos": 318.6,
+    "arachthos": 75.3,
+    "plastiras": 414.1,
+    "ladonas": 31.2
+   }
+  },
+  {
+   "Date": "2026-06-02",
+   "VolumeHm3": 4378.9,
+   "TotalGWh": 2839.5,
+   "ByRiverGWh": {
+    "acheloos": 1305.9,
+    "aliakmonas": 696.2,
+    "nestos": 317.8,
+    "arachthos": 75.2,
+    "plastiras": 413.4,
+    "ladonas": 31.0
+   }
+  },
+  {
+   "Date": "2026-06-03",
+   "VolumeHm3": 4362.0,
+   "TotalGWh": 2828.9,
+   "ByRiverGWh": {
+    "acheloos": 1302.2,
+    "aliakmonas": 693.4,
+    "nestos": 314.8,
+    "arachthos": 75.1,
+    "plastiras": 412.6,
+    "ladonas": 30.7
+   }
+  },
+  {
+   "Date": "2026-06-04",
+   "VolumeHm3": 4353.7,
+   "TotalGWh": 2823.0,
+   "ByRiverGWh": {
+    "acheloos": 1300.5,
+    "aliakmonas": 690.5,
+    "nestos": 314.6,
+    "arachthos": 75.0,
+    "plastiras": 411.9,
+    "ladonas": 30.5
+   }
+  },
+  {
+   "Date": "2026-06-05",
+   "VolumeHm3": 4346.9,
+   "TotalGWh": 2816.1,
+   "ByRiverGWh": {
+    "acheloos": 1298.7,
+    "aliakmonas": 685.8,
+    "nestos": 314.6,
+    "arachthos": 75.3,
+    "plastiras": 411.2,
+    "ladonas": 30.5
+   }
+  },
+  {
+   "Date": "2026-06-06",
+   "VolumeHm3": 4343.0,
+   "TotalGWh": 2812.2,
+   "ByRiverGWh": {
+    "acheloos": 1296.7,
+    "aliakmonas": 682.7,
+    "nestos": 316.4,
+    "arachthos": 75.5,
+    "plastiras": 410.4,
+    "ladonas": 30.5
+   }
+  },
+  {
+   "Date": "2026-06-07",
+   "VolumeHm3": 4337.9,
+   "TotalGWh": 2807.9,
+   "ByRiverGWh": {
+    "acheloos": 1295.1,
+    "aliakmonas": 679.8,
+    "nestos": 318.1,
+    "arachthos": 75.4,
+    "plastiras": 408.9,
+    "ladonas": 30.6
+   }
+  },
+  {
+   "Date": "2026-06-08",
+   "VolumeHm3": 4331.1,
+   "TotalGWh": 2801.0,
+   "ByRiverGWh": {
+    "acheloos": 1292.0,
+    "aliakmonas": 676.6,
+    "nestos": 318.6,
+    "arachthos": 75.3,
+    "plastiras": 407.5,
+    "ladonas": 31.0
+   }
+  },
+  {
+   "Date": "2026-06-09",
+   "VolumeHm3": 4325.8,
+   "TotalGWh": 2795.4,
+   "ByRiverGWh": {
+    "acheloos": 1289.4,
+    "aliakmonas": 673.3,
+    "nestos": 319.5,
+    "arachthos": 75.3,
+    "plastiras": 406.7,
+    "ladonas": 31.3
+   }
+  },
+  {
+   "Date": "2026-06-10",
+   "VolumeHm3": 4322.0,
+   "TotalGWh": 2791.6,
+   "ByRiverGWh": {
+    "acheloos": 1287.3,
+    "aliakmonas": 670.5,
+    "nestos": 319.6,
+    "arachthos": 75.6,
+    "plastiras": 407.1,
+    "ladonas": 31.5
+   }
+  },
+  {
+   "Date": "2026-06-11",
+   "VolumeHm3": 4317.5,
+   "TotalGWh": 2788.9,
+   "ByRiverGWh": {
+    "acheloos": 1285.9,
+    "aliakmonas": 668.2,
+    "nestos": 321.2,
+    "arachthos": 75.7,
+    "plastiras": 406.3,
+    "ladonas": 31.6
+   }
+  },
+  {
+   "Date": "2026-06-12",
+   "VolumeHm3": 4312.0,
+   "TotalGWh": 2784.5,
+   "ByRiverGWh": {
+    "acheloos": 1284.1,
+    "aliakmonas": 665.3,
+    "nestos": 322.1,
+    "arachthos": 75.7,
+    "plastiras": 405.6,
+    "ladonas": 31.7
+   }
+  },
+  {
+   "Date": "2026-06-13",
+   "VolumeHm3": 4305.7,
+   "TotalGWh": 2777.9,
+   "ByRiverGWh": {
+    "acheloos": 1281.5,
+    "aliakmonas": 661.8,
+    "nestos": 321.2,
+    "arachthos": 76.6,
+    "plastiras": 404.9,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-06-14",
+   "VolumeHm3": 4302.0,
+   "TotalGWh": 2775.2,
+   "ByRiverGWh": {
+    "acheloos": 1280.2,
+    "aliakmonas": 660.9,
+    "nestos": 321.7,
+    "arachthos": 75.9,
+    "plastiras": 404.2,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-06-15",
+   "VolumeHm3": 4296.0,
+   "TotalGWh": 2769.5,
+   "ByRiverGWh": {
+    "acheloos": 1277.3,
+    "aliakmonas": 659.5,
+    "nestos": 322.0,
+    "arachthos": 76.0,
+    "plastiras": 402.4,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-06-16",
+   "VolumeHm3": 4289.0,
+   "TotalGWh": 2764.1,
+   "ByRiverGWh": {
+    "acheloos": 1274.5,
+    "aliakmonas": 657.6,
+    "nestos": 321.8,
+    "arachthos": 76.0,
+    "plastiras": 402.1,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-06-17",
+   "VolumeHm3": 4280.4,
+   "TotalGWh": 2757.6,
+   "ByRiverGWh": {
+    "acheloos": 1271.7,
+    "aliakmonas": 655.6,
+    "nestos": 321.5,
+    "arachthos": 76.0,
+    "plastiras": 400.6,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-06-18",
+   "VolumeHm3": 4275.7,
+   "TotalGWh": 2753.0,
+   "ByRiverGWh": {
+    "acheloos": 1269.6,
+    "aliakmonas": 654.0,
+    "nestos": 321.8,
+    "arachthos": 75.9,
+    "plastiras": 399.2,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-06-19",
+   "VolumeHm3": 4270.3,
+   "TotalGWh": 2746.5,
+   "ByRiverGWh": {
+    "acheloos": 1266.3,
+    "aliakmonas": 651.6,
+    "nestos": 322.4,
+    "arachthos": 75.9,
+    "plastiras": 397.8,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-06-20",
+   "VolumeHm3": 4274.9,
+   "TotalGWh": 2750.2,
+   "ByRiverGWh": {
+    "acheloos": 1263.0,
+    "aliakmonas": 659.4,
+    "nestos": 323.0,
+    "arachthos": 75.8,
+    "plastiras": 396.4,
+    "ladonas": 32.6
+   }
+  },
+  {
+   "Date": "2026-06-21",
+   "VolumeHm3": 4249.0,
+   "TotalGWh": 2733.1,
+   "ByRiverGWh": {
+    "acheloos": 1259.8,
+    "aliakmonas": 646.9,
+    "nestos": 323.4,
+    "arachthos": 75.5,
+    "plastiras": 395.0,
+    "ladonas": 32.5
+   }
+  },
+  {
+   "Date": "2026-06-22",
+   "VolumeHm3": 4237.0,
+   "TotalGWh": 2725.5,
+   "ByRiverGWh": {
+    "acheloos": 1256.8,
+    "aliakmonas": 644.8,
+    "nestos": 322.3,
+    "arachthos": 75.4,
+    "plastiras": 393.5,
+    "ladonas": 32.6
+   }
+  },
+  {
+   "Date": "2026-06-23",
+   "VolumeHm3": 4226.3,
+   "TotalGWh": 2716.9,
+   "ByRiverGWh": {
+    "acheloos": 1253.3,
+    "aliakmonas": 642.1,
+    "nestos": 321.7,
+    "arachthos": 75.3,
+    "plastiras": 392.1,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-06-24",
+   "VolumeHm3": 4210.8,
+   "TotalGWh": 2706.6,
+   "ByRiverGWh": {
+    "acheloos": 1248.9,
+    "aliakmonas": 639.1,
+    "nestos": 320.6,
+    "arachthos": 75.1,
+    "plastiras": 390.7,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-06-25",
+   "VolumeHm3": 4204.9,
+   "TotalGWh": 2700.1,
+   "ByRiverGWh": {
+    "acheloos": 1246.7,
+    "aliakmonas": 636.9,
+    "nestos": 320.0,
+    "arachthos": 75.6,
+    "plastiras": 388.9,
+    "ladonas": 32.0
+   }
+  },
+  {
+   "Date": "2026-06-26",
+   "VolumeHm3": 4190.7,
+   "TotalGWh": 2692.3,
+   "ByRiverGWh": {
+    "acheloos": 1243.7,
+    "aliakmonas": 634.8,
+    "nestos": 319.3,
+    "arachthos": 75.0,
+    "plastiras": 387.5,
+    "ladonas": 32.0
+   }
+  },
+  {
+   "Date": "2026-06-27",
+   "VolumeHm3": 4182.3,
+   "TotalGWh": 2686.7,
+   "ByRiverGWh": {
+    "acheloos": 1240.4,
+    "aliakmonas": 633.5,
+    "nestos": 320.1,
+    "arachthos": 74.8,
+    "plastiras": 385.7,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-06-28",
+   "VolumeHm3": 4170.7,
+   "TotalGWh": 2678.9,
+   "ByRiverGWh": {
+    "acheloos": 1237.7,
+    "aliakmonas": 631.2,
+    "nestos": 319.6,
+    "arachthos": 74.4,
+    "plastiras": 383.9,
+    "ladonas": 32.1
+   }
+  },
+  {
+   "Date": "2026-06-29",
+   "VolumeHm3": 4155.6,
+   "TotalGWh": 2669.0,
+   "ByRiverGWh": {
+    "acheloos": 1234.1,
+    "aliakmonas": 628.4,
+    "nestos": 318.2,
+    "arachthos": 74.1,
+    "plastiras": 382.1,
+    "ladonas": 32.1
+   }
+  },
+  {
+   "Date": "2026-06-30",
+   "VolumeHm3": 4141.8,
+   "TotalGWh": 2659.0,
+   "ByRiverGWh": {
+    "acheloos": 1230.0,
+    "aliakmonas": 624.9,
+    "nestos": 318.1,
+    "arachthos": 73.6,
+    "plastiras": 380.4,
+    "ladonas": 32.0
+   }
+  },
+  {
+   "Date": "2026-07-01",
+   "VolumeHm3": 4110.9,
+   "TotalGWh": 2642.9,
+   "ByRiverGWh": {
+    "acheloos": 1224.3,
+    "aliakmonas": 621.1,
+    "nestos": 314.7,
+    "arachthos": 72.8,
+    "plastiras": 378.2,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-07-02",
+   "VolumeHm3": 4097.4,
+   "TotalGWh": 2634.0,
+   "ByRiverGWh": {
+    "acheloos": 1221.2,
+    "aliakmonas": 620.8,
+    "nestos": 311.6,
+    "arachthos": 72.4,
+    "plastiras": 376.5,
+    "ladonas": 31.6
+   }
+  },
+  {
+   "Date": "2026-07-03",
+   "VolumeHm3": 4078.2,
+   "TotalGWh": 2623.6,
+   "ByRiverGWh": {
+    "acheloos": 1218.2,
+    "aliakmonas": 617.2,
+    "nestos": 310.6,
+    "arachthos": 72.1,
+    "plastiras": 373.9,
+    "ladonas": 31.6
+   }
+  },
+  {
+   "Date": "2026-07-04",
+   "VolumeHm3": 4068.0,
+   "TotalGWh": 2617.0,
+   "ByRiverGWh": {
+    "acheloos": 1214.5,
+    "aliakmonas": 616.6,
+    "nestos": 310.1,
+    "arachthos": 72.0,
+    "plastiras": 372.2,
+    "ladonas": 31.6
+   }
+  },
+  {
+   "Date": "2026-07-05",
+   "VolumeHm3": 4054.9,
+   "TotalGWh": 2607.6,
+   "ByRiverGWh": {
+    "acheloos": 1211.4,
+    "aliakmonas": 613.7,
+    "nestos": 308.5,
+    "arachthos": 71.8,
+    "plastiras": 370.4,
+    "ladonas": 31.8
+   }
+  },
+  {
+   "Date": "2026-07-06",
+   "VolumeHm3": 4043.0,
+   "TotalGWh": 2600.1,
+   "ByRiverGWh": {
+    "acheloos": 1208.1,
+    "aliakmonas": 611.1,
+    "nestos": 308.6,
+    "arachthos": 71.6,
+    "plastiras": 368.8,
+    "ladonas": 31.9
+   }
+  },
+  {
+   "Date": "2026-07-07",
+   "VolumeHm3": 4024.9,
+   "TotalGWh": 2589.0,
+   "ByRiverGWh": {
+    "acheloos": 1204.5,
+    "aliakmonas": 608.1,
+    "nestos": 306.2,
+    "arachthos": 71.4,
+    "plastiras": 366.8,
+    "ladonas": 32.1
+   }
+  },
+  {
+   "Date": "2026-07-08",
+   "VolumeHm3": 4011.4,
+   "TotalGWh": 2578.5,
+   "ByRiverGWh": {
+    "acheloos": 1201.0,
+    "aliakmonas": 604.9,
+    "nestos": 304.3,
+    "arachthos": 71.2,
+    "plastiras": 364.9,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-07-09",
+   "VolumeHm3": 3993.7,
+   "TotalGWh": 2566.1,
+   "ByRiverGWh": {
+    "acheloos": 1197.6,
+    "aliakmonas": 600.6,
+    "nestos": 302.1,
+    "arachthos": 70.9,
+    "plastiras": 362.6,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-07-10",
+   "VolumeHm3": 3980.9,
+   "TotalGWh": 2556.5,
+   "ByRiverGWh": {
+    "acheloos": 1193.9,
+    "aliakmonas": 597.0,
+    "nestos": 302.0,
+    "arachthos": 70.7,
+    "plastiras": 360.6,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-07-11",
+   "VolumeHm3": 3964.1,
+   "TotalGWh": 2545.3,
+   "ByRiverGWh": {
+    "acheloos": 1190.0,
+    "aliakmonas": 593.4,
+    "nestos": 300.5,
+    "arachthos": 70.3,
+    "plastiras": 358.7,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-07-12",
+   "VolumeHm3": 3950.7,
+   "TotalGWh": 2534.3,
+   "ByRiverGWh": {
+    "acheloos": 1186.6,
+    "aliakmonas": 590.1,
+    "nestos": 298.9,
+    "arachthos": 69.9,
+    "plastiras": 356.4,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-07-13",
+   "VolumeHm3": 3934.2,
+   "TotalGWh": 2524.7,
+   "ByRiverGWh": {
+    "acheloos": 1183.2,
+    "aliakmonas": 587.4,
+    "nestos": 298.1,
+    "arachthos": 69.6,
+    "plastiras": 354.1,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-07-14",
+   "VolumeHm3": 3918.6,
+   "TotalGWh": 2514.2,
+   "ByRiverGWh": {
+    "acheloos": 1179.6,
+    "aliakmonas": 584.0,
+    "nestos": 297.1,
+    "arachthos": 69.3,
+    "plastiras": 351.8,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-07-15",
+   "VolumeHm3": 3903.4,
+   "TotalGWh": 2503.3,
+   "ByRiverGWh": {
+    "acheloos": 1175.9,
+    "aliakmonas": 580.4,
+    "nestos": 296.2,
+    "arachthos": 68.9,
+    "plastiras": 349.5,
+    "ladonas": 32.4
+   }
+  },
+  {
+   "Date": "2026-07-16",
+   "VolumeHm3": 3882.4,
+   "TotalGWh": 2489.1,
+   "ByRiverGWh": {
+    "acheloos": 1171.7,
+    "aliakmonas": 576.7,
+    "nestos": 292.7,
+    "arachthos": 68.5,
+    "plastiras": 347.2,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-07-17",
+   "VolumeHm3": 3860.6,
+   "TotalGWh": 2473.6,
+   "ByRiverGWh": {
+    "acheloos": 1167.2,
+    "aliakmonas": 572.7,
+    "nestos": 288.9,
+    "arachthos": 67.9,
+    "plastiras": 344.7,
+    "ladonas": 32.3
+   }
+  },
+  {
+   "Date": "2026-07-18",
+   "VolumeHm3": 3840.9,
+   "TotalGWh": 2461.7,
+   "ByRiverGWh": {
+    "acheloos": 1162.2,
+    "aliakmonas": 569.8,
+    "nestos": 287.4,
+    "arachthos": 67.6,
+    "plastiras": 342.4,
+    "ladonas": 32.2
+   }
+  },
+  {
+   "Date": "2026-07-19",
+   "VolumeHm3": 3817.8,
+   "TotalGWh": 2446.7,
+   "ByRiverGWh": {
+    "acheloos": 1156.6,
+    "aliakmonas": 565.4,
+    "nestos": 286.3,
+    "arachthos": 67.0,
+    "plastiras": 339.4,
+    "ladonas": 32.0
+   }
+  },
+  {
+   "Date": "2026-07-20",
+   "VolumeHm3": 3801.7,
+   "TotalGWh": 2435.4,
+   "ByRiverGWh": {
+    "acheloos": 1152.6,
+    "aliakmonas": 561.6,
+    "nestos": 286.1,
+    "arachthos": 66.5,
+    "plastiras": 336.8,
+    "ladonas": 31.7
+   }
+  },
+  {
+   "Date": "2026-07-21",
+   "VolumeHm3": 3781.4,
+   "TotalGWh": 2422.8,
+   "ByRiverGWh": {
+    "acheloos": 1148.2,
+    "aliakmonas": 558.3,
+    "nestos": 284.8,
+    "arachthos": 65.8,
+    "plastiras": 334.2,
+    "ladonas": 31.4
+   }
+  },
+  {
+   "Date": "2026-07-22",
+   "VolumeHm3": 3760.3,
+   "TotalGWh": 2408.9,
+   "ByRiverGWh": {
+    "acheloos": 1143.7,
+    "aliakmonas": 554.3,
+    "nestos": 282.8,
+    "arachthos": 65.5,
+    "plastiras": 331.6,
+    "ladonas": 31.1
+   }
+  },
+  {
+   "Date": "2026-07-23",
+   "VolumeHm3": 3739.7,
+   "TotalGWh": 2395.1,
+   "ByRiverGWh": {
+    "acheloos": 1138.2,
+    "aliakmonas": 551.4,
+    "nestos": 280.4,
+    "arachthos": 65.2,
+    "plastiras": 329.0,
+    "ladonas": 31.0
+   }
+  },
+  {
+   "Date": "2026-07-24",
+   "VolumeHm3": 3724.5,
+   "TotalGWh": 2385.9,
+   "ByRiverGWh": {
+    "acheloos": 1134.4,
+    "aliakmonas": 548.5,
+    "nestos": 280.8,
+    "arachthos": 64.9,
+    "plastiras": 326.4,
+    "ladonas": 30.9
+   }
+  },
+  {
+   "Date": "2026-07-25",
+   "VolumeHm3": 3709.6,
+   "TotalGWh": 2377.5,
+   "ByRiverGWh": {
+    "acheloos": 1131.8,
+    "aliakmonas": 545.9,
+    "nestos": 279.3,
+    "arachthos": 64.7,
+    "plastiras": 325.1,
+    "ladonas": 30.7
+   }
+  },
+  {
+   "Date": "2026-07-26",
+   "VolumeHm3": 3700.1,
+   "TotalGWh": 2371.1,
+   "ByRiverGWh": {
+    "acheloos": 1128.2,
+    "aliakmonas": 543.0,
+    "nestos": 279.7,
+    "arachthos": 64.5,
+    "plastiras": 325.1,
+    "ladonas": 30.6
+   }
+  },
+  {
+   "Date": "2026-07-27",
+   "VolumeHm3": 3686.1,
+   "TotalGWh": 2361.6,
+   "ByRiverGWh": {
+    "acheloos": 1123.9,
+    "aliakmonas": 539.8,
+    "nestos": 278.3,
+    "arachthos": 64.0,
+    "plastiras": 325.1,
+    "ladonas": 30.6
+   }
+  },
+  {
+   "Date": "2026-07-28",
+   "VolumeHm3": 3669.9,
+   "TotalGWh": 2351.0,
+   "ByRiverGWh": {
+    "acheloos": 1120.4,
+    "aliakmonas": 536.5,
+    "nestos": 277.4,
+    "arachthos": 63.8,
+    "plastiras": 322.5,
+    "ladonas": 30.5
+   }
+  },
+  {
+   "Date": "2026-07-29",
+   "VolumeHm3": 3652.9,
+   "TotalGWh": 2338.0,
+   "ByRiverGWh": {
+    "acheloos": 1115.9,
+    "aliakmonas": 532.6,
+    "nestos": 276.6,
+    "arachthos": 63.4,
+    "plastiras": 319.2,
+    "ladonas": 30.3
+   }
+  },
+  {
+   "Date": "2026-07-30",
+   "VolumeHm3": 3634.3,
+   "TotalGWh": 2323.3,
+   "ByRiverGWh": {
+    "acheloos": 1110.0,
+    "aliakmonas": 528.3,
+    "nestos": 275.7,
+    "arachthos": 62.9,
+    "plastiras": 316.2,
+    "ladonas": 30.1
+   }
+  },
+  {
+   "Date": "2026-07-31",
+   "VolumeHm3": 3615.3,
+   "TotalGWh": 2311.1,
+   "ByRiverGWh": {
+    "acheloos": 1105.8,
+    "aliakmonas": 524.7,
+    "nestos": 274.8,
+    "arachthos": 62.5,
+    "plastiras": 313.3,
+    "ladonas": 30.0
+   }
+  },
+  {
+   "Date": "2026-08-01",
+   "VolumeHm3": 3598.5,
+   "TotalGWh": 2299.5,
+   "ByRiverGWh": {
+    "acheloos": 1102.0,
+    "aliakmonas": 521.0,
+    "nestos": 274.2,
+    "arachthos": 62.0,
+    "plastiras": 310.4,
+    "ladonas": 29.9
+   }
+  },
+  {
+   "Date": "2026-08-02",
+   "VolumeHm3": 3574.1,
+   "TotalGWh": 2284.6,
+   "ByRiverGWh": {
+    "acheloos": 1096.9,
+    "aliakmonas": 517.7,
+    "nestos": 271.3,
+    "arachthos": 61.6,
+    "plastiras": 307.5,
+    "ladonas": 29.6
+   }
+  },
+  {
+   "Date": "2026-08-03",
+   "VolumeHm3": 3553.9,
+   "TotalGWh": 2270.8,
+   "ByRiverGWh": {
+    "acheloos": 1092.5,
+    "aliakmonas": 514.4,
+    "nestos": 268.9,
+    "arachthos": 61.1,
+    "plastiras": 304.6,
+    "ladonas": 29.2
+   }
+  },
+  {
+   "Date": "2026-08-04",
+   "VolumeHm3": 3524.2,
+   "TotalGWh": 2254.9,
+   "ByRiverGWh": {
+    "acheloos": 1085.8,
+    "aliakmonas": 510.8,
+    "nestos": 267.3,
+    "arachthos": 60.5,
+    "plastiras": 301.7,
+    "ladonas": 28.8
+   }
+  },
+  {
+   "Date": "2026-08-05",
+   "VolumeHm3": 3503.7,
+   "TotalGWh": 2239.5,
+   "ByRiverGWh": {
+    "acheloos": 1078.9,
+    "aliakmonas": 506.7,
+    "nestos": 265.9,
+    "arachthos": 60.4,
+    "plastiras": 299.3,
+    "ladonas": 28.3
+   }
+  },
+  {
+   "Date": "2026-08-06",
+   "VolumeHm3": 3484.1,
+   "TotalGWh": 2225.8,
+   "ByRiverGWh": {
+    "acheloos": 1074.3,
+    "aliakmonas": 503.4,
+    "nestos": 263.7,
+    "arachthos": 59.9,
+    "plastiras": 296.5,
+    "ladonas": 28.0
+   }
+  },
+  {
+   "Date": "2026-08-07",
+   "VolumeHm3": 3460.6,
+   "TotalGWh": 2210.0,
+   "ByRiverGWh": {
+    "acheloos": 1068.5,
+    "aliakmonas": 499.7,
+    "nestos": 260.9,
+    "arachthos": 59.5,
+    "plastiras": 294.0,
+    "ladonas": 27.5
+   }
+  },
+  {
+   "Date": "2026-08-08",
+   "VolumeHm3": 3440.6,
+   "TotalGWh": 2195.3,
+   "ByRiverGWh": {
+    "acheloos": 1063.7,
+    "aliakmonas": 496.0,
+    "nestos": 258.0,
+    "arachthos": 59.4,
+    "plastiras": 291.2,
+    "ladonas": 27.0
+   }
+  },
+  {
+   "Date": "2026-08-09",
+   "VolumeHm3": 3422.7,
+   "TotalGWh": 2184.4,
+   "ByRiverGWh": {
+    "acheloos": 1059.4,
+    "aliakmonas": 492.9,
+    "nestos": 257.7,
+    "arachthos": 58.9,
+    "plastiras": 289.0,
+    "ladonas": 26.5
+   }
+  },
+  {
+   "Date": "2026-08-10",
+   "VolumeHm3": 3406.7,
+   "TotalGWh": 2173.0,
+   "ByRiverGWh": {
+    "acheloos": 1055.9,
+    "aliakmonas": 489.8,
+    "nestos": 256.1,
+    "arachthos": 58.6,
+    "plastiras": 286.5,
+    "ladonas": 26.1
+   }
+  },
+  {
+   "Date": "2026-08-11",
+   "VolumeHm3": 3392.2,
+   "TotalGWh": 2162.4,
+   "ByRiverGWh": {
+    "acheloos": 1051.8,
+    "aliakmonas": 487.0,
+    "nestos": 255.5,
+    "arachthos": 58.4,
+    "plastiras": 284.0,
+    "ladonas": 25.7
+   }
+  },
+  {
+   "Date": "2026-08-12",
+   "VolumeHm3": 3372.3,
+   "TotalGWh": 2148.3,
+   "ByRiverGWh": {
+    "acheloos": 1047.5,
+    "aliakmonas": 483.7,
+    "nestos": 252.1,
+    "arachthos": 58.0,
+    "plastiras": 281.5,
+    "ladonas": 25.4
+   }
+  },
+  {
+   "Date": "2026-08-13",
+   "VolumeHm3": 3352.0,
+   "TotalGWh": 2135.7,
+   "ByRiverGWh": {
+    "acheloos": 1042.8,
+    "aliakmonas": 480.9,
+    "nestos": 250.4,
+    "arachthos": 57.7,
+    "plastiras": 279.0,
+    "ladonas": 24.9
+   }
+  },
+  {
+   "Date": "2026-08-14",
+   "VolumeHm3": 3333.9,
+   "TotalGWh": 2122.8,
+   "ByRiverGWh": {
+    "acheloos": 1038.6,
+    "aliakmonas": 477.6,
+    "nestos": 249.0,
+    "arachthos": 57.3,
+    "plastiras": 275.9,
+    "ladonas": 24.5
+   }
+  },
+  {
+   "Date": "2026-08-15",
+   "VolumeHm3": 3316.2,
+   "TotalGWh": 2109.9,
+   "ByRiverGWh": {
+    "acheloos": 1034.2,
+    "aliakmonas": 474.4,
+    "nestos": 247.1,
+    "arachthos": 56.9,
+    "plastiras": 273.4,
+    "ladonas": 24.0
+   }
+  },
+  {
+   "Date": "2026-08-16",
+   "VolumeHm3": 3299.1,
+   "TotalGWh": 2099.7,
+   "ByRiverGWh": {
+    "acheloos": 1028.8,
+    "aliakmonas": 471.9,
+    "nestos": 247.0,
+    "arachthos": 56.5,
+    "plastiras": 271.9,
+    "ladonas": 23.7
+   }
+  },
+  {
+   "Date": "2026-08-17",
+   "VolumeHm3": 3279.4,
+   "TotalGWh": 2086.7,
+   "ByRiverGWh": {
+    "acheloos": 1023.7,
+    "aliakmonas": 469.0,
+    "nestos": 245.1,
+    "arachthos": 56.0,
+    "plastiras": 269.4,
+    "ladonas": 23.5
+   }
+  },
+  {
+   "Date": "2026-08-18",
+   "VolumeHm3": 3256.3,
+   "TotalGWh": 2071.5,
+   "ByRiverGWh": {
+    "acheloos": 1017.1,
+    "aliakmonas": 465.7,
+    "nestos": 243.0,
+    "arachthos": 55.5,
+    "plastiras": 266.9,
+    "ladonas": 23.3
+   }
+  },
+  {
+   "Date": "2026-08-19",
+   "VolumeHm3": 3232.0,
+   "TotalGWh": 2057.9,
+   "ByRiverGWh": {
+    "acheloos": 1012.1,
+    "aliakmonas": 462.8,
+    "nestos": 240.5,
+    "arachthos": 55.0,
+    "plastiras": 264.4,
+    "ladonas": 23.1
+   }
+  },
+  {
+   "Date": "2026-08-20",
+   "VolumeHm3": 3208.5,
+   "TotalGWh": 2041.4,
+   "ByRiverGWh": {
+    "acheloos": 1004.8,
+    "aliakmonas": 459.6,
+    "nestos": 238.1,
+    "arachthos": 54.5,
+    "plastiras": 261.6,
+    "ladonas": 22.8
+   }
+  },
+  {
+   "Date": "2026-08-21",
+   "VolumeHm3": 3181.4,
+   "TotalGWh": 2026.3,
+   "ByRiverGWh": {
+    "acheloos": 999.0,
+    "aliakmonas": 456.3,
+    "nestos": 235.0,
+    "arachthos": 53.9,
+    "plastiras": 259.4,
+    "ladonas": 22.6
+   }
+  },
+  {
+   "Date": "2026-08-22",
+   "VolumeHm3": 3151.8,
+   "TotalGWh": 2010.6,
+   "ByRiverGWh": {
+    "acheloos": 992.2,
+    "aliakmonas": 452.8,
+    "nestos": 232.1,
+    "arachthos": 53.0,
+    "plastiras": 258.2,
+    "ladonas": 22.3
+   }
+  },
+  {
+   "Date": "2026-08-23",
+   "VolumeHm3": 3127.9,
+   "TotalGWh": 1998.5,
+   "ByRiverGWh": {
+    "acheloos": 986.0,
+    "aliakmonas": 450.2,
+    "nestos": 231.1,
+    "arachthos": 52.4,
+    "plastiras": 256.9,
+    "ladonas": 22.0
+   }
+  },
+  {
+   "Date": "2026-08-24",
+   "VolumeHm3": 3104.9,
+   "TotalGWh": 1985.7,
+   "ByRiverGWh": {
+    "acheloos": 979.8,
+    "aliakmonas": 446.9,
+    "nestos": 230.7,
+    "arachthos": 51.6,
+    "plastiras": 255.1,
+    "ladonas": 21.6
+   }
+  },
+  {
+   "Date": "2026-08-25",
+   "VolumeHm3": 3075.7,
+   "TotalGWh": 1971.5,
+   "ByRiverGWh": {
+    "acheloos": 972.2,
+    "aliakmonas": 442.6,
+    "nestos": 231.1,
+    "arachthos": 50.3,
+    "plastiras": 254.1,
+    "ladonas": 21.2
+   }
+  },
+  {
+   "Date": "2026-08-26",
+   "VolumeHm3": 3058.1,
+   "TotalGWh": 1957.9,
+   "ByRiverGWh": {
+    "acheloos": 966.2,
+    "aliakmonas": 436.6,
+    "nestos": 231.4,
+    "arachthos": 49.5,
+    "plastiras": 253.2,
+    "ladonas": 21.0
+   }
+  },
+  {
+   "Date": "2026-08-27",
+   "VolumeHm3": 3036.8,
+   "TotalGWh": 1947.2,
+   "ByRiverGWh": {
+    "acheloos": 961.0,
+    "aliakmonas": 433.0,
+    "nestos": 231.9,
+    "arachthos": 48.5,
+    "plastiras": 252.3,
+    "ladonas": 20.6
+   }
+  },
+  {
+   "Date": "2026-08-28",
+   "VolumeHm3": 3011.9,
+   "TotalGWh": 1933.6,
+   "ByRiverGWh": {
+    "acheloos": 955.4,
+    "aliakmonas": 429.4,
+    "nestos": 229.6,
+    "arachthos": 47.6,
+    "plastiras": 251.3,
+    "ladonas": 20.3
+   }
+  },
+  {
+   "Date": "2026-08-29",
+   "VolumeHm3": 2993.9,
+   "TotalGWh": 1917.4,
+   "ByRiverGWh": {
+    "acheloos": 949.5,
+    "aliakmonas": 423.9,
+    "nestos": 226.5,
+    "arachthos": 47.2,
+    "plastiras": 250.4,
+    "ladonas": 20.1
+   }
+  },
+  {
+   "Date": "2026-08-30",
+   "VolumeHm3": 2974.7,
+   "TotalGWh": 1906.0,
+   "ByRiverGWh": {
+    "acheloos": 944.0,
+    "aliakmonas": 420.6,
+    "nestos": 225.5,
+    "arachthos": 46.4,
+    "plastiras": 249.4,
+    "ladonas": 20.0
+   }
+  },
+  {
+   "Date": "2026-08-31",
+   "VolumeHm3": 2954.3,
+   "TotalGWh": 1893.7,
+   "ByRiverGWh": {
+    "acheloos": 938.5,
+    "aliakmonas": 418.1,
+    "nestos": 223.0,
+    "arachthos": 46.0,
+    "plastiras": 248.5,
+    "ladonas": 19.7
+   }
+  },
+  {
+   "Date": "2026-09-01",
+   "VolumeHm3": 2917.8,
+   "TotalGWh": 1876.3,
+   "ByRiverGWh": {
+    "acheloos": 930.2,
+    "aliakmonas": 414.6,
+    "nestos": 219.9,
+    "arachthos": 44.8,
+    "plastiras": 247.6,
+    "ladonas": 19.2
+   }
+  },
+  {
+   "Date": "2026-09-02",
+   "VolumeHm3": 2895.2,
+   "TotalGWh": 1863.1,
+   "ByRiverGWh": {
+    "acheloos": 923.5,
+    "aliakmonas": 411.4,
+    "nestos": 217.5,
+    "arachthos": 44.3,
+    "plastiras": 247.6,
+    "ladonas": 18.9
+   }
+  },
+  {
+   "Date": "2026-09-03",
+   "VolumeHm3": 2871.1,
+   "TotalGWh": 1849.8,
+   "ByRiverGWh": {
+    "acheloos": 916.5,
+    "aliakmonas": 407.9,
+    "nestos": 215.6,
+    "arachthos": 43.6,
+    "plastiras": 247.6,
+    "ladonas": 18.6
+   }
+  },
+  {
+   "Date": "2026-09-04",
+   "VolumeHm3": 2855.5,
+   "TotalGWh": 1837.4,
+   "ByRiverGWh": {
+    "acheloos": 910.0,
+    "aliakmonas": 404.7,
+    "nestos": 213.3,
+    "arachthos": 43.3,
+    "plastiras": 247.6,
+    "ladonas": 18.5
+   }
+  },
+  {
+   "Date": "2026-09-05",
+   "VolumeHm3": 2844.1,
+   "TotalGWh": 1829.8,
+   "ByRiverGWh": {
+    "acheloos": 905.1,
+    "aliakmonas": 402.4,
+    "nestos": 213.8,
+    "arachthos": 43.0,
+    "plastiras": 247.2,
+    "ladonas": 18.3
+   }
+  },
+  {
+   "Date": "2026-09-06",
+   "VolumeHm3": 2830.7,
+   "TotalGWh": 1821.4,
+   "ByRiverGWh": {
+    "acheloos": 900.3,
+    "aliakmonas": 400.3,
+    "nestos": 213.3,
+    "arachthos": 42.6,
+    "plastiras": 246.9,
+    "ladonas": 18.0
+   }
+  },
+  {
+   "Date": "2026-09-07",
+   "VolumeHm3": 2818.0,
+   "TotalGWh": 1814.2,
+   "ByRiverGWh": {
+    "acheloos": 896.0,
+    "aliakmonas": 398.2,
+    "nestos": 213.0,
+    "arachthos": 42.2,
+    "plastiras": 246.9,
+    "ladonas": 17.9
+   }
+  },
+  {
+   "Date": "2026-09-08",
+   "VolumeHm3": 2797.1,
+   "TotalGWh": 1803.0,
+   "ByRiverGWh": {
+    "acheloos": 888.7,
+    "aliakmonas": 396.2,
+    "nestos": 211.8,
+    "arachthos": 41.6,
+    "plastiras": 246.9,
+    "ladonas": 17.8
+   }
+  },
+  {
+   "Date": "2026-09-09",
+   "VolumeHm3": 2783.5,
+   "TotalGWh": 1794.5,
+   "ByRiverGWh": {
+    "acheloos": 882.7,
+    "aliakmonas": 395.1,
+    "nestos": 211.3,
+    "arachthos": 41.2,
+    "plastiras": 246.6,
+    "ladonas": 17.5
+   }
+  },
+  {
+   "Date": "2026-09-10",
+   "VolumeHm3": 2773.7,
+   "TotalGWh": 1789.0,
+   "ByRiverGWh": {
+    "acheloos": 878.7,
+    "aliakmonas": 394.1,
+    "nestos": 211.5,
+    "arachthos": 40.9,
+    "plastiras": 246.6,
+    "ladonas": 17.2
+   }
+  },
+  {
+   "Date": "2026-09-11",
+   "VolumeHm3": 2759.8,
+   "TotalGWh": 1780.0,
+   "ByRiverGWh": {
+    "acheloos": 873.6,
+    "aliakmonas": 392.0,
+    "nestos": 210.4,
+    "arachthos": 40.5,
+    "plastiras": 246.6,
+    "ladonas": 17.0
+   }
+  },
+  {
+   "Date": "2026-09-12",
+   "VolumeHm3": 2738.9,
+   "TotalGWh": 1768.3,
+   "ByRiverGWh": {
+    "acheloos": 866.4,
+    "aliakmonas": 390.6,
+    "nestos": 208.9,
+    "arachthos": 39.5,
+    "plastiras": 246.0,
+    "ladonas": 16.8
+   }
+  },
+  {
+   "Date": "2026-09-13",
+   "VolumeHm3": 2727.1,
+   "TotalGWh": 1762.2,
+   "ByRiverGWh": {
+    "acheloos": 861.0,
+    "aliakmonas": 391.0,
+    "nestos": 208.7,
+    "arachthos": 39.1,
+    "plastiras": 246.0,
+    "ladonas": 16.4
+   }
+  },
+  {
+   "Date": "2026-09-14",
+   "VolumeHm3": 2717.6,
+   "TotalGWh": 1756.3,
+   "ByRiverGWh": {
+    "acheloos": 857.6,
+    "aliakmonas": 389.6,
+    "nestos": 209.1,
+    "arachthos": 38.8,
+    "plastiras": 244.8,
+    "ladonas": 16.5
+   }
+  },
+  {
+   "Date": "2026-09-15",
+   "VolumeHm3": 2706.7,
+   "TotalGWh": 1749.7,
+   "ByRiverGWh": {
+    "acheloos": 852.5,
+    "aliakmonas": 387.9,
+    "nestos": 209.1,
+    "arachthos": 38.3,
+    "plastiras": 245.7,
+    "ladonas": 16.2
+   }
+  },
+  {
+   "Date": "2026-09-16",
+   "VolumeHm3": 2692.3,
+   "TotalGWh": 1740.6,
+   "ByRiverGWh": {
+    "acheloos": 847.2,
+    "aliakmonas": 386.5,
+    "nestos": 207.9,
+    "arachthos": 37.9,
+    "plastiras": 245.4,
+    "ladonas": 15.7
+   }
+  },
+  {
+   "Date": "2026-09-17",
+   "VolumeHm3": 2684.3,
+   "TotalGWh": 1734.3,
+   "ByRiverGWh": {
+    "acheloos": 842.8,
+    "aliakmonas": 385.5,
+    "nestos": 207.7,
+    "arachthos": 37.5,
+    "plastiras": 245.4,
+    "ladonas": 15.5
+   }
+  },
+  {
+   "Date": "2026-09-18",
+   "VolumeHm3": 2673.1,
+   "TotalGWh": 1726.9,
+   "ByRiverGWh": {
+    "acheloos": 837.9,
+    "aliakmonas": 384.1,
+    "nestos": 207.2,
+    "arachthos": 36.9,
+    "plastiras": 245.4,
+    "ladonas": 15.3
+   }
+  },
+  {
+   "Date": "2026-09-19",
+   "VolumeHm3": 2657.6,
+   "TotalGWh": 1716.9,
+   "ByRiverGWh": {
+    "acheloos": 831.4,
+    "aliakmonas": 382.4,
+    "nestos": 206.9,
+    "arachthos": 36.6,
+    "plastiras": 244.8,
+    "ladonas": 14.9
+   }
+  },
+  {
+   "Date": "2026-09-20",
+   "VolumeHm3": 2631.7,
+   "TotalGWh": 1703.8,
+   "ByRiverGWh": {
+    "acheloos": 822.3,
+    "aliakmonas": 380.3,
+    "nestos": 206.1,
+    "arachthos": 36.1,
+    "plastiras": 244.8,
+    "ladonas": 14.2
+   }
+  },
+  {
+   "Date": "2026-09-21",
+   "VolumeHm3": 2617.6,
+   "TotalGWh": 1696.2,
+   "ByRiverGWh": {
+    "acheloos": 816.8,
+    "aliakmonas": 379.0,
+    "nestos": 206.1,
+    "arachthos": 35.7,
+    "plastiras": 244.8,
+    "ladonas": 13.7
+   }
+  },
+  {
+   "Date": "2026-09-22",
+   "VolumeHm3": 2593.5,
+   "TotalGWh": 1681.0,
+   "ByRiverGWh": {
+    "acheloos": 807.3,
+    "aliakmonas": 375.7,
+    "nestos": 205.2,
+    "arachthos": 35.1,
+    "plastiras": 244.8,
+    "ladonas": 13.0
+   }
+  },
+  {
+   "Date": "2026-09-23",
+   "VolumeHm3": 2582.4,
+   "TotalGWh": 1674.0,
+   "ByRiverGWh": {
+    "acheloos": 805.4,
+    "aliakmonas": 373.1,
+    "nestos": 204.0,
+    "arachthos": 34.5,
+    "plastiras": 244.5,
+    "ladonas": 12.5
+   }
+  },
+  {
+   "Date": "2026-09-24",
+   "VolumeHm3": 2575.7,
+   "TotalGWh": 1667.7,
+   "ByRiverGWh": {
+    "acheloos": 803.5,
+    "aliakmonas": 370.5,
+    "nestos": 202.9,
+    "arachthos": 34.1,
+    "plastiras": 244.5,
+    "ladonas": 12.2
+   }
+  },
+  {
+   "Date": "2026-09-25",
+   "VolumeHm3": 2559.9,
+   "TotalGWh": 1658.0,
+   "ByRiverGWh": {
+    "acheloos": 799.6,
+    "aliakmonas": 366.9,
+    "nestos": 202.5,
+    "arachthos": 33.2,
+    "plastiras": 244.5,
+    "ladonas": 11.4
+   }
+  },
+  {
+   "Date": "2026-09-26",
+   "VolumeHm3": 2545.6,
+   "TotalGWh": 1648.7,
+   "ByRiverGWh": {
+    "acheloos": 794.2,
+    "aliakmonas": 365.1,
+    "nestos": 201.9,
+    "arachthos": 32.8,
+    "plastiras": 243.8,
+    "ladonas": 10.9
+   }
+  },
+  {
+   "Date": "2026-09-27",
+   "VolumeHm3": 2537.5,
+   "TotalGWh": 1642.9,
+   "ByRiverGWh": {
+    "acheloos": 790.2,
+    "aliakmonas": 363.9,
+    "nestos": 201.3,
+    "arachthos": 32.4,
+    "plastiras": 244.5,
+    "ladonas": 10.5
+   }
+  },
+  {
+   "Date": "2026-09-28",
+   "VolumeHm3": 2529.3,
+   "TotalGWh": 1637.1,
+   "ByRiverGWh": {
+    "acheloos": 786.4,
+    "aliakmonas": 363.0,
+    "nestos": 200.9,
+    "arachthos": 32.1,
+    "plastiras": 244.5,
+    "ladonas": 10.4
+   }
+  },
+  {
+   "Date": "2026-09-29",
+   "VolumeHm3": 2518.2,
+   "TotalGWh": 1630.1,
+   "ByRiverGWh": {
+    "acheloos": 782.1,
+    "aliakmonas": 362.1,
+    "nestos": 199.6,
+    "arachthos": 31.8,
+    "plastiras": 244.5,
+    "ladonas": 10.0
+   }
+  },
+  {
+   "Date": "2026-09-30",
+   "VolumeHm3": 2504.3,
+   "TotalGWh": 1620.6,
+   "ByRiverGWh": {
+    "acheloos": 775.9,
+    "aliakmonas": 360.8,
+    "nestos": 199.1,
+    "arachthos": 31.4,
+    "plastiras": 243.8,
+    "ladonas": 9.6
+   }
+  },
+  {
+   "Date": "2026-10-01",
+   "VolumeHm3": 2493.0,
+   "TotalGWh": 1615.2,
+   "ByRiverGWh": {
+    "acheloos": 771.6,
+    "aliakmonas": 360.3,
+    "nestos": 199.3,
+    "arachthos": 31.0,
+    "plastiras": 243.8,
+    "ladonas": 9.2
+   }
+  },
+  {
+   "Date": "2026-10-02",
+   "VolumeHm3": 2486.5,
+   "TotalGWh": 1611.7,
+   "ByRiverGWh": {
+    "acheloos": 768.6,
+    "aliakmonas": 360.3,
+    "nestos": 198.8,
+    "arachthos": 30.7,
+    "plastiras": 243.8,
+    "ladonas": 9.5
+   }
+  },
+  {
+   "Date": "2026-10-03",
+   "VolumeHm3": 2471.9,
+   "TotalGWh": 1603.4,
+   "ByRiverGWh": {
+    "acheloos": 763.1,
+    "aliakmonas": 359.4,
+    "nestos": 197.5,
+    "arachthos": 30.3,
+    "plastiras": 243.2,
+    "ladonas": 9.8
+   }
+  },
+  {
+   "Date": "2026-10-04",
+   "VolumeHm3": 2459.0,
+   "TotalGWh": 1596.9,
+   "ByRiverGWh": {
+    "acheloos": 758.7,
+    "aliakmonas": 358.5,
+    "nestos": 196.8,
+    "arachthos": 30.0,
+    "plastiras": 243.2,
+    "ladonas": 9.8
+   }
+  },
+  {
+   "Date": "2026-10-05",
+   "VolumeHm3": 2445.5,
+   "TotalGWh": 1591.0,
+   "ByRiverGWh": {
+    "acheloos": 754.0,
+    "aliakmonas": 357.6,
+    "nestos": 196.7,
+    "arachthos": 29.7,
+    "plastiras": 243.2,
+    "ladonas": 9.8
+   }
+  },
+  {
+   "Date": "2026-10-06",
+   "VolumeHm3": 2432.4,
+   "TotalGWh": 1584.5,
+   "ByRiverGWh": {
+    "acheloos": 750.1,
+    "aliakmonas": 355.3,
+    "nestos": 196.2,
+    "arachthos": 29.5,
+    "plastiras": 243.2,
+    "ladonas": 10.2
+   }
+  },
+  {
+   "Date": "2026-10-07",
+   "VolumeHm3": 2421.6,
+   "TotalGWh": 1577.3,
+   "ByRiverGWh": {
+    "acheloos": 745.4,
+    "aliakmonas": 353.4,
+    "nestos": 195.8,
+    "arachthos": 29.1,
+    "plastiras": 242.9,
+    "ladonas": 10.7
+   }
+  }
+ ],
+ "Weekly": [
+  {
+   "IsoWeek": "2026-W02",
+   "StartLocal": "2026-01-05",
+   "EntsoeMWh": 2220693,
+   "ModelMWh": 2215964,
+   "DiffGWh": -4.7
+  },
+  {
+   "IsoWeek": "2026-W03",
+   "StartLocal": "2026-01-12",
+   "EntsoeMWh": 2444744,
+   "ModelMWh": 2443818,
+   "DiffGWh": -0.9
+  },
+  {
+   "IsoWeek": "2026-W04",
+   "StartLocal": "2026-01-19",
+   "EntsoeMWh": 2386423,
+   "ModelMWh": 2386775,
+   "DiffGWh": 0.4
+  },
+  {
+   "IsoWeek": "2026-W05",
+   "StartLocal": "2026-01-26",
+   "EntsoeMWh": 2440087,
+   "ModelMWh": 2445255,
+   "DiffGWh": 5.2
+  },
+  {
+   "IsoWeek": "2026-W06",
+   "StartLocal": "2026-02-02",
+   "EntsoeMWh": 2629360,
+   "ModelMWh": 2634754,
+   "DiffGWh": 5.4
+  },
+  {
+   "IsoWeek": "2026-W07",
+   "StartLocal": "2026-02-09",
+   "EntsoeMWh": 2757570,
+   "ModelMWh": 2760292,
+   "DiffGWh": 2.7
+  },
+  {
+   "IsoWeek": "2026-W08",
+   "StartLocal": "2026-02-16",
+   "EntsoeMWh": 2940674,
+   "ModelMWh": 2936028,
+   "DiffGWh": -4.6
+  },
+  {
+   "IsoWeek": "2026-W09",
+   "StartLocal": "2026-02-23",
+   "EntsoeMWh": 2941231,
+   "ModelMWh": 2936759,
+   "DiffGWh": -4.5
+  },
+  {
+   "IsoWeek": "2026-W10",
+   "StartLocal": "2026-03-02",
+   "EntsoeMWh": 2833271,
+   "ModelMWh": 2831502,
+   "DiffGWh": -1.8
+  },
+  {
+   "IsoWeek": "2026-W11",
+   "StartLocal": "2026-03-09",
+   "EntsoeMWh": 2750539,
+   "ModelMWh": 2749262,
+   "DiffGWh": -1.3
+  },
+  {
+   "IsoWeek": "2026-W12",
+   "StartLocal": "2026-03-16",
+   "EntsoeMWh": 2695424,
+   "ModelMWh": 2693145,
+   "DiffGWh": -2.3
+  },
+  {
+   "IsoWeek": "2026-W13",
+   "StartLocal": "2026-03-23",
+   "EntsoeMWh": 2679314,
+   "ModelMWh": 2676201,
+   "DiffGWh": -3.1
+  },
+  {
+   "IsoWeek": "2026-W14",
+   "StartLocal": "2026-03-30",
+   "EntsoeMWh": 2755567,
+   "ModelMWh": 2754462,
+   "DiffGWh": -1.1
+  },
+  {
+   "IsoWeek": "2026-W15",
+   "StartLocal": "2026-04-06",
+   "EntsoeMWh": 2866999,
+   "ModelMWh": 2869971,
+   "DiffGWh": 3.0
+  },
+  {
+   "IsoWeek": "2026-W16",
+   "StartLocal": "2026-04-13",
+   "EntsoeMWh": 2907217,
+   "ModelMWh": 2909254,
+   "DiffGWh": 2.0
+  },
+  {
+   "IsoWeek": "2026-W17",
+   "StartLocal": "2026-04-20",
+   "EntsoeMWh": 2937439,
+   "ModelMWh": 2937401,
+   "DiffGWh": -0.0
+  },
+  {
+   "IsoWeek": "2026-W18",
+   "StartLocal": "2026-04-27",
+   "EntsoeMWh": 2948274,
+   "ModelMWh": 2947957,
+   "DiffGWh": -0.3
+  },
+  {
+   "IsoWeek": "2026-W19",
+   "StartLocal": "2026-05-04",
+   "EntsoeMWh": 2932746,
+   "ModelMWh": 2934543,
+   "DiffGWh": 1.8
+  },
+  {
+   "IsoWeek": "2026-W20",
+   "StartLocal": "2026-05-11",
+   "EntsoeMWh": 2907121,
+   "ModelMWh": 2909885,
+   "DiffGWh": 2.8
+  },
+  {
+   "IsoWeek": "2026-W21",
+   "StartLocal": "2026-05-18",
+   "EntsoeMWh": 2890199,
+   "ModelMWh": 2891592,
+   "DiffGWh": 1.4
+  },
+  {
+   "IsoWeek": "2026-W22",
+   "StartLocal": "2026-05-25",
+   "EntsoeMWh": 2871931,
+   "ModelMWh": 2869594,
+   "DiffGWh": -2.3
+  },
+  {
+   "IsoWeek": "2026-W23",
+   "StartLocal": "2026-06-01",
+   "EntsoeMWh": 2822433,
+   "ModelMWh": 2818372,
+   "DiffGWh": -4.1
+  },
+  {
+   "IsoWeek": "2026-W24",
+   "StartLocal": "2026-06-08",
+   "EntsoeMWh": 2789666,
+   "ModelMWh": 2783293,
+   "DiffGWh": -6.4
+  },
+  {
+   "IsoWeek": "2026-W25",
+   "StartLocal": "2026-06-15",
+   "EntsoeMWh": 2751234,
+   "ModelMWh": 2747143,
+   "DiffGWh": -4.1
+  },
+  {
+   "IsoWeek": "2026-W26",
+   "StartLocal": "2026-06-22",
+   "EntsoeMWh": 2696301,
+   "ModelMWh": 2692939,
+   "DiffGWh": -3.4
+  },
+  {
+   "IsoWeek": "2026-W27",
+   "StartLocal": "2026-06-29",
+   "EntsoeMWh": 2626850,
+   "ModelMWh": 2626306,
+   "DiffGWh": -0.5
+  },
+  {
+   "IsoWeek": "2026-W28",
+   "StartLocal": "2026-07-06",
+   "EntsoeMWh": 2555680,
+   "ModelMWh": 2556350,
+   "DiffGWh": 0.7
+  },
+  {
+   "IsoWeek": "2026-W29",
+   "StartLocal": "2026-07-13",
+   "EntsoeMWh": 2463583,
+   "ModelMWh": 2474869,
+   "DiffGWh": 11.3
+  },
+  {
+   "IsoWeek": "2026-W30",
+   "StartLocal": "2026-07-20",
+   "EntsoeMWh": 2386923,
+   "ModelMWh": 2388972,
+   "DiffGWh": 2.0
+  },
+  {
+   "IsoWeek": "2026-W31",
+   "StartLocal": "2026-07-27",
+   "EntsoeMWh": 2309066,
+   "ModelMWh": 2311173,
+   "DiffGWh": 2.1
+  },
+  {
+   "IsoWeek": "2026-W32",
+   "StartLocal": "2026-08-03",
+   "EntsoeMWh": 2210284,
+   "ModelMWh": 2211844,
+   "DiffGWh": 1.6
+  },
+  {
+   "IsoWeek": "2026-W33",
+   "StartLocal": "2026-08-10",
+   "EntsoeMWh": 2124326,
+   "ModelMWh": 2123660,
+   "DiffGWh": -0.7
+  },
+  {
+   "IsoWeek": "2026-W35",
+   "StartLocal": "2026-08-24",
+   "EntsoeMWh": 1929840,
+   "ModelMWh": 1932489,
+   "DiffGWh": 2.6
+  },
+  {
+   "IsoWeek": "2026-W36",
+   "StartLocal": "2026-08-31",
+   "EntsoeMWh": 1839689,
+   "ModelMWh": 1841711,
+   "DiffGWh": 2.0
+  },
+  {
+   "IsoWeek": "2026-W37",
+   "StartLocal": "2026-09-07",
+   "EntsoeMWh": 1776913,
+   "ModelMWh": 1779043,
+   "DiffGWh": 2.1
+  },
+  {
+   "IsoWeek": "2026-W38",
+   "StartLocal": "2026-09-14",
+   "EntsoeMWh": 1721956,
+   "ModelMWh": 1724047,
+   "DiffGWh": 2.1
+  },
+  {
+   "IsoWeek": "2026-W39",
+   "StartLocal": "2026-09-21",
+   "EntsoeMWh": 1657903,
+   "ModelMWh": 1658502,
+   "DiffGWh": 0.6
+  },
+  {
+   "IsoWeek": "2026-W40",
+   "StartLocal": "2026-09-28",
+   "EntsoeMWh": 1610776,
+   "ModelMWh": 1609860,
+   "DiffGWh": -0.9
+  }
+ ]
+}
