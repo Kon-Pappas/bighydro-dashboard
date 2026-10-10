@@ -1,208 +1,349 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="el">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Greek Hydro, Pump & Reservoir Analytics</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/patternomaly@1.3.2/dist/patternomaly.min.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BigHydro · Υδροηλεκτρικά ανά ποταμό</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#16202b;--mut:#5b6773;--line:#dfe3e8;--c1:#2f6fb5;--c2:#d9822b;--c3:#2e9b7a;--bar:#dbe7f5;--warn:#b36b00;--warnbg:#fff4e0;--bad:#b3261e;--shade:rgba(47,111,181,.08)}
+@media (prefers-color-scheme:dark){:root{--bg:#10151b;--card:#18202a;--ink:#e8edf2;--mut:#9aa7b4;--line:#2a3541;--c1:#6aa6e8;--c2:#f0a35a;--c3:#5ccaa5;--bar:#25374d;--warn:#f0b35a;--warnbg:#3a2d12;--bad:#ff8a80;--shade:rgba(106,166,232,.10)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:0 14px 40px}
+header.top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;padding:14px 0 6px}
+h1{font-size:20px;margin:0}
+.sub{color:var(--mut);font-size:12px}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+select,button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--c1)}
+nav.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:8px 0 14px;overflow-x:auto}
+nav.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;white-space:nowrap}
+nav.tabs button.on{border-bottom-color:var(--c1);color:var(--c1);font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.card .lab{font-size:12px;color:var(--mut)}
+.card .val{font-size:22px;font-weight:600;margin-top:2px}
+.card .sm{font-size:12px;color:var(--mut);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.river{text-align:left;width:100%;padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+.river h3{margin:0 0 4px;font-size:15px}
+.big{font-size:24px;font-weight:600}
+.track{height:7px;background:var(--bar);border-radius:4px;margin:6px 0 8px;overflow:hidden}
+.fillb{height:100%;background:var(--c1);border-radius:4px}
+.row2{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.mut{color:var(--mut)}.small{font-size:12px}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--mut)}
+.badge.warn{color:var(--warn);border-color:var(--warn)}
+.note{font-size:12px;color:var(--mut);margin:10px 0}
+#banner .b{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:13px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.panel h2{font-size:15px;margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+.scroll{overflow-x:auto}
+svg.ch{width:100%;height:auto;display:block}
+svg.ch text{fill:var(--mut);font-size:11px}
+svg.ch .ax{stroke:var(--line)}
+.s1{stroke:var(--c1);fill:none;stroke-width:2}.s2{stroke:var(--c2);fill:none;stroke-width:2}.s3{stroke:var(--c3);fill:none;stroke-width:2}
+.b1{fill:var(--c1)}.b2{fill:var(--c2)}.b3{fill:var(--c3)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.modal-b{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 10px;z-index:10}
+.modal-b[hidden]{display:none}
+.modal{background:var(--bg);border-radius:14px;max-width:760px;width:100%;padding:16px 16px 20px;border:1px solid var(--line)}
+.modal .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.modal h2{margin:0;font-size:18px}
+.dam{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.flow{text-align:center;color:var(--mut);font-size:13px;line-height:1.2;padding:2px 0}
+.pump{color:var(--warn)}
+@media (max-width:560px){.dam{grid-template-columns:1fr}.dam>div:last-child{text-align:left!important}}
+</style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col justify-between relative">
+<body>
+<div class="wrap">
+<header class="top">
+  <div><h1 id="ttl"></h1><div class="sub" id="sub"></div></div>
+  <div class="ctrl"><label class="small mut" id="dlab" for="dsel"></label><select id="dsel"></select><button id="lang"></button><button id="meth"></button></div>
+</header>
+<nav class="tabs" id="tabs"></nav>
+<div id="banner"></div>
+<main>
+  <section id="t-rivers"><div class="cards" id="sum"></div><div class="grid" id="rg"></div><p class="note" id="rfoot"></p></section>
+  <section id="t-energy" hidden></section>
+  <section id="t-kast" hidden></section>
+</main>
+</div>
+<div class="modal-b" id="rm" hidden><div class="modal" id="rmc"></div></div>
+<div class="modal-b" id="mm" hidden><div class="modal" id="mmc"></div></div>
 
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 z-[9999] bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center transition-opacity duration-500 px-4">
-        <div class="w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-5 flex flex-col gap-4">
-            <div class="flex items-center gap-3 mb-1 border-b border-slate-700/50 pb-3">
-                <div class="w-5 h-5 border-2 border-slate-600 border-t-emerald-500 rounded-full animate-spin" id="mainSpinner"></div>
-                <h2 class="text-white text-base font-bold tracking-wide">System Initialization</h2>
-            </div>
-            <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 flex flex-col gap-2">
-                <div class="flex items-center gap-2 mb-1">
-                    <svg class="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Data Fetching</span>
-                </div>
-                <div class="opacity-0 transition-opacity duration-300" id="loadRow1">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="text-xs text-slate-300">Reading telemetry files</span>
-                        <span class="text-[10px] font-mono text-emerald-400 font-bold" id="loadPct1">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                        <div class="bg-blue-500 h-full rounded-full w-0 transition-all duration-300 ease-out" id="loadBar1"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-slate-900/50 rounded-xl p-3 border border-slate-700/50 flex flex-col gap-3 mt-1">
-                <div class="flex items-center gap-2 mb-1">
-                    <svg class="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Analytics Engine</span>
-                </div>
-                <div class="opacity-0 transition-opacity duration-300" id="loadRow2">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="text-xs text-slate-300">Loading Hydro Cascade...</span>
-                        <span class="text-[10px] font-mono text-emerald-400 font-bold" id="loadPct2">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                        <div class="bg-purple-500 h-full rounded-full w-0 transition-all duration-300 ease-out" id="loadBar2"></div>
-                    </div>
-                </div>
-                <div class="opacity-0 transition-opacity duration-300" id="loadRow3">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="text-xs text-slate-300">Rendering UI...</span>
-                        <span class="text-[10px] font-mono text-emerald-400 font-bold" id="loadPct3">0%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                        <div class="bg-purple-500 h-full rounded-full w-0 transition-all duration-300 ease-out" id="loadBar3"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="opacity-0 transition-all duration-500 transform translate-y-2 flex items-center justify-center p-3 mt-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 gap-2" id="loadRow_FINAL">
-                <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span class="text-emerald-400 font-bold text-sm tracking-wide">Dashboard is ready!</span>
-            </div>
-        </div>
-    </div>
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var P={},S={lang:'el',date:null,tab:'rivers'},cache={};
+try{S.lang=localStorage.getItem('bh_lang')||'el'}catch(e){}
 
-    <div class="max-w-7xl mx-auto space-y-6 w-full">
-        <!-- Header -->
-        <header class="border-b border-slate-700 pb-4">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="flex flex-col items-start w-full md:w-auto">
-                    <a href="https://kon-pappas.github.io/" class="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-cyan-300 transition-colors mb-2.5 group w-fit">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                        </svg>
-                        <span class="font-medium tracking-wide">Konstantinos Pappas Hub <span class="text-slate-600 ml-0.5 font-bold">/</span></span>
-                    </a>
-                    <div class="flex items-center gap-3">
-                        <h1 class="text-3xl font-bold text-cyan-400" id="mainTitle">Greek Hydro, Pump & Reservoir Analytics</h1>
-                    </div>
-                    <p class="text-slate-400 text-sm mt-1" id="dataSourceText">Data source: IPTO (SCADA & ISP) & ENTSO-E</p>
-                </div>
-                
-                <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
-                    <div class="order-2 md:order-2 w-full md:w-auto flex gap-1 bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs font-bold shadow-sm h-12 md:h-10">
-                        <button onclick="setLang('el')" id="btnGr" class="flex-1 md:flex-none flex items-center justify-center px-4 rounded text-slate-400 hover:text-white transition">GR</button>
-                        <button onclick="setLang('en')" id="btnEn" class="flex-1 md:flex-none flex items-center justify-center px-4 rounded bg-indigo-500 text-white transition">EN</button>
-                    </div>
-                    <div id="datePickerContainer" class="order-1 md:order-3 w-full md:w-auto flex items-center justify-between md:justify-start gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700 shadow-sm h-12 md:h-10">
-                        <div class="flex items-center gap-2 pl-2">
-                            <label class="text-xs text-slate-300 font-medium" id="dateLabel">Date:</label>
-                            <select id="dateSelect" onchange="renderCharts()" class="bg-slate-900 text-slate-200 text-sm font-semibold rounded p-1 outline-none focus:border-indigo-500 transition cursor-pointer border border-slate-700">
-                                <option>Loading...</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+/* ---------- i18n ---------- */
+var T={el:{
+ ttl:'BigHydro · Υδροηλεκτρικά ανά ποταμό',sub:'Ώρα Ελλάδας · δεδομένα ΑΔΜΗΕ και ENTSO-E',date:'Ημέρα',meth:'Μεθοδολογία',
+ t_rivers:'Ποτάμια',t_energy:'Αποθηκευμένη ενέργεια',t_kast:'Καστράκι',
+ c_hydro:'Υδροηλεκτρική παραγωγή (SCADA)',c_pump:'Άντληση (SCADA)',c_fill:'Πλήρωση, επίσημο ΑΔΜΗΕ',c_rec:'ανασύνθεση με χωρητικότητες: {x}% ({d} μον.)',
+ c_en:'Ενέργεια αποθεμάτων (ισοδύναμο ENTSO-E)',c_en_s:'σύνολο, ± {x}% ανάμεσα σε μοντέλα',other:'Μικρά υδροηλεκτρικά (άλλα) {x} MWh',
+ fill:'Πλήρωση',prod:'Παραγωγή',stored:'Ενέργεια αποθέματος',per_day:'ανά ημέρα',vol:'όγκος',
+ rel_good:'καλή αξιοπιστία',rel_fair:'μέτρια αξιοπιστία',rel_poor:'χαμηλή αξιοπιστία',spread:'διασπορά μοντέλων ±{x}%',
+ click:'Πάτα μια κάρτα για την ανάλυση του καταρράκτη.',nores:'χωρίς ταμιευτήρα στο ΑΔΜΗΕ',
+ top_down:'από πάνω προς τα κάτω',pumpl:'άντληση',pump_note:'το SCADA δίνει μόνο το σύνολο άντλησης ({x} MWh, Σφηκιά και Θησαυρός μαζί)',pump_assume:'υπόθεση',
+ prod_h:'Παραγωγή ανά ώρα (ώρα Ελλάδας)',scada:'SCADA (πραγματικό)',isp:'ISP (πρόγραμμα)',close:'Κλείσιμο',
+ over100:'πάνω από 100% (συνηθισμένο)',st2:'ο Στράτος ΙΙ περιλαμβάνεται στα «μικρά υδροηλεκτρικά (άλλα)»',
+ e_entsoe:'Ισοδύναμο ENTSO-E',e_phys:'Φυσική εκτίμηση (μικτή πτώση)',e_aoos:'Πηγές Αώου, φυσικά (δεν μετράνε στο ENTSO-E)',
+ q_missing:'Για αυτή την ημέρα λείπουν ακόμα: {x}.',q_zero:'Ύποπτη τιμή 0,00% στο ΑΔΜΗΕ ({x}), αντικαταστάθηκε με παρεμβολή.',
+ dv:'Δ', day_hm3:'hm³/ημέρα',nodata:'—',
+ en_total:'Σύνολο ισοδύναμου ENTSO-E',en_phys:'Φυσική εκτίμηση, χωρίς Αώο',en_aoos:'Πηγές Αώου (φυσικά)',
+ en_weekly:'Εβδομαδιαίο ENTSO-E έναντι μοντέλου',en_daily:'Ημερήσια ενέργεια αποθεμάτων (ισοδύναμο ENTSO-E)',en_rivers:'Ανά ποταμό, επιλεγμένη ημέρα',
+ lg_entsoe:'ENTSO-E (αναφορά)',lg_model:'μοντέλο',lg_calib:'περίοδος βαθμονόμησης',oos:'εκτός δείγματος',
+ th_river:'Ποταμός',th_eq:'Ισοδύναμο ENTSO-E (GWh)',th_ph:'Φυσική (GWh)',th_rel:'Αξιοπιστία',th_week:'Εβδομάδα',th_en:'ENTSO-E (GWh)',th_mo:'Μοντέλο (GWh)',th_df:'Διαφορά (GWh)',th_pc:'%',
+ en_note:'Το ισοδύναμο ENTSO-E είναι βαθμονομημένο στα εβδομαδιαία του ENTSO-E (μέσος όρος τιμών τέλους ημέρας). Η φυσική εκτίμηση χρησιμοποιεί μικτές πτώσεις από μη επίσημα έγγραφα και δεν ταυτίζεται με τον αριθμό του ENTSO-E. Ανά ποταμό η αβεβαιότητα είναι ±10–20%.',
+ k_title:'Καστράκι: στάθμη',k_stats:'Στατιστικά',k_dv:'Ημερήσια μεταβολή αποθέματος (hm³)',k_cur:'Τρέχουσα στάθμη',k_max:'Μέγιστο',k_days:'Ημέρες πάνω από 100%',k_big:'Ημέρες με |Δ| ≥ 4,8 hm³ (9% της λίμνης)',k_rise:'Μεγαλύτερη άνοδος σε 11 ημέρες',k_note:'Στάθμη πάνω από 100% είναι συνηθισμένη στο Καστράκι. Κάτω ταμιευτήρας της ΑΑΣ Αμφιλοχίας (πληροφορία χρήστη: έναρξη περίπου τέλη 2026, πλήρωση άνω ταμιευτήρων περίπου 9% της λίμνης, δηλαδή ~4,8 hm³).',
+ k_line:'στάθμη %',k_ref:'100%',
+ err:'Δεν φορτώθηκαν τα δεδομένα. Άνοιξε τη σελίδα από τον ιστότοπο (GitHub Pages), όχι ως τοπικό αρχείο.',
+ m_title:'Μεθοδολογία και περιορισμοί',
+ m:['<b>Πηγές.</b> ΑΔΜΗΕ: Reservoir Filling Rate (στάθμες, μέτρηση 00:00), SCADA (πραγματική παραγωγή), ISP (πρόγραμμα αγοράς), RESMV (μικρά υδροηλεκτρικά). ENTSO-E: τιμή αγοράς και εβδομαδιαίο απόθεμα (16.1.D).',
+ '<b>Ώρα.</b> Όλα τα ωριαία είναι σε ώρα Ελλάδας (H01 = 00:00–01:00). Το SCADA και το RESMV δημοσιεύονται έτσι. Το ISP και η τιμή δημοσιεύονται σε ώρα αγοράς (CET) και μετατοπίζονται κατά +1 ώρα (επαληθεύτηκε σε δεδομένα Ιουνίου–Οκτωβρίου 2026).',
+ '<b>Πλήρωση.</b> Το ποσοστό ανά ταμιευτήρα είναι του ΑΔΜΗΕ. Ο όγκος προκύπτει από ποσοστό × ωφέλιμη χωρητικότητα (ΔΕΗ, Στεφανάκος 2020). Το επίσημο total είναι σταθμισμένο με όγκο· η ανασύνθεσή μας βγαίνει κατά μέσο όρο ~1 ποσοστιαία μονάδα χαμηλότερα (πιθανώς διαφορετικός όγκος σε κάποιο ταμιευτήρα, π.χ. Ιλαρίωνα).',
+ '<b>Καστράκι πάνω από 100%.</b> Συνηθισμένο φαινόμενο, δεν αντιμετωπίζεται ως ανωμαλία. Δείτε την καρτέλα «Καστράκι».',
+ '<b>Ισοδύναμο ENTSO-E.</b> Κάθε hm³ αξίζει όσο παράγει καθώς κατεβαίνει τον καταρράκτη. Οι συντελεστές εκτιμήθηκαν με μη αρνητικά ελάχιστα τετράγωνα πάνω στα εβδομαδιαία ENTSO-E 2026· η εβδομάδα ENTSO-E ισούται με τον μέσο όρο των ημερήσιων τιμών τέλους ημέρας. Σφάλμα στο σύνολο ~0,17% (leave-one-out). Ανά ποταμό η αβεβαιότητα είναι ±10–20% και ανά φράγμα δεν δίνεται (οι ταμιευτήρες ενός καταρράκτη κινούνται μαζί).',
+ '<b>Φυσική εκτίμηση.</b> 2,725 × μικτή πτώση × απόδοση, με τιμές από μη επίσημα έγγραφα που δεν έχουν επαληθευτεί. Συμφωνεί με το ENTSO-E για Κρεμαστά, Καστράκι, Πολύφυτο, Θησαυρό και Πλαστήρα, όχι όμως για τις Πηγές Αώου.',
+ '<b>Πηγές Αώου.</b> Η φυσική αξία (~1.850 MWh/hm³ με Πουρνάρι, περίπου 10% του συνόλου) δεν φαίνεται στη σειρά ENTSO-E· στα δεδομένα Ιανουαρίου–Σεπτεμβρίου η αξία του Αώου βγαίνει 0–200 MWh/hm³. Δεν γνωρίζουμε αν ο ΑΔΜΗΕ τον αποτιμά διαφορετικά.',
+ '<b>Ποιότητα δεδομένων.</b> Ο Ιλαρίων εμφανίστηκε στο 0,00% από 19 έως 25/7/2026 (63 hm³)· οι τιμές 0,00% σε μεγάλους ταμιευτήρες θεωρούνται άκυρες και αντικαθίστανται με παρεμβολή στους υπολογισμούς ενέργειας.',
+ '<b>Όρια.</b> Η άντληση δίνεται μόνο ως σύνολο (Σφηκιά και Θησαυρός). Ο Στράτος ΙΙ βρίσκεται στα «μικρά υδροηλεκτρικά (άλλα)». Η αντλία Πλατανόβρυση → Θησαυρός είναι υπόθεση. Οι συντελεστές θα επανεκτιμηθούν με φθινοπωρινή πλήρωση.']},
+en:{
+ ttl:'BigHydro · Hydro by river',sub:'Greek time · ADMIE and ENTSO-E data',date:'Day',meth:'Methodology',
+ t_rivers:'Rivers',t_energy:'Stored energy',t_kast:'Kastraki',
+ c_hydro:'Hydro generation (SCADA)',c_pump:'Pumping (SCADA)',c_fill:'Fill level, official ADMIE',c_rec:'rebuilt with capacities: {x}% ({d} pp)',
+ c_en:'Stored energy (ENTSO-E equivalent)',c_en_s:'total, ± {x}% across model variants',other:'Other small hydro {x} MWh',
+ fill:'Fill',prod:'Generation',stored:'Stored energy',per_day:'per day',vol:'volume',
+ rel_good:'good reliability',rel_fair:'fair reliability',rel_poor:'low reliability',spread:'model spread ±{x}%',
+ click:'Click a card for the cascade breakdown.',nores:'no reservoir in ADMIE data',
+ top_down:'top to bottom',pumpl:'pumping',pump_note:'SCADA only reports total pumping ({x} MWh, Sfikia and Thesavros combined)',pump_assume:'assumption',
+ prod_h:'Hourly generation (Greek time)',scada:'SCADA (actual)',isp:'ISP (schedule)',close:'Close',
+ over100:'above 100% (common)',st2:'Stratos II is included in "other small hydro"',
+ e_entsoe:'ENTSO-E equivalent',e_phys:'Physical estimate (gross head)',e_aoos:'Pigai Aoou, physical (not counted in ENTSO-E)',
+ q_missing:'Still missing for this day: {x}.',q_zero:'Suspect 0.00% reading in ADMIE data ({x}), replaced by interpolation.',
+ dv:'Δ',day_hm3:'hm³/day',nodata:'—',
+ en_total:'Total, ENTSO-E equivalent',en_phys:'Physical estimate, excl. Aoos',en_aoos:'Pigai Aoou (physical)',
+ en_weekly:'ENTSO-E weekly vs model',en_daily:'Daily stored energy (ENTSO-E equivalent)',en_rivers:'By river, selected day',
+ lg_entsoe:'ENTSO-E (reference)',lg_model:'model',lg_calib:'calibration period',oos:'out of sample',
+ th_river:'River',th_eq:'ENTSO-E equiv. (GWh)',th_ph:'Physical (GWh)',th_rel:'Reliability',th_week:'Week',th_en:'ENTSO-E (GWh)',th_mo:'Model (GWh)',th_df:'Difference (GWh)',th_pc:'%',
+ en_note:'The ENTSO-E equivalent is calibrated on ENTSO-E weekly values (mean of end-of-day readings). The physical estimate uses gross heads from unofficial documents and does not equal the ENTSO-E number. Per-river uncertainty is ±10-20%.',
+ k_title:'Kastraki: reservoir level',k_stats:'Statistics',k_dv:'Daily storage change (hm³)',k_cur:'Current level',k_max:'Maximum',k_days:'Days above 100%',k_big:'Days with |Δ| ≥ 4.8 hm³ (9% of the lake)',k_rise:'Largest rise in 11 days',k_note:'Levels above 100% are common at Kastraki. It will be the lower reservoir of the Amfilochia pumped storage (user information: start around end-2026; filling the upper reservoirs needs roughly 9% of the lake, about 4.8 hm³).',
+ k_line:'level %',k_ref:'100%',
+ err:'Data could not be loaded. Open the page from the website (GitHub Pages), not as a local file.',
+ m_title:'Methodology and limitations',
+ m:['<b>Sources.</b> ADMIE: Reservoir Filling Rate (levels, 00:00 reading), SCADA (actual output), ISP (market schedule), RESMV (small hydro). ENTSO-E: day-ahead price and weekly reservoir stock (16.1.D).',
+ '<b>Time.</b> All hourly data use Greek time (H01 = 00:00-01:00). SCADA and RESMV are published that way. ISP and price are published on market (CET) time and shifted by +1 h (verified on June-October 2026 data).',
+ '<b>Fill level.</b> Percentages per reservoir are ADMIE\'s. Volume = percentage × useful capacity (PPC, Stefanakos 2020). The official total is volume-weighted; our rebuild comes out ~1 percentage point lower on average (possibly a different volume for one reservoir, e.g. Ilarionas).',
+ '<b>Kastraki above 100%.</b> Common behaviour, not treated as an anomaly. See the Kastraki tab.',
+ '<b>ENTSO-E equivalent.</b> Each hm³ is worth what it generates while descending the cascade. Factors were estimated by non-negative least squares on ENTSO-E weekly values of 2026; an ENTSO-E week equals the mean of daily end-of-day values. Error on the total ~0.17% (leave-one-out). Per river the uncertainty is ±10-20%; per dam it is not shown (reservoirs in a cascade move together).',
+ '<b>Physical estimate.</b> 2.725 × gross head × efficiency, with values from unofficial documents that have not been verified. It agrees with ENTSO-E for Kremasta, Kastraki, Polyfyto, Thesavros and Plastiras, but not for Pigai Aoou.',
+ '<b>Pigai Aoou.</b> Its physical value (~1,850 MWh/hm³ including Pournari, about 10% of the total) is not visible in the ENTSO-E series; on January-September data its value comes out at 0-200 MWh/hm³. We do not know whether ADMIE values it differently.',
+ '<b>Data quality.</b> Ilarionas showed 0.00% from 19 to 25 July 2026 (63 hm³); 0.00% readings in large reservoirs are treated as invalid and replaced by interpolation in the energy calculations.',
+ '<b>Limits.</b> Pumping is only available as a total (Sfikia and Thesavros). Stratos II sits in "other small hydro". The Platanovrysi → Thesavros pump is an assumption. Factors will be re-estimated with autumn filling.']}};
+var RN={acheloos:'Acheloos',aliakmonas:'Aliakmonas',nestos:'Nestos',arachthos:'Arachthos (with Aoos diversion)',plastiras:'Plastiras (Tavropos)',ladonas:'Ladonas'};
+var DN={KREMASTA:'Kremasta',KASTRAKI:'Kastraki',STRATOS:'Stratos',ILARIONAS:'Ilarionas',POLYFYTO:'Polyfyto',SFIKIA:'Sfikia',ASOMATA:'Asomata',THESAVROS:'Thesavros',PLATANOVRYSI:'Platanovrysi',P_AOOU:'Pigai Aoou',POYRNARI1:'Pournari I',POYRNARI2:'Pournari II',PLASTIRAS:'Plastiras',LADONAS:'Ladonas'};
+function t(k,v){var s=(T[S.lang]&&T[S.lang][k]!=null?T[S.lang][k]:T.el[k]);if(typeof s!=='string')return s;if(v)for(var x in v)s=s.replace('{'+x+'}',v[x]);return s}
+function nf(v,d){if(v==null||isNaN(v))return '—';d=d||0;return v.toLocaleString(S.lang==='el'?'el-GR':'en-GB',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function sg(v,d){return v==null||isNaN(v)?'—':(v>0?'+':'')+nf(v,d)}
+function fd(s){var p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function dn(s){return Date.parse(s+'T00:00:00Z')/86400000}
+function addDays(s,n){return new Date(Date.parse(s+'T00:00:00Z')+n*86400000).toISOString().slice(0,10)}
+function rname(r){return S.lang==='el'?r.Name:(RN[r.Id]||r.Name)}
+function dname(k){return S.lang==='el'?P.meta.Reservoirs[k].NameEl:(DN[k]||k)}
 
-        <!-- TABS NAVIGATION -->
-        <div class="pt-5 mt-2 border-t border-slate-700/50 md:border-none md:pt-0 md:mt-0">
-            <div class="grid grid-cols-2 gap-3 md:flex md:space-x-6 md:border-b md:border-slate-800 md:pb-2">
-                <button id="tabBtnTotals" onclick="switchTab('totals')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-indigo-500 text-white border-indigo-500 md:bg-transparent md:border-transparent md:text-cyan-400 md:border-b-cyan-400">Daily Overview (ISP vs SCADA)</button>
-                <button id="tabBtnPump" onclick="switchTab('pump')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Pump & River Cascades</button>
-                <button id="tabBtnReservoir" onclick="switchTab('reservoir')" class="flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300">Reservoir Levels</button>
-            </div>
-        </div>
+/* ---------- data ---------- */
+function getJSON(p){if(cache[p])return Promise.resolve(cache[p]);return fetch('data/'+p).then(function(r){if(!r.ok)throw new Error(p+' '+r.status);return r.json()}).then(function(j){cache[p]=j;return j})}
+function opt(p){return getJSON(p).catch(function(){return null})}
+function cap(k){return P.meta.Reservoirs[k].CapacityHm3}
+function sanitize(){
+  var keys=Object.keys(P.meta.Reservoirs),dates=P.hist.map(function(r){return r.Date}),fill=P.hist.map(function(r){var o={};for(var k in r.Reservoir)o[k]=r.Reservoir[k];return o});
+  P.notes=[];
+  keys.forEach(function(k){
+    if(cap(k)<100)return;
+    var i=0;
+    while(i<fill.length){
+      if(fill[i][k]===0){var j=i;while(j<fill.length&&fill[j][k]===0)j++;var a=i-1,b=j;
+        if(a>=0&&b<fill.length){var va=fill[a][k],vb=fill[b][k];for(var q=i;q<j;q++)fill[q][k]=va+(vb-va)*(q-a)/(b-a)}
+        P.notes.push({key:k,from:dates[i],to:dates[j-1],days:j-i});i=j}
+      else i++}});
+  P.dates=dates;P.fill=fill;P.fi={};dates.forEach(function(d,i){P.fi[d]=i});
+}
+function vol(i,k){return P.fill[i][k]/100*cap(k)}
+function physE(){
+  var E={},H=P.heads&&P.heads.Plants||{};
+  P.meta.Rivers.forEach(function(r){
+    var kk=r.Order.map(function(k){var h=H[k];return h?2.725*h.GrossHeadM*(h.EtaMin+h.EtaMax)/2:0});
+    r.Order.forEach(function(k,p){var s=0;for(var q=p;q<kk.length;q++)s+=kk[q];E[k]=s})});
+  P.ePhys=E}
+function eqE(i){var s=0,F=P.fac.Factors;for(var k in F)s+=F[k].EnergyMWhPerHm3*vol(i,k);return s/1000}
+function riverE(i,r,which){var s=0;r.Order.forEach(function(k){var e=which==='phys'?P.ePhys[k]:P.fac.Factors[k].EnergyMWhPerHm3;s+=e*vol(i,k)});return s/1000}
+function sumKey(rec,key){if(!rec||!rec.Hourly)return null;var s=0,n=0;rec.Hourly.forEach(function(h){if(h[key]!=null){s+=h[key];n++}});return n?s:null}
+function hourly(rec,units,pre){var a=[];for(var h=0;h<24;h++){var s=0,any=false;units.forEach(function(u){var v=rec.Hourly&&rec.Hourly[h]&&rec.Hourly[h][pre+u];if(v!=null){s+=v;any=true}});a.push(any?s:null)}return a}
 
-        <!-- VIEW 1: HYDRO TOTALS (Overview) -->
-        <div id="viewTotals" class="space-y-6 block">
-            <!-- TOTALS RIBBON (2 BOXES) -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-6 flex flex-col justify-center shadow-sm">
-                    <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-3" id="labelTotalISP">TOTAL ISP (MWH)</span>
-                    <div class="flex items-center gap-3">
-                        <div class="w-1.5 h-8 bg-white rounded-sm"></div>
-                        <span class="text-3xl font-bold text-white" id="valTotalISP">-</span>
-                    </div>
-                </div>
-                <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-6 flex flex-col justify-center shadow-sm">
-                    <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase mb-3" id="labelTotalSCADA">TOTAL SCADA (MWH)</span>
-                    <div class="flex items-center gap-3">
-                        <div class="w-1.5 h-8 rounded-sm border border-slate-400" style="background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 2px, transparent 2px, transparent 5px);"></div>
-                        <span class="text-3xl font-bold text-white" id="valTotalSCADA">-</span>
-                    </div>
-                </div>
-            </div>
+/* ---------- model for selected day ---------- */
+function model(date,rec){
+  var i=P.fi[date],inx=P.fi[addDays(date,1)],M={i:i,rivers:[]};
+  P.meta.Rivers.forEach(function(r){
+    var R={r:r,dams:[],prod:0,prodN:0,isp:0,vol:0,cap:0,fillV:0};
+    r.Order.forEach(function(k){
+      var m=P.meta.Reservoirs[k],v=vol(i,k),dv=inx!=null?vol(inx,k)-v:null,pr=0,pn=0,ip=0;
+      m.Units.forEach(function(u){var s=sumKey(rec,'SCADA_'+u);if(s!=null){pr+=s;pn++}var q=sumKey(rec,'ISP_'+u);if(q!=null)ip+=q});
+      R.dams.push({k:k,fill:P.fill[i][k],cap:m.CapacityHm3,v:v,dv:dv,prod:pn?pr:null,isp:ip,units:m.Units});
+      R.vol+=v;R.cap+=m.CapacityHm3;R.prod+=pr;R.prodN+=pn;R.isp+=ip});
+    R.fill=R.vol/R.cap*100;R.eEq=riverE(i,r,'eq');R.ePh=riverE(i,r,'phys');
+    M.rivers.push(R)});
+  var nr=(P.meta.WithoutReservoir||[]).map(function(w){var s=0,n=0;w.Units.forEach(function(u){var v=sumKey(rec,'SCADA_'+u);if(v!=null){s+=v;n++}});return{name:w.Name,prod:n?s:null}});
+  M.noRes=nr.length?[{name:nr.map(function(x){return x.name}).join(' / '),parts:nr,prod:nr.some(function(x){return x.prod!=null})?nr.reduce(function(a,x){return a+(x.prod||0)},0):null}]:[];
+  M.aoosPh=P.ePhys.P_AOOU*vol(i,'P_AOOU')/1000;
+  M.eqTotal=eqE(i);M.phTotal=M.rivers.reduce(function(a,R){return a+R.ePh},0);
+  return M}
 
-            <!-- MAIN CHART AREA WITH CUSTOM LEGEND -->
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 relative">
-                <div class="mb-6 md:mb-2">
-                    <h2 class="text-lg font-semibold text-slate-200" id="totalsChartTitle">Daily Generation: ISP vs SCADA</h2>
-                    <p class="text-xs text-slate-400" id="totalsChartSub">Units dynamically sorted by River Cascade</p>
-                </div>
+/* ---------- charts (inline SVG) ---------- */
+function ticks(lo,hi,n){var span=hi-lo||1,step=Math.pow(10,Math.floor(Math.log10(span/n))),e=span/n/step;step*=e>=5?5:e>=2?2:1;var a=Math.floor(lo/step)*step,o=[];for(var v=a;v<=hi+step*0.001;v+=step)o.push(+v.toFixed(10));return o}
+function chart(o){
+  var W=o.w||680,H=o.h||250,L=76,R=12,Tp=12,B=28,pw=W-L-R,ph=H-Tp-B,xs=[],ys=[];
+  o.series.forEach(function(s){s.pts.forEach(function(p){if(p[1]!=null){xs.push(p[0]);ys.push(p[1])}})});
+  (o.hlines||[]).forEach(function(h){ys.push(h.y)});
+  var x0=o.x0!=null?o.x0:Math.min.apply(null,xs),x1=o.x1!=null?o.x1:Math.max.apply(null,xs);
+  var y0=o.y0!=null?o.y0:Math.min.apply(null,ys),y1=o.y1!=null?o.y1:Math.max.apply(null,ys);
+  var pad=(y1-y0)*0.06||1;if(o.y0==null)y0-=pad;if(o.y1==null)y1+=pad;if(o.zero){y0=Math.min(y0,0);y1=Math.max(y1,0)}
+  var X=function(x){return L+(x-x0)/((x1-x0)||1)*pw},Y=function(y){return Tp+(1-(y-y0)/((y1-y0)||1))*ph},g='';
+  (o.bands||[]).forEach(function(b){var a=Math.max(b.x0,x0),z=Math.min(b.x1,x1);if(z>a)g+='<rect x="'+X(a)+'" y="'+Tp+'" width="'+(X(z)-X(a))+'" height="'+ph+'" fill="var(--shade)"/>'});
+  ticks(y0,y1,5).forEach(function(v){if(v<y0||v>y1)return;g+='<line class="ax" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+(o.yf?o.yf(v):nf(v))+'</text>'});
+  (o.xt||[]).forEach(function(tk){if(tk.x<x0||tk.x>x1)return;g+='<line class="ax" x1="'+X(tk.x)+'" x2="'+X(tk.x)+'" y1="'+(Tp+ph)+'" y2="'+(Tp+ph+4)+'"/><text x="'+X(tk.x)+'" y="'+(H-8)+'" text-anchor="middle">'+tk.l+'</text>'});
+  (o.hlines||[]).forEach(function(h){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(h.y)+'" y2="'+Y(h.y)+'" stroke="var(--mut)" stroke-dasharray="4 3"/><text x="'+(W-R-2)+'" y="'+(Y(h.y)+(h.under?13:-4))+'" text-anchor="end">'+h.l+'</text>'});
+  o.series.forEach(function(s){
+    if(s.type==='bar'){var bw=Math.max(1,pw/Math.max(1,s.pts.length)*0.7),z=Y(0);s.pts.forEach(function(p){if(p[1]==null)return;var y=Y(p[1]);g+='<rect class="'+s.cls+'" x="'+(X(p[0])-bw/2)+'" y="'+Math.min(y,z)+'" width="'+bw+'" height="'+Math.max(0.5,Math.abs(z-y))+'"/>'})}
+    else if(s.type==='dots'){s.pts.forEach(function(p){if(p[1]!=null)g+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="3" class="'+s.cls+'" fill="var(--c2)" stroke="none"/>'})}
+    else{var d='',pen=false;s.pts.forEach(function(p){if(p[1]==null){pen=false;return}d+=(pen?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);pen=true});g+='<path class="'+s.cls+'" d="'+d+'"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>'}});
+  if(o.vline!=null&&o.vline>=x0&&o.vline<=x1)g+='<line x1="'+X(o.vline)+'" x2="'+X(o.vline)+'" y1="'+Tp+'" y2="'+(Tp+ph)+'" stroke="var(--c2)" stroke-dasharray="3 3"/>';
+  return '<svg class="ch" viewBox="0 0 '+W+' '+H+'" role="img">'+g+'</svg>'}
+function monthTicks(x0,x1){var o=[],d=new Date(x0*86400000);d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1));var mn=['Ιαν','Φεβ','Μαρ','Απρ','Μάι','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'],me=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  while(d.getTime()/86400000<=x1){if(d.getTime()/86400000>=x0)o.push({x:d.getTime()/86400000,l:(S.lang==='el'?mn:me)[d.getUTCMonth()]});d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1))}return o}
+function legend(a){return '<div class="legend">'+a.map(function(x){return '<span><i style="background:'+x[0]+'"></i>'+x[1]+'</span>'}).join('')+'</div>'}
 
-                <div class="md:absolute md:top-6 md:right-6 bg-slate-900/60 border border-slate-700/80 rounded-lg p-4 flex gap-8 z-10 mb-4 md:mb-0 shadow-md">
-                    <div>
-                        <h3 class="text-[10px] font-bold text-slate-400 mb-3 uppercase tracking-wider" id="legendCascadesTitle">RIVER CASCADES</h3>
-                        <div id="legendCascadesList" class="space-y-2"></div>
-                    </div>
-                    <div>
-                        <h3 class="text-[10px] font-bold text-slate-400 mb-3 uppercase tracking-wider" id="legendDataTypeTitle">DATA TYPE</h3>
-                        <div class="space-y-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-white rounded-sm"></div>
-                                <span class="text-xs text-slate-300 font-medium" id="legendTypeISP">ISP (Solid)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-sm border border-slate-400" style="background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 2px, transparent 2px, transparent 4px);"></div>
-                                <span class="text-xs text-slate-300 font-medium" id="legendTypeSCADA">SCADA (Striped)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+/* ---------- rendering ---------- */
+function relTxt(rel,sp){var b=rel==='good'?'rel_good':rel==='fair'?'rel_fair':'rel_poor';return '<span class="badge'+(rel==='poor'?' warn':'')+'" title="'+t('spread',{x:nf(sp/2,0)})+'">'+t(b)+'</span>'}
+function cardsSummary(M,rec){
+  var tot=sumKey(rec,'SCADA_TotalHydro'),pump=sumKey(rec,'SCADA_Pump'),oth=sumKey(rec,'SCADA_OtherHydro'),df=P.hist[M.i];
+  var wv=0,wc=0;for(var k in P.meta.Reservoirs){wv+=vol(M.i,k);wc+=cap(k)}var rec_fill=wv/wc*100,off=df.ReservoirTotalRate,A=P.fac.Latest.TotalGWhAcrossModels,tot0=P.fac.Latest.TotalGWh,pc=(A.Max-A.Min)/2/tot0*100;
+  $('#sum').innerHTML=
+   '<div class="card"><div class="lab">'+t('c_hydro')+'</div><div class="val">'+nf(tot)+' MWh</div><div class="sm">'+(oth!=null?t('other',{x:nf(oth)}):'')+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('c_pump')+'</div><div class="val">'+nf(pump)+' MWh</div><div class="sm">'+t('per_day')+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('c_fill')+'</div><div class="val">'+nf(off,1)+'%</div><div class="sm">'+t('c_rec',{x:nf(rec_fill,1),d:sg(rec_fill-off,1)})+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('c_en')+'</div><div class="val">'+nf(M.eqTotal)+' GWh</div><div class="sm">'+t('c_en_s',{x:nf(pc,1)})+'</div></div>'}
+function cardsRivers(M){
+  var BR=P.fac.Latest.ByRiver,h='';
+  M.rivers.forEach(function(R,ix){
+    var br=BR[R.r.Id]||{};
+    h+='<button class="river" data-i="'+ix+'"><h3>'+rname(R.r)+'</h3><div class="big">'+nf(R.fill,1)+'%</div><div class="track"><div class="fillb" style="width:'+Math.min(100,R.fill)+'%"></div></div>'+
+     '<div class="row2"><span>'+t('prod')+'</span><b>'+(R.prodN?nf(R.prod)+' MWh':'—')+'</b></div>'+
+     '<div class="row2"><span>'+t('stored')+'</span><b>'+nf(R.eEq)+' GWh</b></div>'+
+     '<div class="row2 small" style="margin-top:6px"><span>'+(br.Reliability?relTxt(br.Reliability,br.SpreadPercent):'')+'</span></div></button>'});
+  M.noRes.forEach(function(w){h+='<div class="river" style="cursor:default"><h3>'+w.name+'</h3><div class="mut small">'+t('nores')+'</div><div class="row2" style="margin-top:10px"><span>'+t('prod')+'</span><b>'+(w.prod!=null?nf(w.prod)+' MWh':'—')+'</b></div><div class="mut small" style="margin-top:4px">'+w.parts.map(function(x){return x.name+' '+(x.prod!=null?nf(x.prod):'—')}).join(' · ')+'</div></div>'});
+  $('#rg').innerHTML=h;
+  [].forEach.call(document.querySelectorAll('#rg .river[data-i]'),function(b){b.onclick=function(){openRiver(+b.getAttribute('data-i'))}})}
+function openRiver(ix){
+  var M=S.M,R=M.rivers[ix],r=R.r,rec=S.rec,br=P.fac.Latest.ByRiver[r.Id]||{},h='';
+  h+='<div class="hd"><div><h2>'+rname(r)+'</h2><div class="sub">'+t('top_down')+' · '+fd(S.date)+'</div></div><button id="rclose">'+t('close')+'</button></div>';
+  R.dams.forEach(function(d,ix2){
+    if(ix2>0){var pump=r.Pump&&r.Pump.To===R.dams[ix2-1].k&&r.Pump.From===d.k;
+      h+='<div class="flow">↓'+(pump?' <span class="pump">↑ '+t('pumpl')+' ('+dname(r.Pump.From)+' → '+dname(r.Pump.To)+(r.Pump.Confirmed===false?', '+t('pump_assume'):'')+')</span>':'')+'</div>'}
+    var over=d.fill>100,st2=d.k==='STRATOS'&&rec&&rec.Hourly&&rec.Hourly[0]['SCADA_Stratos2']==null;
+    h+='<div class="dam"><div><b>'+dname(d.k)+'</b><div class="mut small">'+nf(d.cap,d.cap<10?1:0)+' hm³</div></div>'+
+      '<div><div class="track" style="margin:0 0 4px"><div class="fillb" style="width:'+Math.min(100,d.fill)+'%;'+(over?'background:var(--c2)':'')+'"></div></div><div class="small">'+nf(d.fill,1)+'% · '+nf(d.v,1)+' hm³'+(over?' · <span class="pump">'+t('over100')+'</span>':'')+'</div></div>'+
+      '<div style="text-align:right"><b>↓ '+(d.prod!=null?nf(d.prod)+' MWh':'—')+'</b><div class="mut small">ISP '+nf(d.isp)+' MWh</div><div class="mut small">'+t('dv')+' '+sg(d.dv,1)+' '+t('day_hm3')+'</div>'+(st2?'<div class="mut small">'+t('st2')+'</div>':'')+'</div></div>'});
+  if(r.Pump){h+='<p class="note">'+t('pump_note',{x:nf(sumKey(rec,'SCADA_Pump'))})+'</p>'}
+  /* hourly */
+  var units=[];r.Order.forEach(function(k){P.meta.Reservoirs[k].Units.forEach(function(u){units.push(u)})});
+  var a=hourly(rec,units,'SCADA_'),b=hourly(rec,units,'ISP_'),pa=[],pb=[];
+  for(var q=0;q<24;q++){pa.push([q,a[q]]);pb.push([q,b[q]])}
+  h+='<div class="panel" style="margin-top:12px"><h2>'+t('prod_h')+'</h2>'+chart({w:680,h:210,x0:-0.6,x1:23.6,zero:true,y0:0,yf:function(v){return nf(v)+' MW'},xt:[0,3,6,9,12,15,18,21].map(function(x){return{x:x,l:String(x)+'h'}}),series:[{type:'bar',cls:'b1',pts:pa},{cls:'s2',pts:pb}]})+legend([['var(--c1)',t('scada')],['var(--c2)',t('isp')]])+'</div>';
+  /* energy */
+  h+='<div class="panel"><h2>'+t('stored')+'</h2><div class="row2"><span>'+t('e_entsoe')+'</span><b>'+nf(R.eEq)+' GWh</b></div><div class="row2"><span>'+t('e_phys')+'</span><b>'+nf(R.ePh)+' GWh</b></div>'+
+    (r.Id==='arachthos'?'<div class="row2 small"><span>'+t('e_aoos')+'</span><b>'+nf(M.aoosPh)+' GWh</b></div>':'')+
+    '<div style="margin-top:6px">'+(br.Reliability?relTxt(br.Reliability,br.SpreadPercent):'')+'</div></div>';
+  $('#rmc').innerHTML=h;$('#rm').hidden=false;$('#rclose').onclick=function(){$('#rm').hidden=true}}
 
-                <div class="relative h-[500px] mt-4"><canvas id="totalsChart"></canvas></div>
-            </div>
-        </div>
+function renderEnergy(){
+  var M=S.M,F=P.fac,A=F.Latest.ByRiver,h='',k;
+  var phNo=M.phTotal-M.aoosPh;
+  h+='<div class="cards"><div class="card"><div class="lab">'+t('en_total')+'</div><div class="val">'+nf(M.eqTotal)+' GWh</div><div class="sm">'+fd(S.date)+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('en_phys')+'</div><div class="val">'+nf(phNo)+' GWh</div></div>'+
+   '<div class="card"><div class="lab">'+t('en_aoos')+'</div><div class="val">'+nf(M.aoosPh)+' GWh</div></div></div>';
+  /* weekly */
+  var rows=[],pe=[],pm=[],cal0=dn(F.Weeks.From),cal1=dn(F.Weeks.To);
+  if(P.ent)P.ent.Weeks.forEach(function(w){
+    var m=w.StartLocal,s=0,n=0;for(var t2=1;t2<=7;t2++){var ix=P.fi[addDays(m,t2)];if(ix!=null){s+=eqE(ix);n++}}
+    if(n===7){var mo=s/7*1000,x=dn(m);pe.push([x,w.MWh/1e6]);pm.push([x,mo/1e6]);rows.push({w:w,m:m,en:w.MWh/1000,mo:mo/1000,oos:x>cal1})}});
+  var x0=pe.length?pe[0][0]:0,x1=pe.length?pe[pe.length-1][0]:1;
+  h+='<div class="panel"><h2>'+t('en_weekly')+'</h2>'+chart({w:680,h:250,x0:x0,x1:x1,yf:function(v){return nf(v,2)+' TWh'},xt:monthTicks(x0,x1),bands:[{x0:cal0,x1:cal1}],series:[{cls:'s1',pts:pe},{cls:'s2',dash:'5 3',pts:pm}]})+
+    legend([['var(--c1)',t('lg_entsoe')],['var(--c2)',t('lg_model')],['var(--shade)',t('lg_calib')]])+'<div class="scroll" style="margin-top:8px"><table><tr><th>'+t('th_week')+'</th><th>'+t('th_en')+'</th><th>'+t('th_mo')+'</th><th>'+t('th_df')+'</th><th>'+t('th_pc')+'</th></tr>'+
+    rows.slice(-8).reverse().map(function(r){var d=r.mo-r.en;return '<tr><td>'+(r.w.IsoWeek||r.m)+(r.oos?' <span class="badge warn">'+t('oos')+'</span>':'')+'</td><td>'+nf(r.en)+'</td><td>'+nf(r.mo)+'</td><td>'+sg(d,1)+'</td><td>'+sg(d/r.en*100,2)+'</td></tr>'}).join('')+'</table></div></div>';
+  /* daily */
+  var pd=P.dates.map(function(d,i){return [dn(d),eqE(i)]}),dx0=pd[0][0],dx1=pd[pd.length-1][0];
+  h+='<div class="panel"><h2>'+t('en_daily')+'</h2>'+chart({w:680,h:230,x0:dx0,x1:dx1,yf:function(v){return nf(v)+' GWh'},xt:monthTicks(dx0,dx1),vline:dn(S.date),series:[{cls:'s1',pts:pd}]})+'</div>';
+  /* rivers table */
+  h+='<div class="panel"><h2>'+t('en_rivers')+'</h2><div class="scroll"><table><tr><th>'+t('th_river')+'</th><th>'+t('th_eq')+'</th><th>'+t('th_ph')+'</th><th>'+t('th_rel')+'</th></tr>'+
+    M.rivers.map(function(R){var b=A[R.r.Id]||{};return '<tr><td>'+rname(R.r)+'</td><td>'+nf(R.eEq,1)+'</td><td>'+nf(R.ePh,1)+(R.r.Id==='arachthos'?' *':'')+'</td><td>'+(b.Reliability?relTxt(b.Reliability,b.SpreadPercent):'')+'</td></tr>'}).join('')+'</table></div><p class="note">* '+t('e_aoos')+': '+nf(M.aoosPh,1)+' GWh</p></div><p class="note">'+t('en_note')+'</p>';
+  $('#t-energy').innerHTML=h}
 
-        <!-- VIEW 2: PUMP & RIVER CASCADES -->
-        <div id="viewPump" class="space-y-6 hidden">
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700">
-                <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-slate-200" id="cascadeTitle">River Cascades & Pumping Topology</h2>
-                    <p class="text-xs text-slate-400" id="cascadeSub">Upstream to Downstream flow, reservoir filling rates, volumes and hourly dynamics</p>
-                </div>
+function renderKast(){
+  var k='KASTRAKI',fl=P.fill.map(function(f){return f[k]}),n=fl.length,pts=P.dates.map(function(d,i){return [dn(d),fl[i]]}),
+      dv=[];for(var i=0;i<n-1;i++)dv.push([dn(P.dates[i]),vol(i+1,k)-vol(i,k)]);
+  var over=fl.filter(function(v){return v>100}).length,mx=Math.max.apply(null,fl),mi=fl.indexOf(mx),x0=pts[0][0],x1=pts[n-1][0];
+  var ref=0.09*cap(k),big=dv.filter(function(p){return Math.abs(p[1])>=ref}).length,bw=null;
+  for(var a=0;a+11<n;a++){var rs=vol(a+11,k)-vol(a,k);if(bw===null||rs>bw.v)bw={v:rs,a:P.dates[a],b:P.dates[a+11]}}
+  var h='<div class="cards"><div class="card"><div class="lab">'+t('k_cur')+'</div><div class="val">'+nf(fl[n-1],1)+'%</div><div class="sm">'+fd(P.dates[n-1])+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('k_max')+'</div><div class="val">'+nf(mx,1)+'%</div><div class="sm">'+fd(P.dates[mi])+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('k_days')+'</div><div class="val">'+over+' / '+n+'</div></div>'+
+   '<div class="card"><div class="lab">'+t('k_big')+'</div><div class="val">'+big+' / '+dv.length+'</div><div class="sm">'+nf(big/dv.length*100,1)+'%</div></div>'+
+   '<div class="card"><div class="lab">'+t('k_rise')+'</div><div class="val">'+sg(bw.v,1)+' hm³</div><div class="sm">'+fd(bw.a)+' → '+fd(bw.b)+'</div></div></div>'+
+   '<div class="panel"><h2>'+t('k_title')+'</h2>'+chart({w:680,h:240,x0:x0,x1:x1,yf:function(v){return nf(v)+'%'},xt:monthTicks(x0,x1),hlines:[{y:100,l:t('k_ref'),under:true}],vline:dn(S.date),series:[{cls:'s1',pts:pts}]})+'</div>'+
+   '<div class="panel"><h2>'+t('k_dv')+'</h2>'+chart({w:680,h:200,x0:x0,x1:x1,zero:true,yf:function(v){return nf(v,1)},xt:monthTicks(x0,x1),hlines:[{y:4.77,l:'+4,8'},{y:-4.77,l:'-4,8',under:true}],series:[{type:'bar',cls:'b1',pts:dv}]})+'</div><p class="note">'+t('k_note')+'</p>';
+  $('#t-kast').innerHTML=h}
 
-                <!-- River Cascades Accordion Container -->
-                <div id="riverCascadesContainer" class="space-y-4">
-                    <!-- Γεμίζει δυναμικά από τη JavaScript -->
-                </div>
-            </div>
-        </div>
+function renderMeth(){
+  $('#mmc').innerHTML='<div class="hd"><h2>'+t('m_title')+'</h2><button id="mclose">'+t('close')+'</button></div>'+t('m').map(function(p){return '<p>'+p+'</p>'}).join('');
+  $('#mclose').onclick=function(){$('#mm').hidden=true}}
+function banner(){
+  var d=P.idx.Days.filter(function(x){return x.Date===S.date})[0],msg=[],lab={reservoir:S.lang==='el'?'ταμιευτήρες':'reservoirs',scada:'SCADA',isp:'ISP',resmv:'RESMV',mcp:'MCP'};
+  if(d&&d.Status){var miss=Object.keys(d.Status).filter(function(k){return d.Status[k]!=='ok'}).map(function(k){return lab[k]});if(miss.length)msg.push(t('q_missing',{x:miss.join(', ')}))}
+  P.notes.forEach(function(n){if(S.date>=n.from&&S.date<=n.to)msg.push(t('q_zero',{x:dname(n.key)+' '+fd(n.from)+' → '+fd(n.to)}))});
+  $('#banner').innerHTML=msg.map(function(m){return '<div class="b">'+m+'</div>'}).join('')}
+function chrome(){
+  document.documentElement.lang=S.lang;document.title=t('ttl');$('#ttl').textContent=t('ttl');$('#sub').textContent=t('sub');$('#dlab').textContent=t('date');
+  $('#lang').textContent=S.lang==='el'?'EN':'ΕΛ';$('#meth').textContent=t('meth');
+  $('#tabs').innerHTML=['rivers','energy','kast'].map(function(k){return '<button data-t="'+k+'" class="'+(S.tab===k?'on':'')+'">'+t('t_'+k)+'</button>'}).join('');
+  [].forEach.call(document.querySelectorAll('#tabs button'),function(b){b.onclick=function(){S.tab=b.getAttribute('data-t');chrome();showTab()}});
+  var sel=$('#dsel'),cur=S.date;sel.innerHTML=P.idx.Days.map(function(x){var ok=x.Status&&x.Status.scada==='ok';return '<option value="'+x.Date+'"'+(x.Date===cur?' selected':'')+'>'+fd(x.Date)+(ok?'':' *')+'</option>'}).join('')}
+function showTab(){['rivers','energy','kast'].forEach(function(k){$('#t-'+k).hidden=S.tab!==k})}
+function load(date){
+  S.date=date;
+  return getJSON('days/'+date+'.json').catch(function(){return null}).then(function(rec){
+    S.rec=rec||{Hourly:[]};S.M=model(date,S.rec);banner();cardsSummary(S.M,S.rec);cardsRivers(S.M);$('#rfoot').textContent=t('click');renderEnergy();renderKast();renderMeth();chrome();showTab()})}
 
-        <!-- VIEW 3: RESERVOIR LEVELS (Placeholder for next step) -->
-        <div id="viewReservoir" class="space-y-6 hidden">
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-700 text-center text-slate-400">
-                <p>Reservoir Levels Detailed View coming soon...</p>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <footer class="mt-12 pb-2 text-center">
-            <p class="text-slate-400 text-sm font-medium">Konstantinos Pappas <span class="mx-1 text-slate-600">|</span> Energy Market Analyst</p>
-            <p class="text-slate-500 text-xs mt-1">Business Operations & Risk Management <span class="mx-1 text-slate-600">|</span> Data Insights on Energy Transition & Grid Stability</p>
-        </footer>
-    </div>
-
-    <script>
-        function switchTab(tabId) {
-            ['viewTotals', 'viewPump', 'viewReservoir'].forEach(id => { document.getElementById(id).classList.add('hidden'); });
-            const baseClass = "flex items-center justify-center text-xs md:text-base font-bold rounded-lg md:rounded-none h-12 md:h-auto w-full md:w-auto transition whitespace-nowrap px-2 md:pb-2 border md:border-0 md:border-b-2 cursor-pointer ";
-            const inactiveClass = baseClass + "bg-slate-800 text-slate-400 border-slate-700 hover:text-white md:bg-transparent md:border-transparent md:hover:border-transparent md:hover:text-cyan-300";
-            const activeDefaultClass = baseClass + "bg-indigo-500 text-white border-indigo-500 md:bg-transparent md:border-transparent md:text-cyan-400 md:border-b-cyan-400";
-            ['tabBtnTotals', 'tabBtnPump', 'tabBtnReservoir'].forEach(id => { document.getElementById(id).className = inactiveClass; });
-            if (tabId === 'totals') { document.getElementById('viewTotals').classList.remove('hidden'); document.getElementById('tabBtnTotals').className = activeDefaultClass; }
-            else if (tabId === 'pump') { 
-                document.getElementById('viewPump').classList.remove('hidden'); 
-                document.getElementById('tabBtnPump').className = activeDefaultClass;
-                if (typeof renderRiverCascades === 'function') renderRiverCascades();
-            }
-            else if (tabId === 'reservoir') { document.getElementById('viewReservoir').classList.remove('hidden'); document.getElementById('tabBtnReservoir').className = activeDefaultClass; }
-        }
-    </script>
-    <script src="dashboard.js" defer></script>
+function boot(){
+  Promise.all([getJSON('index.json'),getJSON('reservoirs.json'),getJSON('energy_factors.json'),getJSON('reservoir_history.json'),opt('plant_heads.json'),opt('entsoe_reservoir.json')]).then(function(a){
+    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];sanitize();physE();
+    var pick=P.idx.Days.filter(function(x){return x.Status&&x.Status.scada==='ok'&&x.Status.isp==='ok'})[0]||P.idx.Days[0];
+    $('#dsel').onchange=function(){load(this.value)};
+    $('#lang').onclick=function(){S.lang=S.lang==='el'?'en':'el';try{localStorage.setItem('bh_lang',S.lang)}catch(e){}load(S.date)};
+    $('#meth').onclick=function(){$('#mm').hidden=false};
+    $('#rm').onclick=function(e){if(e.target===this)this.hidden=true};$('#mm').onclick=function(e){if(e.target===this)this.hidden=true};
+    return load(pick.Date)}).catch(function(e){document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
+window.__bh={P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
 </body>
 </html>
