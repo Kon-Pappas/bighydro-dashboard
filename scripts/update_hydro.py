@@ -314,13 +314,16 @@ def parse_scada(content):
         log("   ! SCADA: δεν βρέθηκε γραμμή 'TOTAL PUMPING'")
 
     # άλλα υδροηλεκτρικά (δεν υπάρχουν στο ISP)
-    arrs, miss_o = [], []
+    arrs, miss_o, parts = [], [], {}
     for key, aliases in OTHER_HYDRO_SCADA:
         idx, _ = find_row(labels, aliases, contains=False)
         if idx is None:
             miss_o.append(key)
+            parts[key] = None
         else:
-            arrs.append(to_numeric_array(df.iloc[idx, SCADA_H0:SCADA_H1], 24))
+            a = to_numeric_array(df.iloc[idx, SCADA_H0:SCADA_H1], 24)
+            arrs.append(a)
+            parts[key] = nan_to_none_list(a)
     if miss_o:
         log_not_found("SCADA άλλα υδροηλεκτρικά", miss_o, labels)
     other = _sum_series(arrs)
@@ -347,6 +350,7 @@ def parse_scada(content):
     extra = {
         "OtherHydro": None if other is None else nan_to_none_list(other),
         "TotalHydro": None if total is None else nan_to_none_list(total),
+        "Parts": parts,                       # {Stratos2, Makrochori, Louros, Gkiona}: [24]|None
     }
     return out, pump, extra
 
@@ -391,7 +395,12 @@ def parse_isp(content):
         pump = nan_to_none_list(-hp)
     else:
         log("   ! ISP: δεν βρέθηκαν γραμμές pump")
-    return out, pump
+    extra = {}
+    for name, units in (("PumpSfikia", ["SFIKIA_PUMP"]),
+                        ("PumpThesavros", ["THESAVROS1_PUMP", "THESAVROS2_PUMP", "THESAVROS3_PUMP"])):
+        h = _isp_rows_to_hourly(df, labels, units, exact_only=True)
+        extra[name] = None if h is None else nan_to_none_list(-h)
+    return out, pump, extra
 
 
 def parse_resmv(content):
@@ -593,7 +602,10 @@ def load_all_days():
 
 def blank_row(h):
     row = {"Hour": f"H{h + 1:02d}", "SCADA_Pump": None, "ISP_Pump": None,
-           "SCADA_SmallHydro": None, "SCADA_OtherHydro": None, "SCADA_TotalHydro": None, "MCP_GR": None}
+           "ISP_PumpSfikia": None, "ISP_PumpThesavros": None,
+           "SCADA_SmallHydro": None, "SCADA_OtherHydro": None, "SCADA_TotalHydro": None,
+           "SCADA_Stratos2": None, "SCADA_Makrochori": None, "SCADA_Louros": None, "SCADA_Gkiona": None,
+           "MCP_GR": None}
     for k in UNIT_KEYS:
         row[f"SCADA_{k}"] = None
         row[f"ISP_{k}"] = None
@@ -663,11 +675,12 @@ def source_status(rec):
     else:
         reservoir = "partial"
     scada_keys = ([f"SCADA_{k}" for k in UNIT_KEYS]
-                  + ["SCADA_Pump", "SCADA_OtherHydro", "SCADA_TotalHydro"])
+                  + ["SCADA_Pump", "SCADA_OtherHydro", "SCADA_TotalHydro"]
+                  + [f"SCADA_{k}" for k, _a in OTHER_HYDRO_SCADA])
     return {
         "reservoir": reservoir,
         "scada": _share(col(scada_keys)),
-        "isp": _share(col([f"ISP_{k}" for k in UNIT_KEYS] + ["ISP_Pump"])),
+        "isp": _share(col([f"ISP_{k}" for k in UNIT_KEYS] + ["ISP_Pump", "ISP_PumpSfikia", "ISP_PumpThesavros"])),
         "resmv": _share(col(["SCADA_SmallHydro"])),
         "mcp": _share(col(["MCP_GR"])),
     }
@@ -728,6 +741,8 @@ def process_day(d, existing, isp_cache=None, only=None):
             touched |= apply_series(rows, "SCADA_Pump", pump)
             touched |= apply_series(rows, "SCADA_OtherHydro", extra["OtherHydro"])
             touched |= apply_series(rows, "SCADA_TotalHydro", extra["TotalHydro"])
+            for k, series in extra["Parts"].items():
+                touched |= apply_series(rows, f"SCADA_{k}", series)
         except Exception as e:
             log(f"   ! SCADA parse: {type(e).__name__}: {e}")
 
@@ -739,6 +754,8 @@ def process_day(d, existing, isp_cache=None, only=None):
         for k, series in cur[0].items():
             touched |= apply_series(rows, f"ISP_{k}", isp_to_local(series, prev[0].get(k) if prev else None))
         touched |= apply_series(rows, "ISP_Pump", isp_to_local(cur[1], prev[1] if prev else None))
+        for k, series in cur[2].items():
+            touched |= apply_series(rows, f"ISP_{k}", isp_to_local(series, prev[2].get(k) if prev else None))
 
     content = fetch_admie_file(CAT_RESMV, d) if want("resmv") else None
     if content:
