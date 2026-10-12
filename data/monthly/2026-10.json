@@ -671,11 +671,11 @@
     "ISP": 1901.2
    },
    "MCP": {
-    "mean": 269.46,
-    "min": 269.46,
-    "max": 269.46,
+    "mean": 213.9,
+    "min": 15.51,
+    "max": 309.23,
     "negative_hours": 0,
-    "hours": 1
+    "hours": 24
    },
    "Reservoir": {
     "official": 42.3,
@@ -686,7 +686,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "partial"
+    "mcp": "ok"
    }
   },
   {
@@ -735,11 +735,11 @@
     "ISP": 2253.8
    },
    "MCP": {
-    "mean": 156.64,
+    "mean": 159.62,
     "min": 0.01,
     "max": 234.79,
     "negative_hours": 0,
-    "hours": 23
+    "hours": 24
    },
    "Reservoir": {
     "official": 42.02,
@@ -750,7 +750,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "partial"
+    "mcp": "ok"
    }
   },
   {

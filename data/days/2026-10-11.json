@@ -32,7 +32,7 @@
       "SCADA_Makrochori": 2.0,
       "SCADA_Louros": 4.0,
       "SCADA_Gkiona": 3.0,
-      "MCP_GR": null,
+      "MCP_GR": 228.14,
       "SCADA_Kremasta": 81.0,
       "ISP_Kremasta": 80.0,
       "SCADA_Kastraki": 121.0,
@@ -1155,8 +1155,8 @@
       "scada": "ok",
       "isp": "ok",
       "resmv": "ok",
-      "mcp": "partial"
+      "mcp": "ok"
     },
-    "Updated": "2026-10-12T10:16:20+0300"
+    "Updated": "2026-10-12T13:31:33+0300"
   }
 }
