@@ -3100,34 +3100,34 @@
    "Date": "2026-01-03",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:09+0300"
+   "Updated": "2026-10-12T04:39:10+0300"
   },
   {
    "Date": "2026-01-02",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:09+0300"
+   "Updated": "2026-10-12T04:39:09+0300"
   },
   {
    "Date": "2026-01-01",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:08+0300"
+   "Updated": "2026-10-12T04:39:07+0300"
   }
  ]
 }
