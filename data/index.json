@@ -8,13 +8,13 @@
   {
    "Date": "2026-10-12",
    "Status": {
-    "reservoir": "missing",
+    "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
     "resmv": "missing",
     "mcp": "ok"
    },
-   "Updated": "2026-10-12T07:16:06+0300"
+   "Updated": "2026-10-12T09:16:05+0300"
   },
   {
    "Date": "2026-10-11",
