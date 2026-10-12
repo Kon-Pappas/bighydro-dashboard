@@ -2792,309 +2792,309 @@
    "Date": "2026-01-31",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:27+0300"
+   "Updated": "2026-10-12T04:47:05+0300"
   },
   {
    "Date": "2026-01-30",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:27+0300"
+   "Updated": "2026-10-12T04:47:03+0300"
   },
   {
    "Date": "2026-01-29",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:27+0300"
+   "Updated": "2026-10-12T04:47:02+0300"
   },
   {
    "Date": "2026-01-28",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:26+0300"
+   "Updated": "2026-10-12T04:47:00+0300"
   },
   {
    "Date": "2026-01-27",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:26+0300"
+   "Updated": "2026-10-12T04:46:59+0300"
   },
   {
    "Date": "2026-01-26",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:25+0300"
+   "Updated": "2026-10-12T04:46:57+0300"
   },
   {
    "Date": "2026-01-25",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:25+0300"
+   "Updated": "2026-10-12T04:46:56+0300"
   },
   {
    "Date": "2026-01-24",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:24+0300"
+   "Updated": "2026-10-12T04:46:54+0300"
   },
   {
    "Date": "2026-01-23",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:24+0300"
+   "Updated": "2026-10-12T04:46:53+0300"
   },
   {
    "Date": "2026-01-22",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:24+0300"
+   "Updated": "2026-10-12T04:46:52+0300"
   },
   {
    "Date": "2026-01-21",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:23+0300"
+   "Updated": "2026-10-12T04:46:50+0300"
   },
   {
    "Date": "2026-01-20",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:23+0300"
+   "Updated": "2026-10-12T04:46:49+0300"
   },
   {
    "Date": "2026-01-19",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:22+0300"
+   "Updated": "2026-10-12T04:46:47+0300"
   },
   {
    "Date": "2026-01-18",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:22+0300"
+   "Updated": "2026-10-12T04:46:46+0300"
   },
   {
    "Date": "2026-01-17",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:21+0300"
+   "Updated": "2026-10-12T04:46:45+0300"
   },
   {
    "Date": "2026-01-16",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:21+0300"
+   "Updated": "2026-10-12T04:46:43+0300"
   },
   {
    "Date": "2026-01-15",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:21+0300"
+   "Updated": "2026-10-12T04:46:42+0300"
   },
   {
    "Date": "2026-01-14",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:20+0300"
+   "Updated": "2026-10-12T04:46:40+0300"
   },
   {
    "Date": "2026-01-13",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:15+0300"
+   "Updated": "2026-10-12T04:46:39+0300"
   },
   {
    "Date": "2026-01-12",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:14+0300"
+   "Updated": "2026-10-12T04:46:38+0300"
   },
   {
    "Date": "2026-01-11",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:14+0300"
+   "Updated": "2026-10-12T04:46:36+0300"
   },
   {
    "Date": "2026-01-10",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:13+0300"
+   "Updated": "2026-10-12T04:46:35+0300"
   },
   {
    "Date": "2026-01-09",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:13+0300"
+   "Updated": "2026-10-12T04:46:33+0300"
   },
   {
    "Date": "2026-01-08",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:13+0300"
+   "Updated": "2026-10-12T04:46:32+0300"
   },
   {
    "Date": "2026-01-07",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:12+0300"
+   "Updated": "2026-10-12T04:46:30+0300"
   },
   {
    "Date": "2026-01-06",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:12+0300"
+   "Updated": "2026-10-12T04:46:29+0300"
   },
   {
    "Date": "2026-01-05",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:11+0300"
+   "Updated": "2026-10-12T04:46:27+0300"
   },
   {
    "Date": "2026-01-04",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
-    "isp": "missing",
+    "scada": "ok",
+    "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-10-07T21:43:10+0300"
+   "Updated": "2026-10-12T04:46:26+0300"
   },
   {
    "Date": "2026-01-03",
