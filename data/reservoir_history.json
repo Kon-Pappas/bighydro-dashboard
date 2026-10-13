@@ -5983,5 +5983,26 @@
    "STRATOS": 46.89,
    "THESAVROS": 56.16
   }
+ },
+ {
+  "Date": "2026-10-13",
+  "ReservoirTotalRate": 41.73,
+  "ReservoirTotal": 49.019,
+  "Reservoir": {
+   "ASOMATA": 51.29,
+   "ILARIONAS": 15.04,
+   "KASTRAKI": 87.15,
+   "KREMASTA": 40.21,
+   "LADONAS": 38.88,
+   "PLASTIRAS": 54.71,
+   "PLATANOVRYSI": 71.88,
+   "POLYFYTO": 43.72,
+   "POYRNARI1": 10.99,
+   "POYRNARI2": 84.48,
+   "P_AOOU": 68.72,
+   "SFIKIA": 22.62,
+   "STRATOS": 40.63,
+   "THESAVROS": 55.94
+  }
  }
 ]
