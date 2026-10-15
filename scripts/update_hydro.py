@@ -20,6 +20,7 @@ BigHydro pipeline v3
   data/days/YYYY-MM-DD.json      μία εγγραφή ανά ημέρα (raw ωριαία)
   data/index.json                διαθέσιμες ημέρες + κατάσταση πηγών
   data/reservoir_history.json    ιστορικό ταμιευτήρων (αύξουσα σειρά)
+  data/pump_daily.json           ημερήσια άντληση SCADA vs ISP + εκτίμηση ανά μονάδα (Σφηκιά/Θησαυρός)
   data/monthly/YYYY-MM.json      ημερήσια/μηνιαία αθροίσματα (MWh) για reports
 
 Χρήση:
@@ -68,6 +69,7 @@ DAYS_DIR = os.path.join(DATA_DIR, "days")
 MONTHLY_DIR = os.path.join(DATA_DIR, "monthly")
 INDEX_FILE = os.path.join(DATA_DIR, "index.json")
 RES_HISTORY_FILE = os.path.join(DATA_DIR, "reservoir_history.json")
+PUMP_DAILY_FILE = os.path.join(DATA_DIR, "pump_daily.json")
 SCHEMA_VERSION = 3
 ALL_SOURCES = {"reservoir", "scada", "isp", "resmv", "mcp"}
 RECON_TOL = 3.0          # MW: ανοχή TOTAL HYDRO έναντι αθροίσματος μονάδων (το SCADA δημοσιεύει ακέραια MW)
@@ -837,6 +839,55 @@ def month_summary(month, recs):
     }
 
 
+def pump_split(rows):
+    """Μοίρασμα της ΩΡΙΑΙΑΣ άντλησης SCADA (υπάρχει μόνο το σύνολο) σε Σφηκιά/Θησαυρό, με βάση το πρόγραμμα ISP ανά μονάδα.
+    Ώρα με πρόγραμμα -> ωριαίο μερίδιο ISP. Ώρα χωρίς πρόγραμμα -> μερίδιο της ημέρας. Ημέρα χωρίς κανένα πρόγραμμα -> δεν μοιράζεται.
+    ΕΚΤΙΜΗΣΗ: το SCADA δεν δίνει άντληση ανά μονάδα (ούτε το ENTSO-E)."""
+    rows = rows or []
+    if not rows:
+        return None
+    g = lambda h, k: float(h.get(k) or 0.0)
+    a_day = sum(g(h, "ISP_PumpSfikia") for h in rows)
+    b_day = sum(g(h, "ISP_PumpThesavros") for h in rows)
+    dshare = a_day / (a_day + b_day) if (a_day + b_day) > 0 else None
+    o = {"ScadaMWh": 0.0, "IspMWh": 0.0, "IspSfikiaMWh": a_day, "IspThesavrosMWh": b_day,
+         "EstSfikiaMWh": 0.0, "EstThesavrosMWh": 0.0, "ByHourlyShareMWh": 0.0, "ByDayShareMWh": 0.0,
+         "UnallocatedMWh": 0.0, "UnscheduledMWh": 0.0, "NotRealizedMWh": 0.0}
+    n_scada = 0
+    for h in rows:
+        sv = h.get("SCADA_Pump")
+        a, b = g(h, "ISP_PumpSfikia"), g(h, "ISP_PumpThesavros")
+        i = a + b
+        o["IspMWh"] += i
+        if sv is None:
+            continue
+        n_scada += 1
+        o["ScadaMWh"] += sv
+        if sv > 1 and i == 0:
+            o["UnscheduledMWh"] += sv                 # πραγματική άντληση σε ώρα χωρίς πρόγραμμα
+        if i > 1 and sv <= 1:
+            o["NotRealizedMWh"] += i                  # προγραμματισμένη άντληση που δεν έγινε
+        if sv <= 0:
+            continue
+        if i > 0:
+            sh = a / i
+            o["ByHourlyShareMWh"] += sv
+        elif dshare is not None:
+            sh = dshare
+            o["ByDayShareMWh"] += sv
+        else:
+            o["UnallocatedMWh"] += sv
+            continue
+        o["EstSfikiaMWh"] += sv * sh
+        o["EstThesavrosMWh"] += sv * (1 - sh)
+    if n_scada == 0:
+        o["ScadaMWh"] = o["EstSfikiaMWh"] = o["EstThesavrosMWh"] = o["UnscheduledMWh"] = o["NotRealizedMWh"] = None
+        o["ByHourlyShareMWh"] = o["ByDayShareMWh"] = o["UnallocatedMWh"] = None
+        if o["IspMWh"] == 0:
+            return None
+    return {k: (None if v is None else round(v, 1)) for k, v in o.items()}
+
+
 def rebuild_derived(touched_months):
     days = load_all_days()
     by_date = sorted(days, key=lambda r: r["Date"])
@@ -851,6 +902,12 @@ def rebuild_derived(touched_months):
                 "ReservoirTotal": r.get("ReservoirTotal"), "Reservoir": r.get("Reservoir")}
                for r in by_date if r.get("Reservoir")]
     atomic_write_json(RES_HISTORY_FILE, history, indent=1)
+    pump = []
+    for r in by_date:
+        ps = pump_split(r.get("Hourly"))
+        if ps is not None:
+            pump.append({"Date": r["Date"], **ps})
+    atomic_write_json(PUMP_DAILY_FILE, pump, indent=None)
     for m in sorted(touched_months):
         recs = [r for r in by_date if r["Date"].startswith(m)]
         if recs:
