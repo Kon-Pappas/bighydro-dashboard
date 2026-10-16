@@ -42,7 +42,7 @@
   },
   "SCADA_OtherHydro_MWh": 8922.0,
   "SCADA_TotalHydro_MWh": 743688.0,
-  "SmallHydro_MWh": null,
+  "SmallHydro_MWh": 103420.2,
   "Pump_MWh": {
    "SCADA": 26225.0,
    "ISP": 27332.5
@@ -89,7 +89,7 @@
    },
    "SCADA_OtherHydro_MWh": 184.0,
    "SCADA_TotalHydro_MWh": 6836.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 2008.7,
    "Pump_MWh": {
     "SCADA": 2643.0,
     "ISP": 1240.0
@@ -103,7 +103,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -147,7 +147,7 @@
    },
    "SCADA_OtherHydro_MWh": 165.0,
    "SCADA_TotalHydro_MWh": 6472.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 1996.7,
    "Pump_MWh": {
     "SCADA": 1363.0,
     "ISP": 1085.0
@@ -161,7 +161,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -205,7 +205,7 @@
    },
    "SCADA_OtherHydro_MWh": 163.0,
    "SCADA_TotalHydro_MWh": 6259.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 2516.2,
    "Pump_MWh": {
     "SCADA": 535.0,
     "ISP": 440.0
@@ -219,7 +219,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -263,7 +263,7 @@
    },
    "SCADA_OtherHydro_MWh": 165.0,
    "SCADA_TotalHydro_MWh": 5266.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3311.9,
    "Pump_MWh": {
     "SCADA": 1095.0,
     "ISP": 490.0
@@ -277,7 +277,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -321,7 +321,7 @@
    },
    "SCADA_OtherHydro_MWh": 156.0,
    "SCADA_TotalHydro_MWh": 9159.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3462.2,
    "Pump_MWh": {
     "SCADA": 486.0,
     "ISP": 616.2
@@ -335,7 +335,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -379,7 +379,7 @@
    },
    "SCADA_OtherHydro_MWh": 162.0,
    "SCADA_TotalHydro_MWh": 7601.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3446.2,
    "Pump_MWh": {
     "SCADA": 2397.0,
     "ISP": 2315.0
@@ -393,7 +393,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -437,7 +437,7 @@
    },
    "SCADA_OtherHydro_MWh": 162.0,
    "SCADA_TotalHydro_MWh": 14527.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3203.2,
    "Pump_MWh": {
     "SCADA": 411.0,
     "ISP": 187.5
@@ -451,7 +451,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -495,7 +495,7 @@
    },
    "SCADA_OtherHydro_MWh": 113.0,
    "SCADA_TotalHydro_MWh": 18368.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 2918.4,
    "Pump_MWh": {
     "SCADA": 2176.0,
     "ISP": 1417.5
@@ -509,7 +509,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -553,7 +553,7 @@
    },
    "SCADA_OtherHydro_MWh": 260.0,
    "SCADA_TotalHydro_MWh": 22363.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3707.1,
    "Pump_MWh": {
     "SCADA": 617.0,
     "ISP": 1400.8
@@ -567,7 +567,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -611,7 +611,7 @@
    },
    "SCADA_OtherHydro_MWh": 214.0,
    "SCADA_TotalHydro_MWh": 22546.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3309.7,
    "Pump_MWh": {
     "SCADA": 998.0,
     "ISP": 2590.0
@@ -625,7 +625,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -669,7 +669,7 @@
    },
    "SCADA_OtherHydro_MWh": 139.0,
    "SCADA_TotalHydro_MWh": 25577.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3400.0,
    "Pump_MWh": {
     "SCADA": 0.0,
     "ISP": 870.0
@@ -683,7 +683,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -727,7 +727,7 @@
    },
    "SCADA_OtherHydro_MWh": 236.0,
    "SCADA_TotalHydro_MWh": 26791.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3677.9,
    "Pump_MWh": {
     "SCADA": 1834.0,
     "ISP": 1657.5
@@ -741,7 +741,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -785,7 +785,7 @@
    },
    "SCADA_OtherHydro_MWh": 338.0,
    "SCADA_TotalHydro_MWh": 28449.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3606.9,
    "Pump_MWh": {
     "SCADA": 2108.0,
     "ISP": 1850.0
@@ -799,7 +799,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -843,7 +843,7 @@
    },
    "SCADA_OtherHydro_MWh": 370.0,
    "SCADA_TotalHydro_MWh": 28832.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3637.1,
    "Pump_MWh": {
     "SCADA": 1381.0,
     "ISP": 1100.0
@@ -857,7 +857,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -901,7 +901,7 @@
    },
    "SCADA_OtherHydro_MWh": 367.0,
    "SCADA_TotalHydro_MWh": 30741.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3585.4,
    "Pump_MWh": {
     "SCADA": 491.0,
     "ISP": 385.0
@@ -915,7 +915,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -959,7 +959,7 @@
    },
    "SCADA_OtherHydro_MWh": 376.0,
    "SCADA_TotalHydro_MWh": 31152.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3340.8,
    "Pump_MWh": {
     "SCADA": 167.0,
     "ISP": 357.5
@@ -973,7 +973,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1017,7 +1017,7 @@
    },
    "SCADA_OtherHydro_MWh": 339.0,
    "SCADA_TotalHydro_MWh": 29836.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3445.0,
    "Pump_MWh": {
     "SCADA": 0.0,
     "ISP": 0.0
@@ -1031,7 +1031,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1075,7 +1075,7 @@
    },
    "SCADA_OtherHydro_MWh": 335.0,
    "SCADA_TotalHydro_MWh": 26302.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3414.8,
    "Pump_MWh": {
     "SCADA": 217.0,
     "ISP": 412.5
@@ -1089,7 +1089,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1133,7 +1133,7 @@
    },
    "SCADA_OtherHydro_MWh": 337.0,
    "SCADA_TotalHydro_MWh": 28343.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3384.9,
    "Pump_MWh": {
     "SCADA": 0.0,
     "ISP": 55.0
@@ -1147,7 +1147,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1191,7 +1191,7 @@
    },
    "SCADA_OtherHydro_MWh": 347.0,
    "SCADA_TotalHydro_MWh": 30801.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 2934.0,
    "Pump_MWh": {
     "SCADA": 374.0,
     "ISP": 220.0
@@ -1205,7 +1205,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1249,7 +1249,7 @@
    },
    "SCADA_OtherHydro_MWh": 345.0,
    "SCADA_TotalHydro_MWh": 38816.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 2927.3,
    "Pump_MWh": {
     "SCADA": 0.0,
     "ISP": 0.0
@@ -1263,7 +1263,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1307,7 +1307,7 @@
    },
    "SCADA_OtherHydro_MWh": 374.0,
    "SCADA_TotalHydro_MWh": 33394.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3176.3,
    "Pump_MWh": {
     "SCADA": 429.0,
     "ISP": 467.5
@@ -1321,7 +1321,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1365,7 +1365,7 @@
    },
    "SCADA_OtherHydro_MWh": 391.0,
    "SCADA_TotalHydro_MWh": 32582.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3350.2,
    "Pump_MWh": {
     "SCADA": 504.0,
     "ISP": 1477.5
@@ -1379,7 +1379,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1423,7 +1423,7 @@
    },
    "SCADA_OtherHydro_MWh": 392.0,
    "SCADA_TotalHydro_MWh": 28755.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3351.7,
    "Pump_MWh": {
     "SCADA": 0.0,
     "ISP": 125.0
@@ -1437,7 +1437,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1481,7 +1481,7 @@
    },
    "SCADA_OtherHydro_MWh": 381.0,
    "SCADA_TotalHydro_MWh": 26977.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3521.2,
    "Pump_MWh": {
     "SCADA": 350.0,
     "ISP": 1163.8
@@ -1495,7 +1495,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1539,7 +1539,7 @@
    },
    "SCADA_OtherHydro_MWh": 361.0,
    "SCADA_TotalHydro_MWh": 30094.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3783.1,
    "Pump_MWh": {
     "SCADA": 2963.0,
     "ISP": 2246.7
@@ -1553,7 +1553,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1597,7 +1597,7 @@
    },
    "SCADA_OtherHydro_MWh": 382.0,
    "SCADA_TotalHydro_MWh": 30585.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3641.5,
    "Pump_MWh": {
     "SCADA": 455.0,
     "ISP": 1210.0
@@ -1611,7 +1611,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1655,7 +1655,7 @@
    },
    "SCADA_OtherHydro_MWh": 367.0,
    "SCADA_TotalHydro_MWh": 28817.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3728.8,
    "Pump_MWh": {
     "SCADA": 718.0,
     "ISP": 797.5
@@ -1669,7 +1669,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1713,7 +1713,7 @@
    },
    "SCADA_OtherHydro_MWh": 353.0,
    "SCADA_TotalHydro_MWh": 29834.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3834.7,
    "Pump_MWh": {
     "SCADA": 0.0,
     "ISP": 220.0
@@ -1727,7 +1727,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1771,7 +1771,7 @@
    },
    "SCADA_OtherHydro_MWh": 338.0,
    "SCADA_TotalHydro_MWh": 31885.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3887.5,
    "Pump_MWh": {
     "SCADA": 378.0,
     "ISP": 412.5
@@ -1785,7 +1785,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   },
@@ -1829,7 +1829,7 @@
    },
    "SCADA_OtherHydro_MWh": 310.0,
    "SCADA_TotalHydro_MWh": 25728.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 3910.8,
    "Pump_MWh": {
     "SCADA": 1135.0,
     "ISP": 522.5
@@ -1843,7 +1843,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "missing"
    }
   }
