@@ -78,6 +78,10 @@ jobs:
             python scripts/fetch_entsoe_reservoir.py
           fi
 
+      - name: Build water balance (non-blocking)
+        continue-on-error: true
+        run: python scripts/build_water_balance.py
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
