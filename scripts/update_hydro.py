@@ -5,7 +5,7 @@ BigHydro pipeline v3
 
 Πηγές -> πεδία:
   * Reservoir (ADMIE ReservoirFillingRate)  -> Reservoir, ReservoirTotal, ReservoirTotalRate
-  * SCADA     (ADMIE SystemRealizationSCADA) -> Hourly SCADA_*  (+ SCADA_OtherHydro, SCADA_TotalHydro)
+  * SCADA     (ADMIE SystemRealizationSCADA) -> Hourly SCADA_*  (+ SCADA_OtherHydro, SCADA_TotalHydro, SCADA_ResSmallHydro = ΜΥΗΣ του μπλοκ ΑΝΑΝΕΩΣΙΜΑ)
   * ISP       (ADMIE ISP2ISPResults)         -> Hourly ISP_*
   * RESMV     (ADMIE RESMV)                  -> Hourly SCADA_SmallHydro
   * MCP       (ENTSO-E day-ahead, GR)        -> Hourly MCP_GR
@@ -354,6 +354,9 @@ def parse_scada(content):
         "TotalHydro": None if total is None else nan_to_none_list(total),
         "Parts": parts,                       # {Stratos2, Makrochori, Louros, Gkiona}: [24]|None
     }
+    # Μικρά ΥΗΣ μέσα στο μπλοκ ΑΝΑΝΕΩΣΙΜΑ (ετικέτα που τελειώνει σε "(ΜΥΗΣ)", π.χ. "ΑΥΛΑΚΙ (ΜΥΗΣ)"): δεν είναι στο TOTAL HYDRO
+    res_arrs = [to_numeric_array(df.iloc[i, SCADA_H0:SCADA_H1], 24) for i, lab in enumerate(labels) if lab.endswith("(ΜΥΗΣ)")]
+    extra["ResSmallHydro"] = nan_to_none_list(_sum_series(res_arrs)) if res_arrs else None
     return out, pump, extra
 
 
@@ -605,7 +608,7 @@ def load_all_days():
 def blank_row(h):
     row = {"Hour": f"H{h + 1:02d}", "SCADA_Pump": None, "ISP_Pump": None,
            "ISP_PumpSfikia": None, "ISP_PumpThesavros": None,
-           "SCADA_SmallHydro": None, "SCADA_OtherHydro": None, "SCADA_TotalHydro": None,
+           "SCADA_SmallHydro": None, "SCADA_ResSmallHydro": None, "SCADA_OtherHydro": None, "SCADA_TotalHydro": None,
            "SCADA_Stratos2": None, "SCADA_Makrochori": None, "SCADA_Louros": None, "SCADA_Gkiona": None,
            "MCP_GR": None}
     for k in UNIT_KEYS:
@@ -743,6 +746,7 @@ def process_day(d, existing, isp_cache=None, only=None):
             touched |= apply_series(rows, "SCADA_Pump", pump)
             touched |= apply_series(rows, "SCADA_OtherHydro", extra["OtherHydro"])
             touched |= apply_series(rows, "SCADA_TotalHydro", extra["TotalHydro"])
+            touched |= apply_series(rows, "SCADA_ResSmallHydro", extra.get("ResSmallHydro"))
             for k, series in extra["Parts"].items():
                 touched |= apply_series(rows, f"SCADA_{k}", series)
         except Exception as e:
@@ -1027,6 +1031,10 @@ def diagnose(d):
             if l and any(k in l for k in extra):
                 v = to_numeric_array(df.iloc[i, c0:c0 + 4], 4)
                 log(f"   r{i:03d} {df.iloc[i, label_col]!r} -> {nan_to_none_list(v)}")
+        items = [f"r{i:03d} {str(df.iloc[i, label_col])!r}" for i, l in enumerate(labels) if l]
+        log(f"ΟΛΕΣ οι ετικέτες της στήλης ({len(items)}), για έλεγχο μονάδων που ίσως δεν καλύπτουμε:")
+        for j in range(0, len(items), 5):
+            log("   " + " | ".join(items[j:j + 5]))
         if cat == CAT_SCADA:
             pi, _ = find_row(labels, ["TOTAL PUMPING"])
             if pi is not None:
