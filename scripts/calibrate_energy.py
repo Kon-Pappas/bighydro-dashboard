@@ -12,7 +12,7 @@
 Δευτέρα+1 ... Δευτέρα+7 (η μέτρηση του ADMIE είναι στις 00:00 της ημέρας).
 
 Είσοδοι : data/days/*.json , data/entsoe_reservoir.json , data/reservoirs.json
-Έξοδοι  : data/energy_factors.json , data/stored_energy.json
+Έξοδος  : data/energy_factors.json   (η σελίδα υπολογίζει η ίδια την ημερήσια και εβδομαδιαία ενέργεια από αυτούς τους συντελεστές)
 
 Χρήση:   python scripts/calibrate_energy.py            (απαιτεί numpy, scipy)
 
@@ -214,19 +214,6 @@ def main():
                                     "Reliability": "good" if spread <= 0.05 else ("fair" if spread <= 0.15 else "poor")}
     tot_vals = [sum(a.values()) for a in alts.values()]
 
-    # ενέργεια ανά ημέρα (εφαρμογή στις ημερήσιες μετρήσεις)
-    daily = []
-    for d, v in zip(dates, V):
-        by_river = {}
-        for r in meta["Rivers"]:
-            idx = [keys.index(k) for k in r["Order"]]
-            by_river[r["Id"]] = round(float((e0[idx] * v[idx]).sum() / 1000), 1)
-        daily.append({"Date": d.isoformat(), "VolumeHm3": round(float(v.sum()), 1),
-                      "TotalGWh": round(float((e0 * v).sum() / 1000), 1), "ByRiverGWh": by_river})
-    weekly = [{"IsoWeek": iso.get(m), "StartLocal": m.isoformat(), "EntsoeMWh": round(float(a)),
-               "ModelMWh": round(float(b)), "DiffGWh": round(float((b - a) / 1000), 1)}
-              for m, a, b in zip(mons, y, X @ p)]
-
     last = dates[-1]
     vlast = V[-1]
     tot_boot = (boot * vlast).sum(1) / 1000
@@ -258,12 +245,11 @@ def main():
             "Η εκτίμηση ημερήσιας τιμής εφαρμόζει τους συντελεστές στη μέτρηση 00:00 της ημέρας, ενώ οι συντελεστές βαθμονομήθηκαν σε μέσους όρους εβδομάδας.",
             "Οι συντελεστές βαθμονομήθηκαν με δεδομένα Ιανουαρίου-Σεπτεμβρίου 2026: να επανεκτιμηθούν όταν προστεθούν Οκτώβριος-Δεκέμβριος (νέα πλήρωση, Αμφιλοχία)."]}
     os.makedirs(DATA, exist_ok=True)
-    for name, obj, ind in (("energy_factors.json", doc, 1), ("stored_energy.json", {"Schema": 1, "Generated": now, "Daily": daily, "Weekly": weekly}, 1)):
-        tmp = os.path.join(DATA, name + ".tmp")
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(obj, f, ensure_ascii=False, indent=ind)
-            f.write("\n")
-        os.replace(tmp, os.path.join(DATA, name))
+    tmp = os.path.join(DATA, "energy_factors.json.tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(doc, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    os.replace(tmp, os.path.join(DATA, "energy_factors.json"))
 
     log(f"Εβδομάδες: {n} ({mons[0]} → {mons[-1]}) | RMS fit {r_fit/1000:.1f} GWh | LOO {rms(loo)/1000:.1f} GWh ({rms(loo)/y.mean()*100:.2f}%)"
         f" | απλός συντελεστής LOO {loo1/1000:.1f} GWh" + ("" if block is None else f" | train<{TRAIN_SPLIT}→test {block/1000:.1f} GWh"))

@@ -1,0 +1,8 @@
+# Python dependencies of the pipeline and the tests
+pandas
+numpy
+requests
+openpyxl
+xlrd
+# only for scripts/calibrate_energy.py (manual, not part of the daily job)
+scipy

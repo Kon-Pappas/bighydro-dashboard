@@ -1,0 +1,11 @@
+{
+  "name": "bighydro-dashboard-tests",
+  "private": true,
+  "description": "jsdom tests for index.html (run from the repo data)",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.2"
+  }
+}
