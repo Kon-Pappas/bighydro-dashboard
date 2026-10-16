@@ -1,0 +1,6 @@
+node_modules/
+__pycache__/
+*.pyc
+*.tmp
+.DS_Store
+tests/dashboard/package-lock.json
