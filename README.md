@@ -35,6 +35,7 @@ scripts/build_water_balance.py      apparent inflow per river            → dat
 scripts/build_psh.py                recycled vs river water (Sfikia, Thesavros) → data/psh_daily.json
 scripts/build_unit_status.py        daily generation per unit            → data/unit_daily.json
 scripts/build_climatology.py        stock vs previous years (ENTSO-E)    → data/climatology.json
+scripts/diagnose_admie_history.py   read-only check of ADMIE's historical files (manual workflow)
 scripts/calibrate_energy.py         MANUAL: stored-energy factors        → data/energy_factors.json  (needs scipy)
 data/days/YYYY-MM-DD.json      one file per day (hourly rows + reservoir levels + status)
 data/*.json                    derived and static files (see docs/DATA_DICTIONARY.md)
@@ -57,8 +58,8 @@ Keep a run to roughly **120 requests or fewer**: about 4 per day for `scada,isp`
 A re-run overwrites old values with new non-null values; a missing value never erases an existing one.
 
 ## Tests
-`python tests/run_all.py` (pipeline, 189 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
-(page, ~240 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
+`python tests/run_all.py` (pipeline, 206 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
+(page, ~245 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
 ## Read this before trusting a number

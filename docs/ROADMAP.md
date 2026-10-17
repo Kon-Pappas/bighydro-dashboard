@@ -20,6 +20,8 @@ visible-hydro summary · tests and documentation in the repository.
 11. **Inflow regime indicator** (dry / transition / wet) from the apparent inflow, and the date a chosen level would be reached at the current trend (questions 3 and 4). The "rising or falling" line already exists in *Days of cover*.
 12. **Forced vs demand-driven hydro generation** (question 7), with February 2026 as the test case; this is the bridge to the curtailment research thread.
 
+13. **ADMIE history diagnose** — **ready** (manual read-only workflow, D75): run it, send the log, and then decide whether and how to back-fill reservoir fill and SCADA generation for past years (an inflow baseline, question 3). A backfill must go to a **separate** file, not to `data/days/`.
+
 ## After 26 Oct 2026
 6. **Daylight-saving handling** (ISP, SCADA, RESMV, MCP) and an **automatic clock-alignment flag** (SCADA–ISP correlation per day, stored in `Meta`); repair 30 March and 25–26 October by re-running those days.
 7. ~~**Water balance for the remaining rivers**~~ — **done** (Nestos, Arachthos, Plastiras, Ladonas and an all-rivers overview; see D36–D39). Next in line: the pumped-storage view (item 2), which reuses the same pump estimates.

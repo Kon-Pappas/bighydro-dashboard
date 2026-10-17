@@ -32,6 +32,8 @@ Steps run in this order, in one job (`concurrency: bighydro-fetch`, runs never o
 
 A second, **manual** workflow, `.github/workflows/backfill_entsoe.yml` (*Backfill ENTSO-E history*), shares the same concurrency group. It fetches the weekly stored energy for past years (one request per year) into the **separate** file `data/entsoe_history.json`, which the energy calibration does not read. It has a diagnostic mode that writes nothing.
 
+A third **manual, read-only** workflow, `.github/workflows/diagnose_admie_history.yml` (*Diagnose ADMIE history*, `permissions: contents: read`), runs `scripts/diagnose_admie_history.py`: for each year and for both `ReservoirFillingRate` and `SystemRealizationSCADA` it lists how many files ADMIE has, their duration (a day? a week?), the share of days covered, and whether the pipeline's own parsers read a 15 July sample completely. It writes nothing and always ends green; the answer is in the log.
+
 Inputs: `start_date`, `end_date`, `only`, `diagnose`. Secret: `ENTSOE_TOKEN`. Python 3.12; the job installs `pandas numpy requests openpyxl xlrd`.
 `calibrate_energy.py` needs `scipy` and is **not** part of the daily job.
 

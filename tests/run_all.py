@@ -4,7 +4,7 @@
 import os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-TESTS = ["test_v3.py", "test_only.py", "test_perunit.py", "test_pump.py", "test_wb.py", "test_psh.py", "test_units.py", "test_clim.py", "test_entsoe.py"]
+TESTS = ["test_v3.py", "test_only.py", "test_perunit.py", "test_pump.py", "test_wb.py", "test_psh.py", "test_units.py", "test_clim.py", "test_admie_diag.py", "test_entsoe.py"]
 
 
 def main():
