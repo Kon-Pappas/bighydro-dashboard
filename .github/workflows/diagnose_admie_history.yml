@@ -1,0 +1,47 @@
+name: Diagnose ADMIE history (manual, read-only)
+
+# ΧΕΙΡΟΚΙΝΗΤΟ και ΜΟΝΟ ΑΝΑΓΝΩΣΗΣ: δεν γράφει τίποτα στο repo (permissions: contents: read).
+# Ελέγχει αν ο ΑΔΜΗΕ έχει ιστορικά αρχεία για τους ταμιευτήρες (ReservoirFillingRate) και την παραγωγή (SystemRealizationSCADA)
+# σε προηγούμενα έτη, με ποια διάρκεια και κάλυψη, και αν ο parser του pipeline τα διαβάζει.
+# Το αποτέλεσμα είναι στο log του run (ο πίνακας ανά έτος και το «ΣΥΜΠΕΡΑΣΜΑ» στο τέλος).
+
+on:
+  workflow_dispatch:
+    inputs:
+      first_year:
+        description: 'Πρώτο έτος (π.χ. 2016)'
+        required: true
+        default: '2016'
+        type: string
+      last_year:
+        description: 'Τελευταίο έτος (π.χ. 2026)'
+        required: true
+        default: '2026'
+        type: string
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy requests openpyxl xlrd
+
+      - name: Diagnose ADMIE history
+        env:
+          FIRST_YEAR: ${{ inputs.first_year }}
+          LAST_YEAR: ${{ inputs.last_year }}
+        run: python scripts/diagnose_admie_history.py "$FIRST_YEAR" "$LAST_YEAR"
