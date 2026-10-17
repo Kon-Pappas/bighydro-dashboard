@@ -14,13 +14,14 @@ Status: **open** (needs action or a decision), **accepted** (understood, no acti
 | K08 | whole year | Kastraki above 100 %: volume above 100 % uncertain (capacity 53 hm³) | Kastraki ΔV and balance terms have extra uncertainty | accepted |
 | K09 | whole year | Official total fill is 0.98 pp above our rebuild; Ilarionas capacity (412 hm³) unverified | Small systematic difference in hm³ | open (capacity check planned) |
 | K10 | whole year | Per-plant pumping is an estimate; 9.2 % of actual pumping falls in hours with no schedule | Labelled "estimate" everywhere | accepted |
-| K11 | — | Platanovrysi → Thesavros pump direction is an assumption | Pump arrow on the Nestos card | open (owner to confirm) |
+| K11 | — | Platanovrysi → Thesavros pump direction is an assumption, **supported by the data** (volume closure 0.94–1.04 in the dry months, METHODS §4); it does not affect the water balance | Pump arrow on the Nestos card | accepted; owner to confirm |
 | K12 | 2026-01-10, 06-12, 09-22 | Low SCADA–ISP correlation (0.62–0.73) without a clear offset | Probably unusual operation; not investigated | watch |
 | K13 | Jan–May | No day-ahead price (MCP) backfilled | Only matters for price analysis | accepted |
 | K14 | — | Stratos II excluded from the water-balance volume; the seven other small PPC plants are not visible in SCADA | Small | accepted |
 | K15 | — | Heads/efficiencies are unofficial; RESMV is uncertified; "ENTSO-E equivalent" is an estimate | See README "Read this before trusting a number" | accepted |
 | K16 | housekeeping | `data/monthly/*.json` is produced but unused by the page; the Node 20 deprecation warning in Actions; derived files get a new timestamp on every run, producing commits with no real change | Clutter only | open (after 26 Oct) |
 | K17 | every morning, ≈ 00:25 → ≈ 08:35 | The newest day in `index.json` exists (from the ISP file) but has **no reservoir levels** yet; the page used to crash when it was selected (found by the CI on 2026-10-17) | Fixed in the page: such days are not offered and a request falls back to the latest available day with a notice (D35) | accepted (fixed) |
+| K18 | whole year | The pumped-storage shares depend on assumed pump head (gross × 1.02) and efficiency (0.87) and on the per-plant pumping estimate | The page shows a ±10 % range on the pump factor; the cycle factor is not a measured efficiency | accepted |
 
 ## How to recognise a clock offset quickly
 Compute, per day, the correlation between the summed SCADA and summed ISP of the 16 large units at lags −2 … +2 h. Normal days: ≥ 0.9 at lag 0. A day with a low lag-0 value and a better value at ±1 h is offset (as 30 March).

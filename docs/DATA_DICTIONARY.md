@@ -42,7 +42,8 @@ All hourly data are on Greek local time (see ARCHITECTURE.md). JSON is UTF-8.
 | `data/plant_heads.json` | by hand | gross head (m), efficiency range, net head for four plants; source and caveats |
 | `data/entsoe_reservoir.json` | fetch_entsoe_reservoir.py | `Weeks[]`: `{Start, End (UTC), StartLocal, IsoWeek, MWh}` — Monday 00:00 Greek time to Monday 00:00 |
 | `data/energy_factors.json` | calibrate_energy.py (manual) | `Factors{dam: EnergyMWhPerHm3, P5, P95, Identifiable}`, `Fit`, `Weeks` used, `Latest` (total and per-river energy with a Min/Max over model variants) |
-| `data/water_balance.json` | build_water_balance.py | per river: `Groups`, `KNet`, `KGross`, and `Daily[]`: `dV, E, Qn, Inn, Rivern, Qg, Ing, Riverg, V` (per group, hm³/day; `n` = net-head factors, `g` = gross-head) |
+| `data/psh_daily.json` | build_psh.py | per plant (`SFIKIA`, `THESAVROS`): factors (`KGenNet`, `KCompNet`, `KPump`, `CycleFactor`), `Assumptions` (pump head × 1.02, efficiency 0.87) and `Daily[]`: `Date, Eg` (generation MWh), `Ep` (pumping estimate MWh), `Ei` (ISP pumping MWh), `Q` (hm³ turbined), `P` (hm³ pumped), `Qc` (hm³ turbined by the neighbouring plant) |
+| `data/water_balance.json` | build_water_balance.py | per river (`acheloos, aliakmonas, nestos, arachthos, plastiras, ladonas`): `Groups`, `KNet`, `KGross`, and `Daily[]`: `dV, E, Qn, Inn, Rivern, Qg, Ing, Riverg, V` (per group, hm³/day; `n` = net-head factors, `g` = gross-head) |
 
 ## Status of a day (how to read it)
 `RSIRM` in our shorthand = reservoir, SCADA, ISP, RESMV, MCP all ok. Days before June have no MCP (price) by choice; the page lists absent sources in a banner.

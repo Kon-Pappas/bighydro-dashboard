@@ -15,14 +15,14 @@ estimate that reproduces the ENTSO-E weekly figure, and a water balance per rive
 |---|---|
 | Rivers | Summary cards (visible hydro, pumping, fill level, stored energy), one card per river, cascade view per river (dam order, fill, generation, pump arrows, hourly profile) |
 | Stored energy | "ENTSO-E equivalent" (calibrated) and "physical estimate" (gross head), weekly comparison with ENTSO-E, per-river table |
-| Pumping | SCADA vs ISP pumping, per-plant estimate (Sfikia, Thesavros), monthly table |
-| Water balance | Apparent inflow per river (Acheloos, Aliakmon): storage change + turbined water |
+| Pumping | SCADA vs ISP pumping, per-plant estimate (Sfikia, Thesavros), monthly table; and a **pumped-storage section**: how much of the water each plant turbines had been pumped up first (recycled share, volume closure) |
+| Water balance | Apparent inflow (storage change + turbined water) for all six rivers, with an "All rivers" overview: stacked monthly bars, total line and table |
 | Kastraki | Level history and daily storage change of the Kastraki lake |
 
 ## How it works (one paragraph)
 `scripts/update_hydro.py` fetches ADMIE files (reservoir filling rate, SCADA, ISP, RESMV) and ENTSO-E day-ahead prices, normalises every
 hourly series to **Greek local time**, and writes one JSON file per day in `data/days/`. Three small scripts then derive weekly ENTSO-E
-reservoir energy (`fetch_entsoe_reservoir.py`), the water balance (`build_water_balance.py`) and, manually, the stored-energy factors
+reservoir energy (`fetch_entsoe_reservoir.py`), the water balance (`build_water_balance.py`), the pumped-storage data (`build_psh.py`) and, manually, the stored-energy factors
 (`calibrate_energy.py`). The page is a single `index.html` with no dependencies that reads those JSON files.
 Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -32,6 +32,7 @@ index.html                     the whole page (HTML + CSS + JS, no external libr
 scripts/update_hydro.py        daily pipeline (ADMIE + ENTSO-E prices)  → data/days, index, history, pump_daily
 scripts/fetch_entsoe_reservoir.py   weekly ENTSO-E 16.1.D stored energy  → data/entsoe_reservoir.json
 scripts/build_water_balance.py      apparent inflow per river            → data/water_balance.json
+scripts/build_psh.py                recycled vs river water (Sfikia, Thesavros) → data/psh_daily.json
 scripts/calibrate_energy.py         MANUAL: stored-energy factors        → data/energy_factors.json  (needs scipy)
 data/days/YYYY-MM-DD.json      one file per day (hourly rows + reservoir levels + status)
 data/*.json                    derived and static files (see docs/DATA_DICTIONARY.md)
@@ -54,8 +55,8 @@ Keep a run to roughly **120 requests or fewer**: about 4 per day for `scada,isp`
 A re-run overwrites old values with new non-null values; a missing value never erases an existing one.
 
 ## Tests
-`python tests/run_all.py` (pipeline, 127 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
-(page, ~130 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
+`python tests/run_all.py` (pipeline, 150 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
+(page, ~180 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
 ## Read this before trusting a number

@@ -22,6 +22,7 @@ const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'dangerously',prete
   beforeParse(w){ w.__BH_FAST=true; w.localStorage.setItem('kp_lang','el'); w.fetch=synFetch; }});
 const w=dom.window,d=w.document;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const wbPick=(doc,id)=>{const b=[...doc.querySelectorAll('#t-wb .seg button')].find(x=>x.getAttribute('data-r')===id); if(!b) throw new Error('no river button '+id); b.click(); return b};
 const setLang=(doc,l)=>doc.querySelector('#lang button[data-l="'+l+'"]').click();
 let pass=0,fail=0; const ck=(n,c,e)=>{ if(c){pass++;console.log('  PASS',n)} else {fail++;console.log('  FAIL',n,e===undefined?'':e)} };
 const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).join(' ');
@@ -111,14 +112,14 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English mode renders (title, river names)',d.querySelector('#ttl').textContent.includes('Hydro & Reservoir') && d.querySelector('#rg').textContent.includes('Acheloos'),d.querySelector('#ttl').textContent);
   ck('English: no untranslated placeholders {x} / undefined',!/\{[xd]\}|undefined|NaN/.test(txt()));
   setLang(d,'el'); await sleep(50);
-  ck('methodology modal opens with 12 paragraphs',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc p').length===12 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
+  ck('methodology modal opens with 13 paragraphs',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc p').length===13 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
   ck('date selector lists every day that has reservoir levels, newest first, and never one without',d.querySelectorAll('#dsel option').length===B.P.idx.Days.filter(x=>B.P.fi[x.Date]!=null).length && d.querySelector('#dsel option').value===SYN_TODAY && ![...d.querySelectorAll('#dsel option')].some(o=>o.value===SYN_NORES),d.querySelectorAll('#dsel option').length);
 
   console.log('TEST 6: pump tab, per-plant estimate, Stratos 1+2');
   const pdaily=JSON.parse(fs.readFileSync(ROOT+'/data/pump_daily.json','utf8')); const pmap={}; pdaily.forEach(x=>pmap[x.Date]=x);
   await B.load('2026-09-15'); const pm=pmap['2026-09-15']; const f0=v=>Math.round(v).toLocaleString('el-GR');
   d.querySelector('#tabs button[data-t="pump"]').click();
-  ck('pump tab visible, 4 cards, 4 charts, monthly table',!d.querySelector('#t-pump').hidden && d.querySelectorAll('#t-pump .card').length===4 && d.querySelectorAll('#t-pump svg.ch').length===4 && d.querySelectorAll('#t-pump table tr').length>=2);
+  ck('pump tab visible: 4 pumping cards + 4 pumped-storage cards, 4 + 3 charts, 1 + 2 tables',!d.querySelector('#t-pump').hidden && d.querySelectorAll('#t-pump .card').length===8 && d.querySelectorAll('#t-pump svg.ch').length===7 && d.querySelectorAll('#t-pump table').length===3,[d.querySelectorAll('#t-pump .card').length,d.querySelectorAll('#t-pump svg.ch').length,d.querySelectorAll('#t-pump table').length]);
   const pc=[...d.querySelectorAll('#t-pump .card .val')].map(x=>x.textContent);
   ck('pump cards match pump_daily.json for 15/9 (SCADA '+f0(pm.ScadaMWh)+', ISP '+f0(pm.IspMWh)+')',pc[0].includes(f0(pm.ScadaMWh)) && pc[1].includes(f0(pm.IspMWh)) && pc[2].includes(f0(pm.UnscheduledMWh)) && pc[3].includes(f0(pm.NotRealizedMWh)),pc);
   const tbl=[...d.querySelectorAll('#t-pump table tr')].map(r=>r.textContent); const oct=pdaily.filter(x=>x.Date.startsWith('2026-06')&&x.ScadaMWh!=null); const junS=oct.reduce((a,x)=>a+x.ScadaMWh,0)/1000;
@@ -147,7 +148,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
 
   console.log('TEST 7: water balance tab (Acheloos)');
   const wbj=JSON.parse(fs.readFileSync(ROOT+'/data/water_balance.json','utf8')).Rivers.acheloos.Daily; const wmap={}; wbj.forEach(x=>wmap[x.Date]=x);
-  await B.load('2026-08-15'); d.querySelector('#tabs button[data-t="wb"]').click();
+  await B.load('2026-08-15'); d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'acheloos');
   const wd=wmap['2026-08-15']; const f1=v=>v.toLocaleString('el-GR',{minimumFractionDigits:1,maximumFractionDigits:1}); const sgn=v=>(v>0?'+':'')+f1(v);
   const wc=[...d.querySelectorAll('#t-wb .card .val')].map(x=>x.textContent);
   ck('water-balance tab visible, 4 cards, 2 charts',!d.querySelector('#t-wb').hidden && d.querySelectorAll('#t-wb .card').length===4 && d.querySelectorAll('#t-wb svg.ch').length===2,[d.querySelectorAll('#t-wb .card').length,d.querySelectorAll('#t-wb svg.ch').length]);
@@ -168,8 +169,8 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 8: Aliakmonas water balance (river selector)');
   const WBALL=JSON.parse(fs.readFileSync(ROOT+'/data/water_balance.json','utf8')); const aliR=WBALL.Rivers.aliakmonas; const amap={}; aliR.Daily.forEach(x=>amap[x.Date]=x);
   await B.load('2026-08-15'); d.querySelector('#tabs button[data-t="wb"]').click();
-  ck('river selector with 2 buttons, Acheloos active by default',d.querySelectorAll('#t-wb .seg button').length===2 && d.querySelector('#t-wb .seg button.on').textContent.includes('Αχελώος'),[...d.querySelectorAll('#t-wb .seg button')].map(b=>b.textContent));
-  d.querySelectorAll('#t-wb .seg button')[1].click();
+  ck('river selector: "All rivers" first, then the six rivers',(()=>{const b=[...d.querySelectorAll('#t-wb .seg button')];return b.length===7 && b[0].getAttribute('data-r')==='all' && b[0].textContent==='Όλα τα ποτάμια'})(),[...d.querySelectorAll('#t-wb .seg button')].map(x=>x.textContent));
+  wbPick(d,'aliakmonas');
   ck('switching to Aliakmonas marks it active',d.querySelector('#t-wb .seg button.on').textContent.includes('Αλιάκμονας'));
   const aw=amap['2026-08-15']; const ac=[...d.querySelectorAll('#t-wb .card .val')].map(x=>x.textContent);
   const asum=aw.dV.reduce((a,b)=>a+b,0);
@@ -183,17 +184,17 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const nt=d.querySelector('#t-wb').textContent;
   ck('Aliakmonas notes: pump block, Ilarionas outage, and the computed '+ratioPct+'% Asomata/Polyfyto ratio',nt.includes('Ασώματα → Σφηκιά') && nt.includes('Ιλαρίων είναι σε βλάβη') && nt.includes(ratioPct+'%'),nt.slice(nt.indexOf('κάτω λεκάνη βγαίνει'),nt.indexOf('κάτω λεκάνη βγαίνει')+90));
   ck('chart count is 2, 3 legend entries are 2 for Aliakmonas',d.querySelectorAll('#t-wb svg.ch').length===2);
-  d.querySelectorAll('#t-wb .seg button')[0].click();
+  wbPick(d,'acheloos');
   ck('back to Acheloos still shows its Inachos note',d.querySelector('#t-wb').textContent.includes('Ίναχος'));
-  d.querySelectorAll('#t-wb .seg button')[1].click(); setLang(d,'en'); await sleep(50);
+  wbPick(d,'aliakmonas'); setLang(d,'en'); await sleep(50);
   ck('English: Aliakmon title and notes, no placeholders',/Water balance, Aliakmon/.test(d.querySelector('#t-wb').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
   setLang(d,'el'); await sleep(50);
   ck('no JS errors in Aliakmonas tests',errors.length===0,errors.slice(0,3));
 
   console.log('TEST 9: shell (header, language, update stamps, badge, banner, footer, overlay)');
-  const mkDom=(store,fast=true)=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
+  const mkDom=(store,fast=true,block=[])=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
     const dm=new JSDOM(fs.readFileSync(ROOT+'/index.html','utf8'),{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc2,
-      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(pp,'utf8')))});}; }});
+      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(pp,'utf8')))});}; }});
     return {dm,e2}; };
   const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
@@ -266,7 +267,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   B.openRiver(0); d.querySelector('#rm').dispatchEvent(new w.MouseEvent('click',{bubbles:true})); ck('clicking the dark backdrop closes it',d.querySelector('#rm').hidden===true);
   d.querySelector('#meth').click(); const mm=d.querySelector('#mmc');
   ck('methodology modal has the same three-part structure and the title "Μεθοδολογία και παραδοχές"',[...mm.children].map(c=>c.className).join(',')==='mh,mb,mf' && mm.children[0].querySelector('h2').textContent==='Μεθοδολογία και παραδοχές' && d.querySelector('#meth').textContent.includes('παραδοχές'));
-  ck('it has a Methodology section (12 paragraphs) and an Assumptions section (8 items)',mm.querySelectorAll('.mb h3.mhd').length===2 && mm.querySelectorAll('.mb p').length===12 && mm.querySelectorAll('.mb ul.mal li').length===8,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
+  ck('it has a Methodology section (13 paragraphs) and an Assumptions section (9 items)',mm.querySelectorAll('.mb h3.mhd').length===2 && mm.querySelectorAll('.mb p').length===13 && mm.querySelectorAll('.mb ul.mal li').length===9,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
   d.querySelector('#mclose-x').click(); ck('methodology: X closes',d.querySelector('#mm').hidden===true);
   d.querySelector('#meth').click(); d.querySelector('#mclose').click(); ck('methodology: footer Close closes',d.querySelector('#mm').hidden===true && !d.body.classList.contains('modal-open'));
   d.querySelector('#meth').click(); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('methodology: Escape closes',d.querySelector('#mm').hidden===true);
@@ -312,6 +313,79 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('no JS errors after the fallback',errors.length===0,errors.slice(0,3));
   ck('real data (fresh DOM): the page boots and offers only days that have reservoir levels',[...wE2.document.querySelectorAll('#dsel option')].every(o=>BE.P.fi[o.value]!=null) && wE2.document.querySelectorAll('#dsel option').length===BE.P.idx.Days.filter(x=>BE.P.fi[x.Date]!=null).length);
   await BE.load(BE.P.idx.Days[0].Date); ck('real data: requesting the newest indexed day (even without reservoir levels) does not throw and shows an available day',!!BE.S.M && BE.P.fi[BE.S.date]!=null && errE.length===0,[BE.S.date,errE.slice(0,2)]);
+
+  console.log('TEST 15: water balance — all-rivers overview and the four additional rivers');
+  setLang(d,'el'); await sleep(60); await B.load('2026-08-15'); d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'all');
+  const WBJ=jf('data/water_balance.json').Rivers, RID=Object.keys(WBJ), ORD=B.P.meta.Rivers.map(r=>r.Id).filter(id=>WBJ[id]);
+  const btns=[...d.querySelectorAll('#t-wb .seg button')].map(b=>b.getAttribute('data-r'));
+  ck('selector: "all" first, then the rivers in the order of reservoirs.json ('+ORD.join(', ')+')',JSON.stringify(btns)===JSON.stringify(['all'].concat(ORD)) && d.querySelector('#t-wb .seg button.on').getAttribute('data-r')==='all',btns);
+  const DATE='2026-08-15', lo=addDS(DATE,-29), fm=v=>Math.abs(Math.round(v)).toLocaleString('el-GR');
+  let day={n:0,g:0}, w30={n:0,g:0}, ytd={n:0,g:0}, by={}; RID.forEach(id=>WBJ[id].Daily.forEach(x=>{ if(x.Date===DATE){day.n+=x.Rivern;day.g+=x.Riverg} if(x.Date>=lo&&x.Date<=DATE){w30.n+=x.Rivern;w30.g+=x.Riverg;by[id]=(by[id]||0)+x.Rivern} if(x.Date<=DATE){ytd.n+=x.Rivern;ytd.g+=x.Riverg} }));
+  const topId=Object.keys(by).sort((a,b)=>by[b]-by[a])[0], cv=[...d.querySelectorAll('#t-wb .card .val')].map(x=>x.textContent), cs=[...d.querySelectorAll('#t-wb .card .sm')].map(x=>x.textContent);
+  ck('all-rivers cards recomputed independently: day '+fm(day.n)+', 30 days '+fm(w30.n)+', since 1 Jan '+fm(ytd.n)+' hm³',d.querySelectorAll('#t-wb .card').length===4 && cv[0].includes(fm(day.n)) && cv[1].includes(fm(w30.n)) && cv[2].includes(fm(ytd.n)),cv);
+  ck('gross-head values are shown in the card subtitles',cs[0].includes(fm(day.g)) && cs[1].includes(fm(w30.g)) && cs[2].includes(fm(ytd.g)),cs);
+  const topName=[...d.querySelectorAll('#t-wb .seg button')].find(b=>b.getAttribute('data-r')===topId).textContent;
+  ck('largest contributor over 30 days = '+topName+' with the right share',cv[3]===topName && cs[3].includes(Math.round(by[topId]/w30.n*100)+'%'),[cv[3],cs[3]]);
+  ck('two charts (stacked monthly bars + total line) and the monthly table',d.querySelectorAll('#t-wb svg.ch').length===2 && d.querySelectorAll('#t-wb table').length===1);
+  const mon={}; RID.forEach(id=>WBJ[id].Daily.forEach(x=>{const m=x.Date.slice(0,7); (mon[m]=mon[m]||{by:{},n:0,g:0,last:x.Date}); mon[m].by[id]=(mon[m].by[id]||0)+x.Rivern; mon[m].n+=x.Rivern; mon[m].g+=x.Riverg; if(x.Date>mon[m].last) mon[m].last=x.Date}));
+  const MS=Object.keys(mon).sort(), rows2=[...d.querySelectorAll('#t-wb table tr')];
+  ck('table: header = month + '+RID.length+' rivers + net + gross total',rows2[0].children.length===RID.length+3,rows2[0].children.length);
+  const rJan=rows2.find(r=>r.textContent.startsWith('2026-01')), cellsJan=[...rJan.children].map(c=>c.textContent);
+  ck('table row for January: every river and the totals equal the sums of the daily values',ORD.every((id,i)=>cellsJan[1+i].includes(fm(mon['2026-01'].by[id]))) && cellsJan[1+ORD.length].includes(fm(mon['2026-01'].n)) && cellsJan[2+ORD.length].includes(fm(mon['2026-01'].g)),cellsJan);
+  const lastM=MS[MS.length-1], dimL=new Date(Date.UTC(+lastM.slice(0,4),+lastM.slice(5,7),0)).getUTCDate(), partial=+mon[lastM].last.slice(8,10)<dimL;
+  ck('the last month is starred when it is not complete ('+lastM+(partial?'*':'')+') and the footnote appears only then',(!!rows2.find(r=>r.textContent.startsWith(lastM+'*')))===partial && d.querySelector('#t-wb').textContent.includes('μη ολοκληρωμένος μήνας')===partial);
+  ck('notes: the sum is a lower bound of natural inflow, not "the inflow of Greece"',d.querySelector('#t-wb').textContent.includes('κατώτατο όριο') && d.querySelectorAll('#t-wb .note').length===(partial?4:3),d.querySelectorAll('#t-wb .note').length);
+  const svg=d.querySelector('#t-wb svg.ch'), sp=B.CH[svg.getAttribute('data-cid')];
+  ck('stacked chart: one named series per river plus a total series for the tooltip',sp.series.filter(x=>x.name).length===ORD.length+1 && sp.series.slice(0,ORD.length).every((x,i)=>x.color===['#38bdf8','#fbbf24','#34d399','#a78bfa','#fb7185','#cbd5e1'][i]),sp.series.map(x=>x.name));
+  svg.getBoundingClientRect=()=>({left:0,top:0,width:sp.W,height:260}); svg.dispatchEvent(new w.MouseEvent('pointermove',{bubbles:true,clientX:sp.L+(1-sp.x0)/(sp.x1-sp.x0)*sp.pw,clientY:100})); const tx=tipOf(w).textContent;
+  ck('tooltip on the February bar lists every river and the total with the right values',ORD.every(id=>tx.includes(fm(mon['2026-02'].by[id]))) && tx.includes(fm(mon['2026-02'].n)) && tx.includes('Σύνολο') && tx.includes('Φεβ 2026'),tx.slice(0,160));
+  const wbNotes={nestos:[4,'0,94–1,04'],arachthos:[4,'Πουρνάρι'],plastiras:[3,'άρδευση'],ladonas:[3,'άρδευση']};
+  ['nestos','arachthos','plastiras','ladonas'].forEach(id=>{ wbPick(d,id); const G2=WBJ[id].Groups.length, tab=d.querySelector('#t-wb'), r0=[...tab.querySelectorAll('table tr')][0], R=ORD.indexOf(id)>=0;
+    const nm=[...tab.querySelectorAll('.seg button')].find(b=>b.getAttribute('data-r')===id).textContent;
+    ck(id+': title, 4 cards, '+(G2>1?'2 charts':'1 chart (the by-group chart is hidden for a single block)')+', table columns '+(G2>1?5+G2:5),tab.querySelector('h2').textContent.includes(nm.split(' ')[0]) && tab.querySelectorAll('.card').length===4 && tab.querySelectorAll('svg.ch').length===(G2>1?2:1) && r0.children.length===(G2>1?5+G2:5),[tab.querySelector('h2').textContent,tab.querySelectorAll('svg.ch').length,r0.children.length]);
+    ck(id+': '+wbNotes[id][0]+' notes, including the one about "'+wbNotes[id][1]+'"',tab.querySelectorAll('.note').length===wbNotes[id][0] && tab.textContent.includes(wbNotes[id][1]),tab.querySelectorAll('.note').length);
+    const D2=WBJ[id].Daily.filter(x=>x.Date>=lo&&x.Date<=DATE); const t30=D2.reduce((a,x)=>a+x.Rivern,0);
+    const vals=[...tab.querySelectorAll('.card .val')].map(x=>x.textContent);
+    if(G2===1) ck(id+': single block, card 4 = last-30-days total ('+fm(t30)+' hm³)',vals[3].includes(fm(t30)),vals);
+    const monthly=WBJ[id].Daily.filter(x=>x.Date.startsWith('2026-01')).reduce((a,x)=>a+x.Rivern,0), rowJ=[...tab.querySelectorAll('table tr')].find(r=>r.textContent.startsWith('2026-01'));
+    ck(id+': January total in the table = sum of daily values ('+fm(monthly)+')',[...rowJ.children].map(c=>c.textContent)[G2>1?3+G2:3].includes(fm(monthly)),[...rowJ.children].map(c=>c.textContent)); });
+  wbPick(d,'nestos'); ck('Nestos: the pump note says the direction Platanovrysi → Thesavros is supported by the volume closure',d.querySelector('#t-wb').textContent.includes('στηρίζει την κατεύθυνση'));
+  wbPick(d,'all'); setLang(d,'en'); await sleep(80);
+  ck('English: all-rivers title, button, notes and month names; no placeholders',d.querySelector('#t-wb .seg button').textContent==='All rivers' && /Water balance, all rivers/.test(d.querySelector('#t-wb').textContent) && /Jan/.test(d.querySelector('#t-wb svg.ch').textContent) && !/\{[xyk]\}|undefined|NaN/.test(d.querySelector('#t-wb').textContent));
+  setLang(d,'el'); await sleep(60);
+  ck('no JS errors in the water-balance tests',errors.length===0,errors.slice(0,3));
+
+  console.log('TEST 16: pumped-storage section (Pumping tab) — recomputed independently from psh_daily.json');
+  {
+  setLang(d,'el'); await sleep(60); await B.load('2026-08-15'); d.querySelector('#tabs button[data-t="pump"]').click();
+  const PSJ=jf('data/psh_daily.json'), PK=['SFIKIA','THESAVROS'], DT='2026-08-15', lo30=addDS(DT,-29), nfm=v=>Math.round(v).toLocaleString('el-GR');
+  const agg=(k,from,to)=>PSJ.Plants[k].Daily.filter(x=>x.Date>=from&&x.Date<=to).reduce((a,x)=>({Q:a.Q+x.Q,P:a.P+x.P,Qc:a.Qc+x.Qc,Ep:a.Ep+x.Ep}),{Q:0,P:0,Qc:0,Ep:0});
+  const tab=d.querySelector('#t-pump'), cvals=[...tab.querySelectorAll('.card .val')].map(x=>x.textContent), csub=[...tab.querySelectorAll('.card')].map(c=>c.querySelector('.sm')?c.querySelector('.sm').textContent:''), clab=[...tab.querySelectorAll('.card .lab')].map(x=>x.textContent);
+  ck('section title and intro are shown',!!tab.querySelector('h2.sect') && tab.querySelector('h2.sect').textContent.includes('Αντλησιοταμίευση'));
+  const win30=PK.map(k=>agg(k,lo30,DT)), ytdP=PK.map(k=>agg(k,'0000',DT));
+  ck('card "recycled water · 30 days" for Sfikia and Thesavros = '+win30.map(a=>Math.round(a.P/a.Q*100)+'%').join(' / '),[4,5].every((ix,i)=>cvals[ix]===Math.round(win30[i].P/win30[i].Q*100)+'%') && /30 ημέρες/.test(clab[4]) && /Σφηκιά/.test(clab[4]) && /Θησαυρός/.test(clab[5]),[cvals.slice(4),clab.slice(4,6)]);
+  ck('card "since 1 January" = '+ytdP.map(a=>Math.round(a.P/a.Q*100)+'%').join(' / '),[6,7].every((ix,i)=>cvals[ix]===Math.round(ytdP[i].P/ytdP[i].Q*100)+'%') && /1 Ιανουαρίου/.test(clab[6]),cvals.slice(6));
+  ck('subtitles give pumped and turbined volumes and the ±10 % sensitivity range',[4,5,6,7].every((ix,i)=>{const a=(i<2?win30:ytdP)[i%2], sh=a.P/a.Q; return csub[ix].includes(nfm(a.P)+' hm³ αντλήθηκαν από '+nfm(a.Q)+' hm³') && csub[ix].includes(nfm(sh/1.1*100)+'–'+nfm(sh*1.1*100)+'%')}),csub.slice(4));
+  const svgs=[...tab.querySelectorAll('svg.ch')], spR=B.CH[svgs[4].getAttribute('data-cid')];
+  ck('rolling-share chart has one named series per plant and a 0-based axis',spR.series.filter(x=>x.name).map(x=>x.name).join('|')==='Σφηκιά|Θησαυρός',spR.series.map(x=>x.name));
+  const midI=Math.floor(spR.series[0].pts.length/2), ptR=spR.series[0].pts[midI]; svgs[4].getBoundingClientRect=()=>({left:0,top:0,width:spR.W,height:230}); svgs[4].dispatchEvent(new w.MouseEvent('pointermove',{bubbles:true,clientX:spR.L+(ptR[0]-spR.x0)/(spR.x1-spR.x0)*spR.pw,clientY:90}));
+  ck('tooltip of the rolling chart shows both plants with a % value',d.querySelector('#tip').textContent.includes('Σφηκιά') && d.querySelector('#tip').textContent.includes('Θησαυρός') && /\d %/.test(d.querySelector('#tip').textContent),d.querySelector('#tip').textContent);
+  const tables=[...tab.querySelectorAll('table')].slice(1);
+  PK.forEach((k,i)=>{ const jan=PSJ.Plants[k].Daily.filter(x=>x.Date.startsWith('2026-01')).reduce((a,x)=>({Q:a.Q+x.Q,P:a.P+x.P,Qc:a.Qc+x.Qc,Ep:a.Ep+x.Ep}),{Q:0,P:0,Qc:0,Ep:0}), row=[...tables[i].querySelectorAll('tr')].find(r=>r.textContent.startsWith('2026-01')), c=[...row.children].map(x=>x.textContent);
+    ck(k+': January row of the monthly table recomputed (turbined '+nfm(jan.Q)+', pumped '+nfm(jan.P)+', recycled '+Math.round(jan.P/jan.Q*100)+'%, closure '+((jan.Qc+jan.P)/jan.Q).toFixed(2).replace('.',',')+')',c[1]===nfm(jan.Q) && c[2]===nfm(jan.P) && c[3]===Math.round(jan.P/jan.Q*100)+'%' && c[4]===((jan.Qc+jan.P)/jan.Q).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2}) && c[5]===(jan.Ep/1000).toLocaleString('el-GR',{minimumFractionDigits:1,maximumFractionDigits:1}),c);
+    const sp=B.CH[svgs[5+i].getAttribute('data-cid')], recs=sp.series[0].pts, rivs=sp.series[1].pts, tots=sp.series[2].pts;
+    ck(k+': stacked monthly bars — recycled + river water = total turbined in every month, and recycled never exceeds the total',recs.every((p,j)=>Math.abs(p[1]+rivs[j][1]-tots[j][1])<1e-6 && p[1]<=tots[j][1]+1e-9) && sp.series.length===3 && sp.series[0].name==='Ανακυκλωμένο (αντλημένο)' && sp.series[1].name==='Νερό ποταμού'); });
+  const lastM=[...new Set(PSJ.Plants.SFIKIA.Daily.map(x=>x.Date.slice(0,7)))].pop(), lastD=PSJ.Plants.SFIKIA.Daily[PSJ.Plants.SFIKIA.Daily.length-1].Date, dimM=new Date(Date.UTC(+lastM.slice(0,4),+lastM.slice(5,7),0)).getUTCDate(), partialM=+lastD.slice(8,10)<dimM;
+  ck('notes: 1 existing + intro + definition, assumptions (with both cycle factors), closure, caveats'+(partialM?' + partial-month footnote':''),tab.querySelectorAll('.note').length===1+1+4+(partialM?1:0) && tab.textContent.includes(PSJ.Plants.SFIKIA.CycleFactor.toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})) && tab.textContent.includes('Κλείσιμο όγκων'),tab.querySelectorAll('.note').length);
+  ck('both cycle factors come from the data file and are shown with two decimals',['SFIKIA','THESAVROS'].every(k=>tab.textContent.includes(PSJ.Plants[k].CycleFactor.toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2}))));
+  d.querySelector('#meth').click(); const mmx=d.querySelector('#mmc'); ck('methodology mentions pumped storage and the pump-head/efficiency assumption',mmx.textContent.includes('Αντλησιοταμίευση.') && mmx.textContent.includes('0,87')); d.querySelector('#mclose').click();
+  setLang(d,'en'); await sleep(80);
+  ck('English: section title, card labels, notes; no placeholders',/Pumped storage: recycled water vs river flow/.test(d.querySelector('#t-pump').textContent) && /Recycled water · Sfikia · 30 days/.test(d.querySelector('#t-pump').textContent) && !/\{[xpqabkl]\}|undefined|NaN/.test(d.querySelector('#t-pump').textContent));
+  setLang(d,'el'); await sleep(60);
+  const {dm:dmN,e2:errN}=mkDom({},true,['psh_daily.json']); const wN=await boot2(dmN); wN.document.querySelector('#tabs button[data-t="pump"]').click();
+  ck('without psh_daily.json the Pumping tab still works and simply has no pumped-storage section',!wN.document.querySelector('#t-pump h2.sect') && wN.document.querySelectorAll('#t-pump svg.ch').length===4 && errN.length===0,errN.slice(0,2));
+  ck('no JS errors in the pumped-storage tests',errors.length===0,errors.slice(0,3));
+  }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();

@@ -10,7 +10,7 @@ River cascades, upstream → downstream (`data/reservoirs.json`):
 |---|---|---|---|
 | Acheloos | Kremasta → Kastraki → Stratos (I + II) | — | [owner] order, and "Stratos 1+2" counts as one dam |
 | Aliakmon | Ilarionas → Polyfyto → Sfikia → Asomata | Asomata → Sfikia (upward) | [owner] order and pump direction (confirmed) |
-| Nestos | Thesavros → Platanovrysi | Platanovrysi → Thesavros | order [doc]; pump direction **[assumption]**, not yet confirmed by the owner |
+| Nestos | Thesavros → Platanovrysi | Platanovrysi → Thesavros | order [doc]; pump direction **[assumption]**, supported by the volume-closure test (METHODS §4), not yet confirmed by the owner |
 | Arachthos | Pigai Aoou (Aoos) → Pournari I → Pournari II | — | [owner] the Aoos water is diverted to the Arachthos basin and used again at Pournari |
 | Plastiras (Tavropos), Ladonas | one dam each | — | |
 Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river).
@@ -20,7 +20,7 @@ Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river)
 * **Small PPC plants in the same SCADA block (not in ISP):** Stratos II, Makrochori, Louros, Gkiona.
 * **Small hydro in the renewables block (`ΑΝΑΝΕΩΣΙΜΑ`, 163 rows):** exactly one row ending in `(ΜΥΗΣ)` — `ΑΥΛΑΚΙ (ΜΥΗΣ)` [data], ≈ 20 MW run-of-river, 43 GWh in Jan–Oct. The block's other rows are PV (66, all zero at night), CG (4), BM (1) and 91 unlabelled rows assumed to be wind [owner/data: only one looks solar, `ΜΑΚΡΥΧΩΡΙ_2`].
 * **MV small hydro:** only an aggregate, in the RESMV file column `ΜΥΗΣ ΕΝΕΡΓΕΙΑ KWh` (the file states ≈ 270 MW installed on 4 Oct) [data]. Uncertified.
-* **Not visible anywhere in SCADA** [data]: the other seven PPC small plants named in the Stefanakos PDF (Glafkos, Vermio, Agia and Almyros in Crete, Ag. Ioannis Serron, Ag. Varvara, Smokovo). Unknown whether RESMV includes them.
+* **Not visible anywhere in SCADA** [data]: the other seven PPC small plants named in Professor Stefanakos's PDF (Glafkos, Vermio, Agia and Almyros in Crete, Ag. Ioannis Serron, Ag. Varvara, Smokovo). Unknown whether RESMV includes them.
 
 ## 3. Plants that matter for interpretation
 * **Ilarionas is out of service** [owner] (a fault being repaired). [data] no generation from 2026-06-13; short runs on 1, 2, 6, 9, 13 and 15 October look like tests.
@@ -39,7 +39,7 @@ Two PDF/AI-generated tables supplied by the owner give gross head, efficiency ra
 Five of them were checked against the ENTSO-E data and agree within ≈ 5 % (Kremasta, Kastraki, Polyfyto, Thesavros, Plastiras); the rest are small or not testable. Net heads for plants without a published net head are taken as gross/1.125 (the average ratio of the four that have both).
 
 ## 6. Reference documents
-Stefanakos (NTUA/PPC) 2020 presentation: slide 15 (PPC small hydro list), **slide 17 (useful volumes, source of `CapacityHm3`)**, slide 30 (volumes and irrigation by river; e.g. Acheloos 2,869 hm³, Aliakmon 1,458, Nestos 582, Arachthos 307, Plastiras 300, Aoos 145, Ladon 46.2). The dashboard's water-balance note quotes an indicative irrigation figure of 544 hm³/yr for the Acheloos reservoirs (2005) from this slide — **re-check it against the PDF**, it was not re-verified when these notes were written.
+The 2020 presentation by Professor Stefanakos: slide 15 (PPC small hydro list), **slide 17 (useful volumes, source of `CapacityHm3`)**, slide 30 (volumes by river; e.g. Acheloos 2,869 hm³, Aliakmon 1,458, Nestos 582, Arachthos 307, Plastiras 300, Aoos 145, Ladon 46.2). An earlier version of the page quoted an irrigation figure for the Acheloos reservoirs and attributed it to this slide; it could not be verified, so it was **removed** (D42). It may be restored only after it has been checked against the PDF.
 
 ## 7. Glossary
 **ISP** integrated scheduling process (schedule) · **SCADA** actual measured output · **RESMV** RES injections at medium voltage · **MCP** market clearing price (day-ahead) ·

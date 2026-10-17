@@ -25,7 +25,8 @@ Steps run in this order, in one job (`concurrency: bighydro-fetch`, runs never o
 1. `update_hydro.py` — main fetch. **A failure here stops the job.**
 2. `fetch_entsoe_reservoir.py` — weekly ENTSO-E series (`continue-on-error`).
 3. `build_water_balance.py` — water balance (`continue-on-error`).
-4. Commit and push `data/` if anything changed (`git pull --rebase` first).
+4. `build_psh.py` — pumped-storage data (`continue-on-error`).
+5. Commit and push `data/` if anything changed (`git pull --rebase` first).
 
 Inputs: `start_date`, `end_date`, `only`, `diagnose`. Secret: `ENTSOE_TOKEN`. Python 3.12; the job installs `pandas numpy requests openpyxl xlrd`.
 `calibrate_energy.py` needs `scipy` and is **not** part of the daily job.
@@ -66,6 +67,7 @@ so it must be served over http(s) (GitHub Pages), not opened as a local file.
 * **Modals:** one component (`modalHtml`) builds a fixed header (title, boxed ✕), a scrolling body and a fixed footer (boxed Close); `openModal`/`closeModal` also lock the page scroll, and Escape or a click on the backdrop closes them. The river modal also carries the date navigation (select, previous/next, arrow keys): `gotoDay` reloads the page data and re-renders the open modal in place.
 * **Language:** English by default; a two-option switch **GR | EN** with the active option highlighted; the choice is stored in `localStorage` under the shared key `kp_lang` (the legacy key `bh_lang` is still read).
 * **Days:** `dayList()` returns only the days in `index.json` that have reservoir levels (all calculations rest on them); the date selectors, the river-modal navigation and the default day use it, and `load()` falls back to the latest available day (with a notice) when asked for another one.
+* **Water balance tab:** `renderWB()` offers an "All rivers" overview (`wbAll()`: cards, stacked monthly bars, total line, table) and one view per river, built from the `Groups` of `water_balance.json` (single-block rivers hide the by-block chart). Stacked bars are a chart option (`stack`, per-series `color`, a `hidden` series that only feeds the tooltip total); colours are inline styles.
 * **Tooltips:** every chart registers its scales and series; a delegated pointer handler finds the nearest point and shows a tooltip plus a crosshair (works with touch; `touch-action: pan-y` keeps vertical scrolling).
 Energy for any day is computed **in the browser** from `energy_factors.json` and `reservoir_history.json`, so new days appear without re-running the calibration.
 For testing, the page exposes `window.__bh` (state and helpers).
