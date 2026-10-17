@@ -58,7 +58,7 @@ Keep a run to roughly **120 requests or fewer**: about 4 per day for `scada,isp`
 A re-run overwrites old values with new non-null values; a missing value never erases an existing one.
 
 ## Tests
-`python tests/run_all.py` (pipeline, 206 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
+`python tests/run_all.py` (pipeline, 207 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
 (page, ~245 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
