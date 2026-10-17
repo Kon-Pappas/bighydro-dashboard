@@ -86,6 +86,10 @@ jobs:
         continue-on-error: true
         run: python scripts/build_psh.py
 
+      - name: Build unit-availability data (non-blocking)
+        continue-on-error: true
+        run: python scripts/build_unit_status.py
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
