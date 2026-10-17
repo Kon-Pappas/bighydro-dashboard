@@ -22,10 +22,10 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "ok"
    },
-   "Updated": "2026-10-17T07:15:56+0300"
+   "Updated": "2026-10-17T10:16:03+0300"
   },
   {
    "Date": "2026-10-15",
