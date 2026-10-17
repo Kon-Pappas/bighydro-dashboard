@@ -20,6 +20,7 @@ Status: **open** (needs action or a decision), **accepted** (understood, no acti
 | K14 | — | Stratos II excluded from the water-balance volume; the seven other small PPC plants are not visible in SCADA | Small | accepted |
 | K15 | — | Heads/efficiencies are unofficial; RESMV is uncertified; "ENTSO-E equivalent" is an estimate | See README "Read this before trusting a number" | accepted |
 | K16 | housekeeping | `data/monthly/*.json` is produced but unused by the page; the Node 20 deprecation warning in Actions; derived files get a new timestamp on every run, producing commits with no real change | Clutter only | open (after 26 Oct) |
+| K17 | every morning, ≈ 00:25 → ≈ 08:35 | The newest day in `index.json` exists (from the ISP file) but has **no reservoir levels** yet; the page used to crash when it was selected (found by the CI on 2026-10-17) | Fixed in the page: such days are not offered and a request falls back to the latest available day with a notice (D35) | accepted (fixed) |
 
 ## How to recognise a clock offset quickly
 Compute, per day, the correlation between the summed SCADA and summed ISP of the 16 large units at lags −2 … +2 h. Normal days: ≥ 0.9 at lag 0. A day with a low lag-0 value and a better value at ±1 h is offset (as 30 March).

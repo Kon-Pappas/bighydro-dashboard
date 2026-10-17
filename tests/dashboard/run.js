@@ -1,11 +1,25 @@
 const {JSDOM,VirtualConsole}=require('jsdom'); const fs=require('fs'), path=require('path');
 const ROOT=path.resolve(__dirname,'..','..');   // ρίζα του repo (εκεί ζουν index.html και data/)
 const errors=[];
+
+// ---- Συνθετικό σενάριο: τα tests δεν πρέπει να εξαρτώνται από την ώρα της ημέρας ----
+// SYN_TODAY: η μέρα μετά την τελευταία με στάθμες· έχει στάθμες και ISP αλλά όχι SCADA (μια «σημερινή» μέρα μετά τις 08:35)
+// SYN_NORES: μια ακόμη μέρα μόνο με ISP και χωρίς στάθμες (όπως η νεότερη μέρα τις πρώτες πρωινές ώρες, που έσπασε το CI)
+const addDS=(x,n)=>new Date(Date.parse(x+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
+const jf=(rel)=>JSON.parse(fs.readFileSync(path.join(ROOT,rel),'utf8'));
+const IDX0=jf('data/index.json'), HIST0=jf('data/reservoir_history.json'), LAST_HIST=HIST0[HIST0.length-1].Date;
+const SYN_TODAY=addDS(LAST_HIST,1), SYN_NORES=addDS(LAST_HIST,2), LASTDAY=jf('data/days/'+LAST_HIST+'.json');
+const synDay=(date,withRes)=>{const x=JSON.parse(JSON.stringify(LASTDAY)); x.Date=date; if(!withRes){delete x.Reservoir;delete x.ReservoirTotalRate;delete x.ReservoirTotal} x.Hourly.forEach(h=>Object.keys(h).forEach(k=>{if(/^SCADA_/.test(k)) h[k]=null})); x.Meta=Object.assign({},x.Meta,{Status:{reservoir:withRes?'ok':'missing',scada:'missing',isp:'ok',resmv:'missing',mcp:'missing'}}); return x};
+const SYN={'data/index.json':(j)=>{const days=j.Days.filter(x=>x.Date<=LAST_HIST), up=j.Days[0].Updated; days.push({Date:SYN_NORES,Status:{reservoir:'missing',scada:'missing',isp:'ok',resmv:'missing',mcp:'missing'},Updated:up},{Date:SYN_TODAY,Status:{reservoir:'ok',scada:'missing',isp:'ok',resmv:'missing',mcp:'missing'},Updated:up}); days.sort((a,b)=>a.Date<b.Date?1:-1); return Object.assign({},j,{Days:days})},
+  'data/reservoir_history.json':(j)=>j.filter(x=>x.Date<=LAST_HIST).concat([Object.assign({},HIST0[HIST0.length-1],{Date:SYN_TODAY})])};
+const synFetch=(u)=>{ if(u==='data/days/'+SYN_TODAY+'.json') return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(synDay(SYN_TODAY,true))});
+  if(u==='data/days/'+SYN_NORES+'.json') return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(synDay(SYN_NORES,false))});
+  const pp=path.join(ROOT,u); if(!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
+  let j=JSON.parse(fs.readFileSync(pp,'utf8')); if(SYN[u]) j=SYN[u](j); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(j)}); };
 const vc=new VirtualConsole(); vc.on('jsdomError',e=>errors.push('jsdomError: '+(e.detail||e.message))); vc.on('error',e=>errors.push('console.error: '+e));
 const html=fs.readFileSync(ROOT+'/index.html','utf8');
 const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,
-  beforeParse(w){ w.__BH_FAST=true; w.localStorage.setItem('kp_lang','el'); w.fetch=(u)=>{const p=path.join(ROOT,u); if(!fs.existsSync(p)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
-     return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(p,'utf8')))});}; }});
+  beforeParse(w){ w.__BH_FAST=true; w.localStorage.setItem('kp_lang','el'); w.fetch=synFetch; }});
 const w=dom.window,d=w.document;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const setLang=(doc,l)=>doc.querySelector('#lang button[data-l="'+l+'"]').click();
@@ -16,8 +30,8 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const B=w.__bh;
   console.log('TEST 1: boot + default day');
   ck('no JS errors during boot',errors.length===0,errors.slice(0,3));
-  const expDay=B.P.idx.Days.filter(x=>x.Status&&x.Status.scada==='ok'&&x.Status.isp==='ok')[0].Date;
-  ck('default day = latest day with SCADA+ISP ok ('+expDay+')',B.S.date===expDay && B.S.date!==B.P.idx.Days[0].Date,B.S.date);
+  const expDay=B.P.idx.Days.filter(x=>B.P.fi[x.Date]!=null&&x.Status&&x.Status.scada==='ok'&&x.Status.isp==='ok')[0].Date;
+  ck('default day = latest available day with SCADA+ISP ok ('+expDay+'), not the incomplete newest one',B.S.date===expDay && B.S.date!==SYN_TODAY,B.S.date);
   ck('7 cards: 6 clickable rivers + one combined Agras/Edessaios',d.querySelectorAll('#rg .river').length===7 && d.querySelectorAll('#rg button.river').length===6,d.querySelectorAll('#rg .river').length);
   const lastCard=[...d.querySelectorAll('#rg .river')].pop().textContent; ck('combined card shows both plants',lastCard.includes('Άγρας')&&lastCard.includes('Εδεσσαίος')&&lastCard.includes('Άγρας / Εδεσσαίος'),lastCard);
   const ag=rec0=>0;
@@ -98,7 +112,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English: no untranslated placeholders {x} / undefined',!/\{[xd]\}|undefined|NaN/.test(txt()));
   setLang(d,'el'); await sleep(50);
   ck('methodology modal opens with 12 paragraphs',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc p').length===12 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
-  ck('date selector lists all days',d.querySelectorAll('#dsel option').length===B.P.idx.Days.length,d.querySelectorAll('#dsel option').length);
+  ck('date selector lists every day that has reservoir levels, newest first, and never one without',d.querySelectorAll('#dsel option').length===B.P.idx.Days.filter(x=>B.P.fi[x.Date]!=null).length && d.querySelector('#dsel option').value===SYN_TODAY && ![...d.querySelectorAll('#dsel option')].some(o=>o.value===SYN_NORES),d.querySelectorAll('#dsel option').length);
 
   console.log('TEST 6: pump tab, per-plant estimate, Stratos 1+2');
   const pdaily=JSON.parse(fs.readFileSync(ROOT+'/data/pump_daily.json','utf8')); const pmap={}; pdaily.forEach(x=>pmap[x.Date]=x);
@@ -124,7 +138,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const cards2=[...d.querySelectorAll('#sum .card .sm')].map(x=>x.textContent); const oth=rec15.Hourly.reduce((a,h)=>a+h.SCADA_OtherHydro-h.SCADA_Stratos2,0);
   const othAll=rec15.Hourly.reduce((a,h)=>a+h.SCADA_OtherHydro,0); const mv15=rec15.Hourly.reduce((a,h)=>a+h.SCADA_SmallHydro,0);
   ck('summary subtitle lists the groups: small PPC '+f0(othAll)+' and small MV '+f0(mv15)+' MWh',cards2[0].includes('μικρά ΔΕΗ '+f0(othAll)) && cards2[0].includes('μικρά ΜΤ (RESMV, εκτίμηση) '+f0(mv15)),cards2[0]);
-  await B.load(B.P.idx.Days[0].Date); d.querySelector('#tabs button[data-t="pump"]').click();
+  await B.load(SYN_TODAY); d.querySelector('#tabs button[data-t="pump"]').click();
   ck('today (no SCADA yet): pump tab shows the "not published" message, charts still render',d.querySelector('#t-pump').textContent.includes('δεν έχει δημοσιευτεί') && d.querySelectorAll('#t-pump svg.ch').length>=2,d.querySelector('#t-pump').textContent.slice(0,80));
   setLang(d,'en'); await sleep(50);
   ck('English pump tab, no placeholders',/Pumping/.test(d.querySelector('#tabs').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
@@ -144,7 +158,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('monthly table: January river total (net) = '+janTxt+' hm³ (= sum of daily values in water_balance.json)',rows.some(r=>r.startsWith('2026-01')&&r.includes(janTxt)),rows.slice(0,2));
   ck('Kastraki local inflow positive every month (Inachos)',wbj.reduce((m,x)=>{const k=x.Date.slice(0,7);m[k]=(m[k]||0)+x.Inn[1];return m},{}) && Object.values(wbj.reduce((m,x)=>{const k=x.Date.slice(0,7);m[k]=(m[k]||0)+x.Inn[1];return m},{})).every(v=>v>0));
   ck('5 explanatory notes shown incl. Inachos + Amfilochia',d.querySelectorAll('#t-wb .note').length===5 && d.querySelector('#t-wb').textContent.includes('Ίναχος') && d.querySelector('#t-wb').textContent.includes('Αμφιλοχ'));
-  await B.load(B.P.idx.Days[0].Date); d.querySelector('#tabs button[data-t="wb"]').click();
+  await B.load(SYN_TODAY); d.querySelector('#tabs button[data-t="wb"]').click();
   ck('today (no balance yet): message shown, charts still render',d.querySelector('#t-wb').textContent.includes('δεν υπάρχει ισοζύγιο') && d.querySelectorAll('#t-wb svg.ch').length===2);
   setLang(d,'en'); await sleep(50);
   ck('English water balance tab, no placeholders',/Water balance/.test(d.querySelector('#tabs').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
@@ -268,7 +282,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   setLang(d,'en'); await sleep(60);
   ck('card cue is localized (English: "View cascade")',[...d.querySelectorAll('#rg button.river .more')].every(m=>m.textContent.includes('View cascade')));
   setLang(d,'el'); await sleep(60);
-  const DAYS=B.P.idx.Days.map(x=>x.Date); await B.load(DAYS[3]); B.openRiver(1);
+  const DAYS=B.P.idx.Days.filter(x=>B.P.fi[x.Date]!=null).map(x=>x.Date); await B.load(DAYS[3]); B.openRiver(1);
   const hd=d.querySelector('#rmc .mh');
   ck('river modal header: title, date select on the current day, prev/next buttons, and no X',!!hd.querySelector('h2') && hd.querySelector('#rdsel').value===DAYS[3] && !!hd.querySelector('#rd-prev') && !!hd.querySelector('#rd-next') && !d.querySelector('#rclose-x'));
   ck('the date select lists all days, newest first',hd.querySelectorAll('#rdsel option').length===DAYS.length && hd.querySelector('#rdsel option').value===DAYS[0]);
@@ -287,6 +301,17 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true})); await sleep(100); ck('arrow keys do nothing when no river modal is open',B.S.date===DAYS[DAYS.length-1]);
   d.querySelector('#meth').click(); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true})); await sleep(100); ck('...nor with the methodology modal open',B.S.date===DAYS[DAYS.length-1]); d.querySelector('#mclose').click();
   ck('no JS errors in the card and date-navigation tests',errors.length===0,errors.slice(0,3));
+
+  console.log('TEST 14: a day without reservoir levels never breaks the page');
+  const ddm=x=>x.slice(8,10)+'/'+x.slice(5,7)+'/'+x.slice(0,4);
+  d.querySelector('#rclose').click&&0; await B.load(SYN_NORES); await sleep(60);
+  ck('asking for a day without reservoir levels falls back to the latest available day',B.S.date===SYN_TODAY && !!B.S.M,B.S.date);
+  ck('...and tells the user why (both dates in the notice)',d.querySelector('#banner').textContent.includes(ddm(SYN_NORES)) && d.querySelector('#banner').textContent.includes(ddm(SYN_TODAY)),d.querySelector('#banner').textContent);
+  ck('...while the date selector keeps showing the day actually displayed',d.querySelector('#dsel').value===SYN_TODAY);
+  await B.load(SYN_TODAY); ck('a normal request clears the notice',!d.querySelector('#banner').textContent.includes(ddm(SYN_NORES)));
+  ck('no JS errors after the fallback',errors.length===0,errors.slice(0,3));
+  ck('real data (fresh DOM): the page boots and offers only days that have reservoir levels',[...wE2.document.querySelectorAll('#dsel option')].every(o=>BE.P.fi[o.value]!=null) && wE2.document.querySelectorAll('#dsel option').length===BE.P.idx.Days.filter(x=>BE.P.fi[x.Date]!=null).length);
+  await BE.load(BE.P.idx.Days[0].Date); ck('real data: requesting the newest indexed day (even without reservoir levels) does not throw and shows an available day',!!BE.S.M && BE.P.fi[BE.S.date]!=null && errE.length===0,[BE.S.date,errE.slice(0,2)]);
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();
