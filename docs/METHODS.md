@@ -35,7 +35,7 @@ Dams are grouped. For group *g* and day *d* (reservoir readings at 00:00):
 
 "Apparent" = natural inflow **minus** what is not measured (irrigation, evaporation, spills, ecological release). Two factor sets are computed: net head (`n`) and gross head (`g`); their difference is the uncertainty indicator.
 * **Sfikia + Asomata are one group.** The Asomata → Sfikia pump moves water *inside* the system, so the pumped volume and Sfikia's own turbined volume cancel algebraically; the result does not depend on the uncertain pump estimate (verified algebraically and by a test).
-* **Ilarionas is separate** because it is a real, distinct dam, **but it has been out of service** (no generation since 2026-06-13, short test runs from 2026-10-01). While it does not turbine, the water passing it is unmeasured and appears at Polyfyto, so the Ilarionas/Polyfyto *split* is unreliable; their sum and the river total are not affected.
+* **Ilarionas is separate** because it is a real, distinct dam, **but it has been out of service** (no normal generation since 12 June 2026; see §7). While it does not turbine, the water passing it is unmeasured and appears at Polyfyto, so the Ilarionas/Polyfyto *split* is unreliable; their sum and the river total are not affected.
 * **Stratos II** (≈ 6 m head) is excluded from the volume.
 
 **Results *(snapshot, Jan 1 – Oct 16)*, net head / gross head:**
@@ -66,3 +66,12 @@ Both are consistency checks, not proofs: errors can cancel.
 * **Clock alignment:** correlation SCADA vs ISP hourly at lag 0, per day: median 0.984 over 288 days. Outliers: 2026-03-30 (0.217, best shift −1 h), 2026-09-22 (0.62), 2026-01-10 (0.66), 2026-06-12 (0.73). Only 30/3 shows a clear offset signature.
 * **Reconciliation:** TotalHydro equals the sum of its 20 units exactly.
 * **RESMV** is uncertified; three days are incomplete (KNOWN_ISSUES.md).
+
+## 7. Unit availability (Rivers tab)
+`scripts/build_unit_status.py` writes `data/unit_daily.json`: the **daily energy (MWh) of each of the 20 hydro units** in the SCADA file, for every day with complete SCADA (a value is `null` if the unit is missing that day, never zero). The page computes the indicators **as of the selected date**:
+* **zero-generation day**: below 1 MWh in the day. For every unit the page counts them over the last 30, 90 and 180 days;
+* a unit is **flagged** when at least **half of the last 90 days** are zero (and at least 30 days of data exist);
+* **normal day**: at least **20 %** of the unit's own usual peak day, i.e. of the 95th percentile of its daily energy up to the selected date; the **last normal day** and the days since then are shown for flagged units, together with the number of zero days and of **short runs** (days with some generation) after it.
+Why this definition: counts of zero days isolate the outage without false alarms, whereas "days since the last normal day" alone would flag seasonal or lumpy units (Pournari II would show 219 days). A fixed share of installed capacity was rejected because peaking units run well below it on ordinary days. The wording is descriptive — the page says "zero generation", it does not name a cause.
+
+**Result *(snapshot, 16 Oct 2026)*:** two units are flagged. **Ilarionas**: zero on 23 of the last 30 days, 82 of 90 and 118 of 180; last normal day **12 June** (126 days ago); since then **118 zero days and 8 short runs, none above 372 MWh a day** (normal days before June were 700–1,200 MWh; the winter peak days exceed 3,000 MWh). **Edessaios** generated on **no day** of the data period (it has no reservoir in the ADMIE file). No other unit reaches half of the last 90 days; the seasonal Plastiras has 32 zero days of 90, Ladonas 11.

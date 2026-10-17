@@ -23,7 +23,7 @@ Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river)
 * **Not visible anywhere in SCADA** [data]: the other seven PPC small plants named in Professor Stefanakos's PDF (Glafkos, Vermio, Agia and Almyros in Crete, Ag. Ioannis Serron, Ag. Varvara, Smokovo). Unknown whether RESMV includes them.
 
 ## 3. Plants that matter for interpretation
-* **Ilarionas is out of service** [owner] (a fault being repaired). [data] no generation from 2026-06-13; short runs on 1, 2, 6, 9, 13 and 15 October look like tests.
+* **Ilarionas is out of service** [owner] (a fault being repaired). [data] last normal day 12 June 2026; since then zero generation on 118 days and 8 short runs, none above 372 MWh a day (see METHODS §7).
 * **Kastraki above 100 %** is a common occurrence [owner]. It is not an anomaly.
 * **Amfilochia pumped storage** (planned start ≈ end-2026) will use the Kastraki lake as its lower reservoir [owner]. The owner's estimate is that first filling of its upper reservoirs needs about 9 % of the lake (≈ 4.8 hm³); the recent >100 % levels may be chance or preparation [owner]. [data] single-day swings ≥ 4.8 hm³ are rare (7 of 279 days up to 16 Oct); the strongest 11-day rise of 2026 was +24.6 hm³ (22 Sep → 3 Oct).
 * **The Inachos river flows into Kastraki** [owner] — a source of natural inflow not passing through Kremasta.

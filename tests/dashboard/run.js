@@ -391,6 +391,60 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('without psh_daily.json the Pumping tab still works and simply has no pumped-storage section',!wN.document.querySelector('#t-pump h2.sect') && wN.document.querySelectorAll('#t-pump svg.ch').length===4 && errN.length===0,errN.slice(0,2));
   ck('no JS errors in the pumped-storage tests',errors.length===0,errors.slice(0,3));
   }
+
+  console.log('TEST 17: unit availability — recomputed independently from unit_daily.json');
+  {
+  setLang(d,'el'); await sleep(60); d.querySelector('#tabs button[data-t="rivers"]').click();
+  const UJ=jf('data/unit_daily.json'), ddm=x=>x.slice(8,10)+'/'+x.slice(5,7)+'/'+x.slice(0,4), nf0=v=>Math.round(v).toLocaleString('el-GR');
+  const stat=(u,date)=>{ const a=UJ.Units[u].Mwh; let ei=-1; UJ.Dates.forEach((x,i)=>{if(x<=date) ei=i});
+    const win=k=>{let n=0,z=0; for(let j=Math.max(0,ei-k+1);j<=ei;j++){ if(a[j]==null) continue; n++; if(a[j]<1) z++ } return {n,z}};
+    const vals=a.slice(0,ei+1).filter(v=>v!=null).sort((x,y)=>x-y), p95=vals.length?vals[Math.min(vals.length-1,Math.floor(vals.length*0.95))]:0;
+    let ln=-1; if(p95>=1) for(let i=ei;i>=0;i--) if(a[i]!=null&&a[i]>=0.2*p95){ln=i;break}
+    const w90=win(90), flag=w90.n>=30&&w90.z/w90.n>=0.5; let since=null;
+    if(ln>=0&&ln<ei){let z=0,r=0,m=0; for(let i=ln+1;i<=ei;i++){ if(a[i]==null) continue; if(a[i]<1) z++; else {r++; if(a[i]>m) m=a[i]} } since={days:(Date.parse(UJ.Dates[ei])-Date.parse(UJ.Dates[ln]))/864e5,z,r,m}}
+    return {ei,w30:win(30),w90,w180:win(180),p95,ln,flag,never:p95<1,since}};
+  const DATE='2026-10-15'; await B.load(DATE);
+  const keys=Object.keys(UJ.Units), ST={}; keys.forEach(u=>ST[u]=stat(u,DATE));
+  const flagged=keys.filter(u=>ST[u].flag).sort((a,b)=>ST[b].w90.z-ST[a].w90.z);
+  const av=d.querySelector('#avail'), rows=[...av.querySelectorAll('table tr')].slice(1);
+  ck('the section exists in the Rivers tab, with title and intro',!!av.querySelector('h2.sect') && av.querySelector('h2.sect').textContent==='Διαθεσιμότητα μονάδων');
+  ck('flagged units (zero generation on at least half of the last 90 days) = '+flagged.join(', ')+' — and no other',rows.length===flagged.length && rows.every((r,i)=>r.children[0].textContent===B.__uname(flagged[i])),[rows.map(r=>r.children[0].textContent),flagged]);
+  const il=stat('Ilarionas',DATE), ir=rows.find(r=>r.children[0].textContent.includes('Ιλαρίων')), ic=[...ir.children].map(c=>c.textContent);
+  ck('Ilarionas row: zero days in the last 30 / 90 / 180 = '+il.w30.z+' / '+il.w90.z+' / '+il.w180.z,ic[2]===il.w30.z+' / '+il.w90.z+' / '+il.w180.z,ic);
+  ck('Ilarionas: last normal day '+ddm(UJ.Dates[il.ln])+' ('+il.since.days+' days ago), since then '+il.since.z+' zero days and '+il.since.r+' short runs up to '+nf0(il.since.m)+' MWh',ic[3]===ddm(UJ.Dates[il.ln])+' ('+il.since.days+' ημέρες πριν)' && ic[4]===il.since.z+' ημέρες μηδενικής παραγωγής · '+il.since.r+' με σύντομη λειτουργία (έως '+nf0(il.since.m)+' MWh την ημέρα)' && ic[1]==='Αλιάκμονας',ic);
+  const ed=rows.find(r=>r.children[0].textContent==='Εδεσσαίος'); ck('Edessaios (no generation on any day of the data) is flagged as "none in the data period" with no river',!!ed && ed.children[3].textContent==='καμία στο διάστημα των δεδομένων' && ed.children[1].textContent==='—' && ST['Edessaios'].never);
+  ck('the default chart unit is the flagged unit that had normal operation before (Ilarionas)',av.querySelector('#usel').value==='Ilarionas' && av.querySelector('.panel h2').textContent.includes('Ιλαρίων') || av.querySelectorAll('.panel h2')[1].textContent.includes('Ιλαρίων'),av.querySelector('#usel').value);
+  const svgA=av.querySelector('svg.ch'), spA=B.CH[svgA.getAttribute('data-cid')], aI=UJ.Units.Ilarionas.Mwh, zeroN=aI.slice(0,il.ei+1).filter(v=>v!=null&&v<1).length, barN=aI.slice(0,il.ei+1).filter(v=>v!=null).length;
+  ck('chart: one bar per day up to the selected date ('+barN+') and one red dot per zero-generation day ('+zeroN+')',spA.series[0].pts.length===barN && svgA.querySelectorAll('circle.sz').length===zeroN,[spA.series[0].pts.length,svgA.querySelectorAll('circle.sz').length]);
+  ck('the idle period since the last normal day is shaded (exactly one band) and the legend says so',svgA.querySelectorAll('rect[fill="var(--shade)"]').length===1 && /Από την τελευταία κανονική ημέρα/.test(av.textContent));
+  const kBar=Math.floor(spA.series[0].pts.length*0.3), ptA=spA.series[0].pts[kBar]; svgA.getBoundingClientRect=()=>({left:0,top:0,width:spA.W,height:230}); svgA.dispatchEvent(new w.MouseEvent('pointermove',{bubbles:true,clientX:spA.L+(ptA[0]-spA.x0)/(spA.x1-spA.x0)*spA.pw,clientY:90}));
+  ck('tooltip on a bar shows the day and its MWh ('+nf0(ptA[1])+')',d.querySelector('#tip').textContent.includes(nf0(ptA[1])+' MWh') && d.querySelector('#tip').textContent.includes(spA.xl(ptA[0])),d.querySelector('#tip').textContent);
+  const sl=av.querySelector('#usel'); sl.value='Kremasta'; sl.dispatchEvent(new w.Event('change',{bubbles:true})); await sleep(60);
+  const av2=d.querySelector('#avail'), sv2=av2.querySelector('svg.ch');
+  ck('choosing another unit (Kremasta) redraws the chart: its title, no shaded band, no zero-day dots',av2.querySelectorAll('.panel h2').length>0 && [...av2.querySelectorAll('h2')].some(h=>h.textContent.includes('Κρεμαστά')) && sv2.querySelectorAll('rect[fill="var(--shade)"]').length===0 && sv2.querySelectorAll('circle.sz').length===0 && av2.querySelector('#usel').value==='Kremasta');
+  av2.querySelector('#usel').value='Edessaios'; av2.querySelector('#usel').dispatchEvent(new w.Event('change',{bubbles:true})); await sleep(60);
+  const spE=B.CH[d.querySelector('#avail svg.ch').getAttribute('data-cid')];
+  ck('a unit that never generated gets a usable axis (not 0–0)',spE.series[0].pts.every(p=>p[1]===0) && /10/.test([...d.querySelectorAll('#avail svg.ch text')].map(t=>t.textContent).join(' ')));
+  d.querySelector('#usel').value='Ilarionas'; d.querySelector('#usel').dispatchEvent(new w.Event('change',{bubbles:true})); await sleep(60);
+  B.openRiver(1); const damIl=[...d.querySelectorAll('#rmc .dam')].find(x=>x.textContent.includes('Ιλαρίων')), damPo=[...d.querySelectorAll('#rmc .dam')].find(x=>x.textContent.includes('Πολύφυτο'));
+  ck('river modal (Aliakmon): the Ilarionas row carries the warning "zero generation on '+il.w90.z+' of the last '+il.w90.n+' days"; Polyfyto does not',!!damIl.querySelector('.badge.warn') && damIl.textContent.includes('Μηδενική παραγωγή σε '+il.w90.z+' από τις τελευταίες '+il.w90.n+' ημέρες') && !damPo.querySelector('.badge.warn'),damIl.textContent.slice(0,120));
+  d.querySelector('#rclose').click(); B.openRiver(0); ck('river modal (Acheloos): no unit is flagged, so no warning',d.querySelectorAll('#rmc .dam .badge.warn').length===0); d.querySelector('#rclose').click();
+  await B.load('2026-05-15'); const flagM=keys.filter(u=>stat(u,'2026-05-15').flag), rowsM=[...d.querySelectorAll('#avail table tr')].slice(1);
+  ck('the section follows the selected date: on 15/05 flagged = '+(flagM.join(', ')||'none')+' (Ilarionas was still running)',rowsM.length===flagM.length && !flagM.includes('Ilarionas') && !rowsM.some(r=>r.children[0].textContent.includes('Ιλαρίων')),[rowsM.length,flagM]);
+  await B.load(DATE);
+  // Aliakmon: dashed Ilarionas + Polyfyto sum
+  d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'aliakmonas');
+  const spW=B.CH[d.querySelectorAll('#t-wb svg.ch')[1].getAttribute('data-cid')], nmW=spW.series.filter(x=>x.name).map(x=>x.name);
+  ck('Aliakmon by-dam chart has the 3 blocks plus the dashed Ilarionas + Polyfyto sum',nmW.length===4 && nmW[3]==='Ιλαρίων + Πολύφυτο (άθροισμα)',nmW);
+  ck('the sum line equals the Ilarionas line plus the Polyfyto line at every point (so it is unaffected by how the water is split)',spW.series[3].pts.every((p,k)=>p[1]==null || Math.abs(p[1]-(spW.series[0].pts[k][1]+spW.series[1].pts[k][1]))<1e-6) && spW.series[3].pts.filter(p=>p[1]!=null).length>100);
+  wbPick(d,'acheloos'); const spC=B.CH[d.querySelectorAll('#t-wb svg.ch')[1].getAttribute('data-cid')]; ck('other rivers have no sum line (Acheloos: 3 series)',spC.series.filter(x=>x.name).length===3);
+  setLang(d,'en'); await sleep(80); d.querySelector('#tabs button[data-t="rivers"]').click();
+  ck('English: title, table headers, "days ago", and the notes; no placeholders',/Unit availability/.test(d.querySelector('#avail').textContent) && /Last normal day/.test(d.querySelector('#avail').textContent) && /days ago/.test(d.querySelector('#avail').textContent) && /Normal day: at least 20 %/.test(d.querySelector('#avail').textContent) && !/\{[a-z]\}|undefined|NaN/.test(d.querySelector('#avail').textContent));
+  setLang(d,'el'); await sleep(60);
+  const {dm:dmU,e2:errU}=mkDom({},true,['unit_daily.json']); const wU=await boot2(dmU); wU.document.querySelector('#tabs button[data-t="rivers"]').click(); wU.__bh.openRiver(1);
+  ck('without unit_daily.json the Rivers tab and the modal still work, with no availability section and no warnings',!wU.document.querySelector('#avail h2') && wU.document.querySelectorAll('#rmc .dam').length>=3 && wU.document.querySelectorAll('#rmc .dam .badge.warn').length===0 && errU.length===0,errU.slice(0,2));
+  ck('no JS errors in the availability tests',errors.length===0,errors.slice(0,3));
+  }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();

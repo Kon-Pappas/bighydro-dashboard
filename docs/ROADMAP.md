@@ -10,7 +10,7 @@ visible-hydro summary · tests and documentation in the repository.
 ## Next — no pipeline risk
 1. ~~**Look and feel aligned with the other dashboards**~~ — **done** (dark slate, violet accent, English by default, breadcrumb to the hub, Last/Next Update, loading overlay, footer with disclaimer, chart tooltips; see D23–D28). The shared shell for *all* dashboards, and a possible Chart.js migration, are a separate thread.
 2. ~~**Pumped-storage (PSH) view**~~ — **done**, as a section of the Pumping tab (recycled share, volume closure, monthly bars and tables for Sfikia and Thesavros; D43–D46). Next: the unit-availability indicator (item 3).
-3. **Unit availability indicator** ("Ilarionas: no generation for N days") so an outage explains itself.
+3. ~~**Unit availability indicator**~~ — **done** (Rivers tab, *Unit availability*; D52–D57). Next: the capacity check (item 5), then the daylight-saving work after 26 Oct.
 4. **Data-quality notes from a file** (machine-readable version of KNOWN_ISSUES) shown in the banner of the affected days.
 5. **Capacity check:** derive the capacities implied by ADMIE's own totals and explain the −0.98 pp gap (Ilarionas 412 hm³ is unverified).
 

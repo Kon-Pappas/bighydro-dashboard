@@ -5,7 +5,7 @@ Status: **open** (needs action or a decision), **accepted** (understood, no acti
 | # | Date(s) | Issue | Impact | Status |
 |---|---|---|---|---|
 | K01 | 2026-07-19 → 07-25 | ADMIE reports Ilarionas at exactly 0.00 % fill (−63 hm³ for a week) | Interpolated in energy and water-balance calculations; raw files unchanged; banner on those days | accepted |
-| K02 | since 2026-06-13 | **Ilarionas unit out of service** (owner); short runs from 1 Oct look like tests | Ilarionas/Polyfyto split of the water balance unreliable; sum and river total fine | watch (until repaired) |
+| K02 | since 12 June 2026 | **Ilarionas unit out of service** (owner). The page now shows it automatically (Rivers tab, *Unit availability*): last normal day 12 June, 126 days, 118 zero days and 8 short runs up to 372 MWh a day | Ilarionas/Polyfyto split of the water balance unreliable; sum and river total fine | watch (until repaired) |
 | K03 | 2026-02-01, 02-02, 03-29 | RESMV file incomplete (21/24 h), empty, and 23-hour (DST) | Those days lack MV small hydro; the pipeline correctly writes nothing. A re-run on 1–2 Feb found the same ADMIE files | accepted |
 | K04 | 2026-03-30 | **ISP offset by one hour** on the day after the DST start (SCADA–ISP correlation 0.22; the DST day itself, 29/3, is fine) | Hourly ISP fields and the hourly pump split of 30/3 are unreliable; daily sums are fine | open (fix with K05) |
 | K05 | 2026-10-25 (25-hour day) | Daylight-saving end is not handled; expect an offset on the 25th or, as in March, on the 26th | Possible wrong hours for that day; recoverable by re-running the day after a fix | open (after 26 Oct) |
