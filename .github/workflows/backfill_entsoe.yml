@@ -1,0 +1,77 @@
+name: Backfill ENTSO-E history (manual)
+
+# ΧΕΙΡΟΚΙΝΗΤΟ. Φέρνει την εβδομαδιαία αποθηκευμένη ενέργεια (ENTSO-E 16.1.D) για προηγούμενα έτη
+# και τη γράφει στο ΧΩΡΙΣΤΟ αρχείο data/entsoe_history.json (η βαθμονόμηση ενέργειας δεν το διαβάζει).
+# Σειρά: 1) τρέξε με diagnose=true και ένα παλιό έτος (π.χ. 2015)· 2) αν φαίνονται δεδομένα, τρέξε με diagnose=false.
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_year:
+        description: 'Πρώτο έτος (π.χ. 2015)'
+        required: true
+        default: '2015'
+        type: string
+      end_year:
+        description: 'Τελευταίο έτος (π.χ. 2025)'
+        required: true
+        default: '2025'
+        type: string
+      diagnose:
+        description: 'Μόνο έλεγχος: τυπώνει τη δομή για ΤΟ ΠΡΩΤΟ ΕΤΟΣ και δεν γράφει τίποτα'
+        required: false
+        type: boolean
+        default: true
+
+# Το ίδιο group με τον καθημερινό fetcher: δύο εκτελέσεις δεν γράφουν ταυτόχρονα στο repo
+concurrency:
+  group: bighydro-fetch
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Fetch ENTSO-E history
+        env:
+          ENTSOE_TOKEN: ${{ secrets.ENTSOE_TOKEN }}
+          START_YEAR: ${{ inputs.start_year }}
+          END_YEAR: ${{ inputs.end_year }}
+          DIAGNOSE: ${{ inputs.diagnose }}
+        run: |
+          if [ "$DIAGNOSE" = "true" ]; then
+            python scripts/fetch_entsoe_reservoir.py --diagnose "${START_YEAR}-01-01" "${START_YEAR}-12-31"
+          else
+            python scripts/fetch_entsoe_reservoir.py --history "$START_YEAR" "$END_YEAR"
+          fi
+
+      - name: Commit and push history file
+        if: ${{ inputs.diagnose != true }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Fetcher"
+          git add data/entsoe_history.json
+          if git diff --staged --quiet; then
+            echo "Καμία αλλαγή."
+          else
+            git commit -m "ENTSO-E history backfill"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push
+          fi
