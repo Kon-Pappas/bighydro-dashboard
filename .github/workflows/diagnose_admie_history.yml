@@ -1,6 +1,7 @@
 name: Diagnose ADMIE history (manual, read-only)
 
 # ΧΕΙΡΟΚΙΝΗΤΟ και ΜΟΝΟ ΑΝΑΓΝΩΣΗΣ: δεν γράφει τίποτα στο repo (permissions: contents: read).
+# Πρώτα ΜΕΤΡΑΕΙ τι δέχεται το API (δύο διευθύνσεις × παράθυρα 1–366 ημερών), και μετά σαρώνει τα έτη με ό,τι δούλεψε.
 # Ελέγχει αν ο ΑΔΜΗΕ έχει ιστορικά αρχεία για τους ταμιευτήρες (ReservoirFillingRate) και την παραγωγή (SystemRealizationSCADA)
 # σε προηγούμενα έτη, με ποια διάρκεια και κάλυψη, και αν ο parser του pipeline τα διαβάζει.
 # Το αποτέλεσμα είναι στο log του run (ο πίνακας ανά έτος και το «ΣΥΜΠΕΡΑΣΜΑ» στο τέλος).
@@ -22,7 +23,7 @@ on:
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     permissions:
       contents: read
 
