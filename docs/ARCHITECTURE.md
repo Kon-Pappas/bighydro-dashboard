@@ -59,6 +59,10 @@ The 10:15 run has only ~10 minutes of margin for RESMV, hence the recommended 13
 
 ## The page (index.html)
 One self-contained file: CSS variables, vanilla JS, hand-written SVG charts, no external libraries. It `fetch()`es the JSON files with relative paths,
-so it must be served over http(s) (GitHub Pages), not opened as a local file. Greek/English text is selected with a toggle (stored in `localStorage`).
+so it must be served over http(s) (GitHub Pages), not opened as a local file.
+* **Look:** dark slate base shared with the other dashboards; the accent colour is the single variable `--acc` (violet); chart colours are `--c1` (sky), `--c2` (amber), `--c3` (emerald).
+* **Shell:** breadcrumb to the hub, title, *Last Update* (newest `Updated` of the latest days in `index.json`), *Next Update* (from the `RUN_TIMES` constant), a *Complete/Partial data* badge and banner for the selected day (reservoir, SCADA, ISP, RESMV only), loading overlay with three progress bars, footer with sources and disclaimer.
+* **Language:** English by default; Greek/English toggle stored in `localStorage` under the shared key `kp_lang` (the legacy key `bh_lang` is still read).
+* **Tooltips:** every chart registers its scales and series; a delegated pointer handler finds the nearest point and shows a tooltip plus a crosshair (works with touch; `touch-action: pan-y` keeps vertical scrolling).
 Energy for any day is computed **in the browser** from `energy_factors.json` and `reservoir_history.json`, so new days appear without re-running the calibration.
 For testing, the page exposes `window.__bh` (state and helpers).

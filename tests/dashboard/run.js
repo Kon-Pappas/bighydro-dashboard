@@ -4,7 +4,7 @@ const errors=[];
 const vc=new VirtualConsole(); vc.on('jsdomError',e=>errors.push('jsdomError: '+(e.detail||e.message))); vc.on('error',e=>errors.push('console.error: '+e));
 const html=fs.readFileSync(ROOT+'/index.html','utf8');
 const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,
-  beforeParse(w){ w.fetch=(u)=>{const p=path.join(ROOT,u); if(!fs.existsSync(p)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
+  beforeParse(w){ w.localStorage.setItem('kp_lang','el'); w.fetch=(u)=>{const p=path.join(ROOT,u); if(!fs.existsSync(p)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
      return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(p,'utf8')))});}; }});
 const w=dom.window,d=w.document;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -87,13 +87,13 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   await B.load('2026-01-15'); 
   ck('Jan day renders without errors',errors.length===0,errors.slice(0,3));
   const jan=JSON.parse(fs.readFileSync(ROOT+'/data/days/2026-01-15.json','utf8')); const janTot=jan.Hourly.reduce((a,h)=>a+h.SCADA_TotalHydro+(h.SCADA_ResSmallHydro||0)+(h.SCADA_SmallHydro||0),0);
-  const stJ=B.P.idx.Days.filter(x=>x.Date==='2026-01-15')[0].Status, labJ={reservoir:'ταμιευτήρες',scada:'SCADA',isp:'ISP',resmv:'RESMV',mcp:'MCP'}, bannerJ=d.querySelector('#banner').textContent;
+  const stJ=B.P.idx.Days.filter(x=>x.Date==='2026-01-15')[0].Status, labJ={reservoir:'ταμιευτήρες',scada:'SCADA',isp:'ISP',resmv:'RESMV'}, bannerJ=d.querySelector('#banner').textContent;
   ck('Jan day: visible production shown, banner lists exactly the sources that are not ok in index.json',Object.keys(labJ).every(x=>bannerJ.includes(labJ[x])===(stJ[x]!=='ok')) && d.querySelectorAll('#sum .card .val')[0].textContent.includes(Math.round(janTot).toLocaleString('el-GR')),bannerJ+' | '+JSON.stringify(stJ));
   ck('Jan day: energy still computed',/\d/.test(d.querySelectorAll('#sum .card .val')[3].textContent));
   await B.load('2026-07-22');
   ck('22/7 banner mentions the Ilarionas 0.00% interpolation',d.querySelector('#banner').textContent.includes('Ιλαρίων'),d.querySelector('#banner').textContent);
   d.querySelector('#lang').click(); await sleep(50);
-  ck('English mode renders (title, river names)',d.querySelector('#ttl').textContent.includes('Hydro by river') && d.querySelector('#rg').textContent.includes('Acheloos'),d.querySelector('#ttl').textContent);
+  ck('English mode renders (title, river names)',d.querySelector('#ttl').textContent.includes('Hydro & Reservoir') && d.querySelector('#rg').textContent.includes('Acheloos'),d.querySelector('#ttl').textContent);
   ck('English: no untranslated placeholders {x} / undefined',!/\{[xd]\}|undefined|NaN/.test(txt()));
   d.querySelector('#lang').click(); await sleep(50);
   ck('methodology modal opens with 12 paragraphs',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc p').length===12 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
@@ -174,6 +174,55 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English: Aliakmon title and notes, no placeholders',/Water balance, Aliakmon/.test(d.querySelector('#t-wb').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
   d.querySelector('#lang').click(); await sleep(50);
   ck('no JS errors in Aliakmonas tests',errors.length===0,errors.slice(0,3));
+
+  console.log('TEST 9: shell (header, language, update stamps, badge, banner, footer, overlay)');
+  const mkDom=(store)=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
+    const dm=new JSDOM(fs.readFileSync(ROOT+'/index.html','utf8'),{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc2,
+      beforeParse(win){ Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(pp,'utf8')))});}; }});
+    return {dm,e2}; };
+  const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
+  const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
+  ck('default language is English (no stored preference)',dE.querySelector('#ttl').textContent==='Greek Hydro & Reservoir Analytics' && dE.documentElement.lang==='en' && dE.title==='Greek Hydro & Reservoir Analytics',dE.querySelector('#ttl').textContent);
+  ck('breadcrumb links back to the hub',(()=>{const a=dE.querySelector('a.crumb');return a && a.getAttribute('href')==='https://kon-pappas.github.io/' && a.textContent.includes('Konstantinos Pappas Hub')})());
+  ck('Last Update shows dd/mm/yyyy hh:mm',/^\d\d\/\d\d\/\d{4} \d\d:\d\d$/.test(dE.querySelector('#lu-v').textContent) && dE.querySelector('#lu-l').textContent==='Last Update:',dE.querySelector('#lu-v').textContent);
+  ck('Next Update is one of the configured run times',/^(07:15|09:15|10:15)( \(tomorrow\))?$/.test(dE.querySelector('#nu-v').textContent),dE.querySelector('#nu-v').textContent);
+  const BB=wE.__bh;
+  ck('nextRun: 00:00→07:15 today, 08:00→09:15, 10:15→tomorrow 07:15, 23:00→tomorrow',JSON.stringify([BB.nextRun(0),BB.nextRun(480),BB.nextRun(615),BB.nextRun(1380)])===JSON.stringify([{t:'07:15',tomorrow:false},{t:'09:15',tomorrow:false},{t:'07:15',tomorrow:true},{t:'07:15',tomorrow:true}]));
+  ck('fmtStamp handles summer (+0300) and winter (+0200) offsets',BB.fmtStamp('2026-10-16T20:25:02+0300')==='16/10/2026 20:25' && BB.fmtStamp('2026-01-15T10:00:00+0200')==='15/01/2026 10:00',[BB.fmtStamp('2026-10-16T20:25:02+0300'),BB.fmtStamp('2026-01-15T10:00:00+0200')]);
+  ck('footer: signature, disclaimer and GitHub link',(()=>{const f=dE.querySelector('footer').textContent;return f.includes('Energy Market Analyst') && f.includes('Independent analysis') && f.includes('Greek local time') && !!dE.querySelector('footer a[href*="github.com/Kon-Pappas/bighydro-dashboard"]')})());
+  ck('loading overlay is gone after start-up',!dE.querySelector('#loading-overlay'));
+  ck('language button offers Greek; clicking switches page and stores the SHARED key',(()=>{const b=dE.querySelector('#lang'); const before=b.textContent; b.click(); return before==='ΕΛ'})());
+  await sleep(80);
+  ck('after switching: Greek title, button shows EN, localStorage kp_lang = el',dE.querySelector('#ttl').textContent==='Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες' && dE.querySelector('#lang').textContent==='EN' && wE.localStorage.getItem('kp_lang')==='el',[dE.querySelector('#ttl').textContent,wE.localStorage.getItem('kp_lang')]);
+  const {dm:dmL}=mkDom({bh_lang:'el'}); const wL=await boot2(dmL);
+  ck('legacy key bh_lang still honoured (migration)',wL.document.querySelector('#ttl').textContent==='Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες');
+  const {dm:dmK}=mkDom({kp_lang:'en',bh_lang:'el'}); const wK=await boot2(dmK);
+  ck('shared key kp_lang wins over the legacy key',wK.document.querySelector('#ttl').textContent==='Greek Hydro & Reservoir Analytics');
+  const wE2=wE; const BE=wE2.__bh; await sleep(10);
+  // badge + banner use only the sources the page shows (no MCP)
+  const used=['reservoir','scada','isp','resmv']; const dayOK=BE.P.idx.Days.find(x=>x.Status&&used.every(k=>x.Status[k]==='ok')&&x.Status.mcp!=='ok');
+  const dayBad=BE.P.idx.Days.find(x=>x.Status&&used.some(k=>x.Status[k]!=='ok')&&x.Date<BE.P.idx.Days[0].Date);
+  wE2.document.querySelector('#lang').click(); await sleep(60);   // back to English
+  if(dayOK){ await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete data", no banner',wE2.document.querySelector('#badge').textContent==='Complete data' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
+  if(dayBad){ await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial data" listing '+miss.join(','),wE2.document.querySelector('#badge').textContent==='Partial data' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
+  ck('no JS errors in the English/shell tests',errE.length===0,errE.slice(0,3));
+
+  console.log('TEST 10: tooltips on every chart');
+  const fireAt=(win,svg,vx,vy)=>{ const sp=BE.CH[svg.getAttribute('data-cid')]; svg.getBoundingClientRect=()=>({left:0,top:0,width:sp.W,height:240}); svg.dispatchEvent(new win.MouseEvent('pointermove',{bubbles:true,clientX:vx,clientY:vy||100})); return sp; };
+  const tipOf=(win)=>win.document.querySelector('#tip');
+  let nCharts=0, badTip=[];
+  const visit=async(tabName,setup)=>{ const dd=wE2.document; const btn=dd.querySelector('#tabs button[data-t="'+tabName+'"]'); if(btn) btn.click(); if(setup) await setup(); [...dd.querySelectorAll('#t-'+tabName+' svg.ch, #rmc svg.ch')].filter(s=>!s.closest('[hidden]')).forEach(svg=>{ const sp=BE.CH[svg.getAttribute('data-cid')]; if(!sp) return; const named=sp.series.filter(s=>s.name); if(!named.length) return; nCharts++;
+      const s0=named[0]; const pts=s0.pts.filter(p=>p[1]!=null); const pt=pts[Math.floor(pts.length/2)]; const vx=sp.L+(pt[0]-sp.x0)/((sp.x1-sp.x0)||1)*sp.pw; fireAt(wE2,svg,vx);
+      const tp=tipOf(wE2), txt=tp.textContent; const ok=tp.style.display==='block' && txt.includes(sp.xl(pt[0])) && txt.includes(sp.tv(pt[1])) && txt.includes(s0.name) && !/undefined|NaN/.test(txt) && svg.querySelector('.tipline').style.display==='';
+      if(!ok) badTip.push(tabName+': '+txt.slice(0,80)); }); };
+  await BE.load(BE.P.idx.Days.filter(x=>x.Status&&x.Status.scada==='ok')[0].Date);
+  await visit('energy'); await visit('pump'); await visit('wb'); await visit('kast');
+  BE.openRiver(1); await visit('rivers'); wE2.document.querySelector('#rclose').click();
+  ck('tooltip shows the right x label and value (and series name) on '+nCharts+' charts across all tabs and the river modal',nCharts>=11 && badTip.length===0,[nCharts,badTip]);
+  const svg0=wE2.document.querySelector('#t-kast svg.ch'); fireAt(wE2,svg0,svg0 && BE.CH[svg0.getAttribute('data-cid')].L+50);
+  ck('moving the pointer outside a chart hides the tooltip and the crosshair',(()=>{wE2.document.body.dispatchEvent(new wE2.MouseEvent('pointermove',{bubbles:true,clientX:5,clientY:5})); return tipOf(wE2).style.display==='none' && svg0.querySelector('.tipline').style.display==='none'})());
+  ck('weekly chart tooltip shows both series (ENTSO-E and model) at the same week',(()=>{ wE2.document.querySelector('#tabs button[data-t="energy"]').click(); const sv=wE2.document.querySelectorAll('#t-energy svg.ch')[0]; const sp=BE.CH[sv.getAttribute('data-cid')]; const pt=sp.series[0].pts[Math.floor(sp.series[0].pts.length/2)]; fireAt(wE2,sv,sp.L+(pt[0]-sp.x0)/(sp.x1-sp.x0)*sp.pw); const tx=tipOf(wE2).textContent; return tx.includes('ENTSO-E')&&tx.includes('model')&&tx.includes('TWh')})());
+  ck('no JS errors in the tooltip tests',errE.length===0 && errors.length===0,[errE.slice(0,2),errors.slice(0,2)]);
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();

@@ -1,72 +1,118 @@
 <!doctype html>
-<html lang="el">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BigHydro · Υδροηλεκτρικά ανά ποταμό</title>
+<title>Greek Hydro &amp; Reservoir Analytics</title>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#16202b;--mut:#5b6773;--line:#dfe3e8;--c1:#2f6fb5;--c2:#d9822b;--c3:#2e9b7a;--bar:#dbe7f5;--warn:#b36b00;--warnbg:#fff4e0;--bad:#b3261e;--shade:rgba(47,111,181,.08)}
-@media (prefers-color-scheme:dark){:root{--bg:#10151b;--card:#18202a;--ink:#e8edf2;--mut:#9aa7b4;--line:#2a3541;--c1:#6aa6e8;--c2:#f0a35a;--c3:#5ccaa5;--bar:#25374d;--warn:#f0b35a;--warnbg:#3a2d12;--bad:#ff8a80;--shade:rgba(106,166,232,.10)}}
+:root{color-scheme:dark;
+ --bg:#0f172a;--card:rgba(30,41,59,.6);--card2:#1e293b;--ink:#f1f5f9;--ink2:#cbd5e1;--mut:#94a3b8;--mut2:#64748b;
+ --line:#334155;--line2:#475569;--acc:#a78bfa;--acc2:#7c3aed;--c1:#38bdf8;--c2:#fbbf24;--c3:#34d399;
+ --bar:#334155;--warn:#fbbf24;--warnbg:rgba(251,191,36,.12);--bad:#f87171;--ok:#34d399;--shade:rgba(167,139,250,.10)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:1120px;margin:0 auto;padding:0 14px 40px}
-header.top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;padding:14px 0 6px}
-h1{font-size:20px;margin:0}
-.sub{color:var(--mut);font-size:12px}
-.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-select,button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
-button:hover{border-color:var(--c1)}
-nav.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:8px 0 14px;overflow-x:auto}
-nav.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;white-space:nowrap}
-nav.tabs button.on{border-bottom-color:var(--c1);color:var(--c1);font-weight:600}
-.seg{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.seg button.on{border-color:var(--c1);color:var(--c1);font-weight:600}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:16px}
+@media (min-width:768px){body{padding:32px}}
+.wrap{width:100%;max-width:1280px;margin:0 auto;flex:1}
+/* header */
+header.top{border-bottom:1px solid var(--line);padding-bottom:16px;display:flex;flex-direction:column;gap:14px}
+@media (min-width:1024px){header.top{flex-direction:row;justify-content:space-between;align-items:center}}
+.crumb{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);text-decoration:none;font-weight:500;margin-bottom:8px}
+.crumb:hover{color:var(--acc)}.crumb svg{width:16px;height:16px;color:var(--mut2)}.crumb .sl{color:var(--line2);font-weight:300}
+h1{font-size:24px;margin:0;font-weight:700;color:var(--acc);line-height:1.2}
+@media (min-width:768px){h1{font-size:30px}}
+.upd{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12px;color:var(--mut);margin-top:8px}.upd strong{color:var(--acc)}.upd .nx{color:var(--ok)}
+.ctrls{display:flex;flex-direction:column;gap:8px;width:100%}
+@media (min-width:1024px){.ctrls{width:auto;align-items:flex-end}}
+.pill{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(15,23,42,.5);border:1px solid var(--line2);border-radius:10px;padding:6px 12px}
+.pill{flex-wrap:wrap}.pill label{font-size:12px;color:var(--ink2);font-weight:500}.pill select{flex:1 1 auto;min-width:0;max-width:200px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+select{font:inherit;font-size:14px;font-weight:600;color:var(--ink2);background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:3px 6px;outline:none;cursor:pointer}
+select:focus{border-color:var(--acc)}
+button{font:inherit;color:var(--ink);cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:600;color:var(--mut);background:rgba(30,41,59,.8);border:1px solid var(--line);border-radius:10px;padding:7px 12px}
+.btn:hover{color:var(--acc);border-color:var(--acc)}.btn svg{width:16px;height:16px}
+/* tabs: pills on phones, underline on desktop */
+nav.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 14px}
+nav.tabs button{background:rgba(30,41,59,.8);color:var(--mut);border:1px solid var(--line);border-radius:12px;padding:10px 8px;font-size:13px;font-weight:500;text-align:center;line-height:1.2}
+nav.tabs button.on{background:var(--acc2);color:#fff;border-color:var(--acc);font-weight:700}
+@media (min-width:768px){
+ nav.tabs{display:flex;gap:24px;border-bottom:1px solid #1e293b;padding-bottom:8px;margin:18px 0 16px}
+ nav.tabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;padding:0 0 8px;font-size:16px;color:var(--mut2);font-weight:600}
+ nav.tabs button.on{background:transparent;color:var(--acc);border-bottom-color:var(--acc)}
+ nav.tabs button:hover{color:var(--acc)}}
+/* cards and content */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.card .lab{font-size:12px;color:var(--mut)}
-.card .val{font-size:22px;font-weight:600;margin-top:2px}
-.card .sm{font-size:12px;color:var(--mut);margin-top:2px}
+.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.panel{margin-bottom:14px}.panel h2{font-size:15px;margin:0 0 8px;color:var(--ink)}
+.card .lab{font-size:12px;color:var(--mut)}.card .val{font-size:22px;font-weight:700;margin-top:2px;color:var(--ink)}.card .sm{font-size:12px;color:var(--mut);margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.river{text-align:left;width:100%;padding:12px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
-.river h3{margin:0 0 4px;font-size:15px}
-.big{font-size:24px;font-weight:600}
-.track{height:7px;background:var(--bar);border-radius:4px;margin:6px 0 8px;overflow:hidden}
-.fillb{height:100%;background:var(--c1);border-radius:4px}
+.river{text-align:left;width:100%;padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+button.river:hover{border-color:var(--acc)}
+.river h3{margin:0 0 4px;font-size:15px;color:var(--ink)}.big{font-size:24px;font-weight:700}
+.track{height:7px;background:var(--bar);border-radius:4px;margin:6px 0 8px;overflow:hidden}.fillb{height:100%;background:var(--c1);border-radius:4px}
 .row2{display:flex;justify-content:space-between;gap:8px;font-size:13px}
 .mut{color:var(--mut)}.small{font-size:12px}
-.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--mut)}
-.badge.warn{color:var(--warn);border-color:var(--warn)}
+.badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
+.badge.warn{color:var(--warn);border-color:rgba(251,191,36,.45)}.badge.ok{color:var(--ok);border-color:rgba(52,211,153,.45)}
 .note{font-size:12px;color:var(--mut);margin:10px 0}
-#banner .b{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:13px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
-.panel h2{font-size:15px;margin:0 0 8px}
+#banner .b{background:var(--warnbg);color:var(--warn);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:13px}
 table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-.scroll{overflow-x:auto}
-svg.ch{width:100%;height:auto;display:block}
-svg.ch text{fill:var(--mut);font-size:11px}
-svg.ch .ax{stroke:var(--line)}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{color:var(--mut);font-weight:600}th:first-child,td:first-child{text-align:left}.scroll{overflow-x:auto}
+svg.ch{width:100%;height:auto;display:block;touch-action:pan-y}
+svg.ch text{fill:var(--mut);font-size:11px}svg.ch .ax{stroke:var(--line)}svg.ch .tipline{stroke:var(--mut);stroke-dasharray:3 3}
 .s1{stroke:var(--c1);fill:none;stroke-width:2}.s2{stroke:var(--c2);fill:none;stroke-width:2}.s3{stroke:var(--c3);fill:none;stroke-width:2}
 .s1l,.s2l{fill:none;stroke-width:1;opacity:.35}.s1l{stroke:var(--c1)}.s2l{stroke:var(--c2)}
 .b1{fill:var(--c1)}.b2{fill:var(--c2)}.b3{fill:var(--c3)}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:6px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
-.modal-b{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 10px;z-index:10}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:6px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+/* tooltip */
+#tip{position:fixed;z-index:10000;display:none;pointer-events:none;background:#0b1220;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.45);max-width:260px}
+#tip .th{color:var(--mut);margin-bottom:4px;font-weight:600}#tip .tr{display:flex;align-items:center;gap:6px;margin-top:2px}#tip .tr b{margin-left:auto;padding-left:12px;color:var(--ink)}
+#tip .dot{display:inline-block;width:8px;height:8px;border-radius:50%}.dot.c1{background:var(--c1)}.dot.c2{background:var(--c2)}.dot.c3{background:var(--c3)}
+/* modals */
+.modal-b{position:fixed;inset:0;background:rgba(2,6,23,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 10px;z-index:10}
 .modal-b[hidden]{display:none}
-.modal{background:var(--bg);border-radius:14px;max-width:760px;width:100%;padding:16px 16px 20px;border:1px solid var(--line)}
-.modal .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
-.modal h2{margin:0;font-size:18px}
+.modal{background:var(--bg);border-radius:14px;max-width:760px;width:100%;padding:16px 16px 20px;border:1px solid var(--line2)}
+.modal .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.modal h2{margin:0;font-size:18px;color:var(--acc)}
 .dam{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.flow{text-align:center;color:var(--mut);font-size:13px;line-height:1.2;padding:2px 0}
-.pump{color:var(--warn)}
+.flow{text-align:center;color:var(--mut);font-size:13px;line-height:1.2;padding:2px 0}.pump{color:var(--warn)}
+.seg{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.seg button{background:rgba(30,41,59,.8);border:1px solid var(--line);border-radius:8px;padding:6px 12px;color:var(--mut)}.seg button.on{border-color:var(--acc);color:var(--acc);font-weight:600}
 @media (max-width:560px){.dam{grid-template-columns:1fr}.dam>div:last-child{text-align:left!important}}
+/* footer */
+footer{border-top:1px solid #1e293b;margin-top:48px;padding:24px 0 32px;text-align:center;font-size:12px;color:var(--mut2)}
+footer p{margin:4px 0}footer .who{font-weight:600;color:var(--mut)}footer a{color:var(--mut);text-decoration:none;border-bottom:1px dotted var(--line2)}footer a:hover{color:var(--acc)}
+/* loading overlay */
+#loading-overlay{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.95);display:flex;align-items:center;justify-content:center;padding:16px;transition:opacity .5s}
+#loading-overlay.hide{opacity:0;pointer-events:none}
+.ov{width:100%;max-width:384px;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.ovh{display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(51,65,85,.5);padding-bottom:12px}.ovh h2{margin:0;font-size:16px;color:#fff}
+.spin{width:20px;height:20px;border:2px solid var(--line2);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.ovbox{background:rgba(15,23,42,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;padding:12px}
+.ovlab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.lrow{margin-top:8px}.lrt{display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;color:var(--ink2);margin-bottom:4px}.lrt b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;color:var(--ok)}
+.lbar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden}.lbar i{display:block;height:100%;width:0;background:var(--acc);border-radius:99px;transition:width .3s ease-out}
 </style>
 </head>
 <body>
+<div id="loading-overlay"><div class="ov">
+  <div class="ovh"><div class="spin" id="mainSpinner"></div><h2 id="ov-title">System Initialization</h2></div>
+  <div class="ovbox"><div class="ovlab" id="ov-l0">Data Fetching</div>
+    <div class="lrow"><div class="lrt"><span id="ov-t1">Reading data files</span><b id="loadPct1">0%</b></div><div class="lbar"><i id="loadBar1"></i></div></div>
+    <div class="lrow"><div class="lrt"><span id="ov-t2">Building reservoir model</span><b id="loadPct2">0%</b></div><div class="lbar"><i id="loadBar2"></i></div></div>
+    <div class="lrow"><div class="lrt"><span id="ov-t3">Rendering views</span><b id="loadPct3">0%</b></div><div class="lbar"><i id="loadBar3"></i></div></div>
+  </div></div></div>
 <div class="wrap">
 <header class="top">
-  <div><h1 id="ttl"></h1><div class="sub" id="sub"></div></div>
-  <div class="ctrl"><label class="small mut" id="dlab" for="dsel"></label><select id="dsel"></select><button id="lang"></button><button id="meth"></button></div>
+  <div class="hl">
+    <a class="crumb" href="https://kon-pappas.github.io/"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Konstantinos Pappas Hub</span><span class="sl">/</span></a>
+    <h1 id="ttl"></h1>
+    <div class="upd"><div><span id="lu-l"></span> <strong id="lu-v">-</strong></div><div><span id="nu-l"></span> <strong class="nx" id="nu-v">-</strong></div></div>
+  </div>
+  <div class="ctrls">
+    <div class="pill" id="datewrap"><label id="dlab" for="dsel"></label><select id="dsel"></select><span id="badge" class="badge"></span></div>
+    <div class="btns"><button class="btn" id="meth"></button><button class="btn" id="lang"></button></div>
+  </div>
 </header>
 <nav class="tabs" id="tabs"></nav>
 <div id="banner"></div>
@@ -78,6 +124,13 @@ svg.ch .ax{stroke:var(--line)}
   <section id="t-kast" hidden></section>
 </main>
 </div>
+<footer>
+  <p class="who">Konstantinos Pappas | Energy Market Analyst</p>
+  <p>Business Operations &amp; Risk Management | Data Insights on Energy Transition &amp; Grid Stability</p>
+  <p id="ft-src"></p><p id="ft-disc"></p>
+  <p><a href="https://github.com/Kon-Pappas/bighydro-dashboard">GitHub</a></p>
+</footer>
+<div id="tip"></div>
 <div class="modal-b" id="rm" hidden><div class="modal" id="rmc"></div></div>
 <div class="modal-b" id="mm" hidden><div class="modal" id="mmc"></div></div>
 
@@ -85,12 +138,13 @@ svg.ch .ax{stroke:var(--line)}
 (function(){
 'use strict';
 var $=function(s){return document.querySelector(s)};
-var P={},S={lang:'el',date:null,tab:'rivers'},cache={};
-try{S.lang=localStorage.getItem('bh_lang')||'el'}catch(e){}
+var P={},S={lang:'en',date:null,tab:'rivers'},cache={};
+try{S.lang=localStorage.getItem('kp_lang')||localStorage.getItem('bh_lang')||'en'}catch(e){}
+if(S.lang!=='el')S.lang='en';   // κοινό κλειδί 'kp_lang' για όλα τα dashboards του hub (ίδιο origin)
 
 /* ---------- i18n ---------- */
 var T={el:{
- ttl:'BigHydro · Υδροηλεκτρικά ανά ποταμό',sub:'Ώρα Ελλάδας · δεδομένα ΑΔΜΗΕ και ENTSO-E',date:'Ημέρα',meth:'Μεθοδολογία',
+ ttl:'Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες',date:'Ημέρα',meth:'Μεθοδολογία',lu:'Τελευταία ενημέρωση:',nu:'Επόμενη ενημέρωση:',tmr:'αύριο',b_full:'Πλήρη δεδομένα',b_part:'Μερικά δεδομένα',ov_title:'Εκκίνηση συστήματος',ov_l0:'Λήψη δεδομένων',ov_t1:'Ανάγνωση αρχείων',ov_t2:'Μοντέλο ταμιευτήρων',ov_t3:'Δημιουργία προβολών',ft_src:'Δεδομένα: ΑΔΜΗΕ (στάθμες ταμιευτήρων, SCADA, ISP, RESMV), ENTSO-E (τιμή αγοράς, εβδομαδιαίο αποθηκευμένο απόθεμα). Ώρα Ελλάδας.',ft_disc:'Ανεξάρτητη ανάλυση, χωρίς σχέση με ΑΔΜΗΕ, ΔΕΗ ή ENTSO-E· όχι επενδυτική ή λειτουργική συμβουλή. Το RESMV δεν είναι πιστοποιημένο· η «ενέργεια ισοδύναμη ENTSO-E», οι πτώσεις και οι αποδόσεις είναι εκτιμήσεις· το ισοζύγιο δείχνει φαινόμενη εισροή. Δες Μεθοδολογία.',
  t_rivers:'Ποτάμια',t_energy:'Αποθηκευμένη ενέργεια',t_pump:'Άντληση',t_wb:'Ισοζύγιο νερού',t_kast:'Καστράκι',
  c_hydro:'Υδροηλεκτρική παραγωγή (ορατή)',c_pump:'Άντληση (SCADA)',c_fill:'Πλήρωση, επίσημο ΑΔΜΗΕ',c_rec:'ανασύνθεση με χωρητικότητες: {x}% ({d} μον.)',
  c_en:'Ενέργεια αποθεμάτων (ισοδύναμο ENTSO-E)',c_en_s:'σύνολο, ± {x}% ανάμεσα σε μοντέλα',c_hydro_s:'μεγάλα {a} · μικρά ΔΕΗ {b} · μικρά ΜΤ (RESMV, εκτίμηση) {c}{d}',c_hydro_nomv:' · χωρίς RESMV (δεν υπάρχει για αυτή την ημέρα)',c_hydro_aul:' · Αυλάκι {x}',
@@ -125,7 +179,7 @@ var T={el:{
  '<b>Άντληση.</b> Το SCADA δίνει μόνο το σύνολο άντλησης (και το ENTSO-E το ίδιο). Ανά μονάδα (Σφηκιά, Θησαυρός) υπάρχει μόνο το πρόγραμμα ISP. Η εκτίμηση μοιράζει κάθε ώρα το σύνολο του SCADA με βάση το πρόγραμμα ISP της ώρας· ώρες χωρίς πρόγραμμα παίρνουν το μερίδιο της ημέρας· ημέρες χωρίς πρόγραμμα δεν μοιράζονται. Είναι εκτίμηση και όχι μέτρηση.',
  '<b>Όρια.</b> Η αντλία Πλατανόβρυση → Θησαυρός είναι υπόθεση. Ο Στράτος ΙΙ προστίθεται στον Στράτο Ι μόνο για μέρες με δεδομένα SCADA ανά μονάδα. Οι συντελεστές θα επανεκτιμηθούν με φθινοπωρινή πλήρωση.']},
 en:{
- ttl:'BigHydro · Hydro by river',sub:'Greek time · ADMIE and ENTSO-E data',date:'Day',meth:'Methodology',
+ ttl:'Greek Hydro & Reservoir Analytics',date:'Date',meth:'Methodology',lu:'Last Update:',nu:'Next Update:',tmr:'tomorrow',b_full:'Complete data',b_part:'Partial data',ov_title:'System Initialization',ov_l0:'Data Fetching',ov_t1:'Reading data files',ov_t2:'Building reservoir model',ov_t3:'Rendering views',ft_src:'Data: ADMIE/IPTO (reservoir filling rate, SCADA, ISP, RESMV), ENTSO-E Transparency (day-ahead price, weekly stored energy). Greek local time.',ft_disc:'Independent analysis, not affiliated with ADMIE/IPTO, PPC or ENTSO-E; not investment or operational advice. RESMV is uncertified; the "ENTSO-E equivalent" energy, heads and efficiencies are estimates; the water balance shows apparent inflow. See Methodology.',
  t_rivers:'Rivers',t_energy:'Stored energy',t_pump:'Pumping',t_wb:'Water balance',t_kast:'Kastraki',
  c_hydro:'Hydro generation (visible)',c_pump:'Pumping (SCADA)',c_fill:'Fill level, official ADMIE',c_rec:'rebuilt with capacities: {x}% ({d} pp)',
  c_en:'Stored energy (ENTSO-E equivalent)',c_en_s:'total, ± {x}% across model variants',c_hydro_s:'large {a} · small PPC {b} · small MV (RESMV, estimate) {c}{d}',c_hydro_nomv:' · no RESMV for this day',c_hydro_aul:' · Aulaki {x}',
@@ -219,6 +273,10 @@ function model(date,rec){
 
 /* ---------- charts (inline SVG) ---------- */
 function ticks(lo,hi,n){var span=hi-lo||1,step=Math.pow(10,Math.floor(Math.log10(span/n))),e=span/n/step;step*=e>=5?5:e>=2?2:1;var a=Math.floor(lo/step)*step,o=[];for(var v=a;v<=hi+step*0.001;v+=step)o.push(+v.toFixed(10));return o}
+var CH={},CHN=0;
+function dfs(x){return fd(new Date(Math.round(x)*86400000).toISOString().slice(0,10))}
+function hfs(x){var h=Math.round(x);return 'H'+(h+1)+' ('+(h<10?'0':'')+h+':00)'}
+function tvMW(v){return nf(v,0)+' MW'}
 function chart(o){
   var W=o.w||680,H=o.h||250,L=76,R=12,Tp=12,B=28,pw=W-L-R,ph=H-Tp-B,xs=[],ys=[];
   o.series.forEach(function(s){s.pts.forEach(function(p){if(p[1]!=null){xs.push(p[0]);ys.push(p[1])}})});
@@ -236,7 +294,27 @@ function chart(o){
     else if(s.type==='dots'){s.pts.forEach(function(p){if(p[1]!=null)g+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="3" class="'+s.cls+'" fill="var(--c2)" stroke="none"/>'})}
     else{var d='',pen=false;s.pts.forEach(function(p){if(p[1]==null){pen=false;return}d+=(pen?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);pen=true});g+='<path class="'+s.cls+'" d="'+d+'"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>'}});
   if(o.vline!=null&&o.vline>=x0&&o.vline<=x1)g+='<line x1="'+X(o.vline)+'" x2="'+X(o.vline)+'" y1="'+Tp+'" y2="'+(Tp+ph)+'" stroke="var(--c2)" stroke-dasharray="3 3"/>';
-  return '<svg class="ch" viewBox="0 0 '+W+' '+H+'" role="img">'+g+'</svg>'}
+  var cid=++CHN,np=0;o.series.forEach(function(s){if(s.pts.length>np)np=s.pts.length});
+  CH[cid]={W:W,L:L,pw:pw,x0:x0,x1:x1,n:np,xl:o.xl||function(x){return nf(x,0)},tv:o.tv||function(v){return nf(v,1)},series:o.series.map(function(s){return{name:s.name,cls:s.cls,pts:s.pts}})};
+  g+='<line class="tipline" x1="0" x2="0" y1="'+Tp+'" y2="'+(Tp+ph)+'" style="display:none"/>';
+  return '<svg class="ch" data-cid="'+cid+'" viewBox="0 0 '+W+' '+H+'" role="img">'+g+'</svg>'}
+function dotc(c){return c.indexOf('1')>=0?'c1':c.indexOf('2')>=0?'c2':'c3'}
+function tipHide(){var e=document.getElementById('tip');if(e)e.style.display='none';[].forEach.call(document.querySelectorAll('svg.ch .tipline'),function(l){l.style.display='none'})}
+function tipMove(e){
+  var tg=e.target,svg=tg&&tg.closest?tg.closest('svg.ch'):null;if(!svg){tipHide();return}
+  var sp=CH[svg.getAttribute('data-cid')];if(!sp)return;
+  var r=svg.getBoundingClientRect(),w=r.width||sp.W,vx=(e.clientX-r.left)/w*sp.W;
+  if(vx<sp.L-6||vx>sp.L+sp.pw+6){tipHide();return}
+  var xd=sp.x0+(vx-sp.L)/sp.pw*(sp.x1-sp.x0),rows=[],best=null;
+  sp.series.forEach(function(s){if(!s.name)return;var bi=-1,bd=1e18;for(var i=0;i<s.pts.length;i++){var p=s.pts[i];if(p[1]==null)continue;var dd=Math.abs(p[0]-xd);if(dd<bd){bd=dd;bi=i}}if(bi>=0){rows.push({s:s,p:s.pts[bi]});if(best===null||bd<best.d)best={d:bd,x:s.pts[bi][0]}}});
+  if(!best){tipHide();return}
+  var tol=(sp.x1-sp.x0)/Math.max(1,sp.n)*0.6+1e-9;rows=rows.filter(function(q){return Math.abs(q.p[0]-best.x)<=tol});
+  var X=sp.L+(best.x-sp.x0)/((sp.x1-sp.x0)||1)*sp.pw,ln=svg.querySelector('.tipline');if(ln){ln.setAttribute('x1',X);ln.setAttribute('x2',X);ln.style.display=''}
+  var tip=document.getElementById('tip');if(!tip)return;
+  tip.innerHTML='<div class="th">'+sp.xl(best.x)+'</div>'+rows.map(function(q){return '<div class="tr"><i class="dot '+dotc(q.s.cls)+'"></i><span>'+q.s.name+'</span><b>'+sp.tv(q.p[1])+'</b></div>'}).join('');
+  tip.style.display='block';var tw=tip.offsetWidth||170,th=tip.offsetHeight||60,lx=e.clientX+14,ly=e.clientY+14,vw=window.innerWidth||1200,vh=window.innerHeight||800;
+  if(lx+tw>vw-8)lx=e.clientX-tw-14;if(ly+th>vh-8)ly=e.clientY-th-14;tip.style.left=Math.max(4,lx)+'px';tip.style.top=Math.max(4,ly)+'px'}
+function tipWire(){document.addEventListener('pointermove',tipMove);document.addEventListener('pointerdown',tipMove);document.addEventListener('scroll',tipHide,true);document.addEventListener('pointerout',function(e){if(!e.relatedTarget)tipHide()})}
 function ma(pts,n){return pts.map(function(p,i){var s=0,c=0;for(var j=Math.max(0,i-n+1);j<=i;j++){if(pts[j][1]!=null){s+=pts[j][1];c++}}return [p[0],c>=Math.ceil(n/2)?s/c:null]})}
 function monthTicks(x0,x1){var o=[],d=new Date(x0*86400000);d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1));var mn=['Ιαν','Φεβ','Μαρ','Απρ','Μάι','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'],me=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   while(d.getTime()/86400000<=x1){if(d.getTime()/86400000>=x0)o.push({x:d.getTime()/86400000,l:(S.lang==='el'?mn:me)[d.getUTCMonth()]});d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1))}return o}
@@ -266,7 +344,7 @@ function cardsRivers(M){
 function openRiver(ix){
   var M=S.M,R=M.rivers[ix],r=R.r,rec=S.rec,br=P.fac.Latest.ByRiver[r.Id]||{},h='',pm=P.pm&&P.pm[S.date],pk=null;
   if(r.Pump&&pm&&pm.ScadaMWh!=null)pk=r.Pump.To==='SFIKIA'?{est:pm.EstSfikiaMWh,isp:pm.IspSfikiaMWh}:{est:pm.EstThesavrosMWh,isp:pm.IspThesavrosMWh};
-  h+='<div class="hd"><div><h2>'+rname(r)+'</h2><div class="sub">'+t('top_down')+' · '+fd(S.date)+'</div></div><button id="rclose">'+t('close')+'</button></div>';
+  h+='<div class="hd"><div><h2>'+rname(r)+'</h2><div class="sub">'+t('top_down')+' · '+fd(S.date)+'</div></div><button class="btn" id="rclose">'+t('close')+'</button></div>';
   R.dams.forEach(function(d,ix2){
     if(ix2>0){var pump=r.Pump&&r.Pump.To===R.dams[ix2-1].k&&r.Pump.From===d.k,pe='';
       if(pump&&pk)pe=' · '+t('pump_est',{x:nf(pk.est),y:nf(pk.isp)});
@@ -280,7 +358,7 @@ function openRiver(ix){
   var units=[];r.Order.forEach(function(k){P.meta.Reservoirs[k].Units.forEach(function(u){units.push(u)})});
   var a=hourly(rec,units,'SCADA_'),b=hourly(rec,units,'ISP_'),pa=[],pb=[];
   for(var q=0;q<24;q++){pa.push([q,a[q]]);pb.push([q,b[q]])}
-  h+='<div class="panel" style="margin-top:12px"><h2>'+t('prod_h')+'</h2>'+chart({w:680,h:210,x0:-0.6,x1:23.6,zero:true,y0:0,yf:function(v){return nf(v)+' MW'},xt:[0,3,6,9,12,15,18,21].map(function(x){return{x:x,l:String(x)+'h'}}),series:[{type:'bar',cls:'b1',pts:pa},{cls:'s2',pts:pb}]})+legend([['var(--c1)',t('scada')],['var(--c2)',t('isp')]])+'</div>';
+  h+='<div class="panel" style="margin-top:12px"><h2>'+t('prod_h')+'</h2>'+chart({w:680,h:210,x0:-0.6,x1:23.6,zero:true,y0:0,yf:function(v){return nf(v)+' MW'},xt:[0,3,6,9,12,15,18,21].map(function(x){return{x:x,l:String(x)+'h'}}),xl:hfs,tv:tvMW,series:[{type:'bar',cls:'b1',name:t('scada'),pts:pa},{cls:'s2',name:t('isp'),pts:pb}]})+legend([['var(--c1)',t('scada')],['var(--c2)',t('isp')]])+'</div>';
   /* energy */
   h+='<div class="panel"><h2>'+t('stored')+'</h2><div class="row2"><span>'+t('e_entsoe')+'</span><b>'+nf(R.eEq)+' GWh</b></div><div class="row2"><span>'+t('e_phys')+'</span><b>'+nf(R.ePh)+' GWh</b></div>'+
     (r.Id==='arachthos'?'<div class="row2 small"><span>'+t('e_aoos')+'</span><b>'+nf(M.aoosPh)+' GWh</b></div>':'')+
@@ -299,12 +377,12 @@ function renderEnergy(){
     var m=w.StartLocal,s=0,n=0;for(var t2=1;t2<=7;t2++){var ix=P.fi[addDays(m,t2)];if(ix!=null){s+=eqE(ix);n++}}
     if(n===7){var mo=s/7*1000,x=dn(m);pe.push([x,w.MWh/1e6]);pm.push([x,mo/1e6]);rows.push({w:w,m:m,en:w.MWh/1000,mo:mo/1000,oos:x>cal1})}});
   var x0=pe.length?pe[0][0]:0,x1=pe.length?pe[pe.length-1][0]:1;
-  h+='<div class="panel"><h2>'+t('en_weekly')+'</h2>'+chart({w:680,h:250,x0:x0,x1:x1,yf:function(v){return nf(v,2)+' TWh'},xt:monthTicks(x0,x1),bands:[{x0:cal0,x1:cal1}],series:[{cls:'s1',pts:pe},{cls:'s2',dash:'5 3',pts:pm}]})+
+  h+='<div class="panel"><h2>'+t('en_weekly')+'</h2>'+chart({w:680,h:250,x0:x0,x1:x1,yf:function(v){return nf(v,2)+' TWh'},xt:monthTicks(x0,x1),bands:[{x0:cal0,x1:cal1}],xl:function(x){return t('th_week')+' '+dfs(x)},tv:function(v){return nf(v,3)+' TWh'},series:[{cls:'s1',name:t('lg_entsoe'),pts:pe},{cls:'s2',dash:'5 3',name:t('lg_model'),pts:pm}]})+
     legend([['var(--c1)',t('lg_entsoe')],['var(--c2)',t('lg_model')],['var(--shade)',t('lg_calib')]])+'<div class="scroll" style="margin-top:8px"><table><tr><th>'+t('th_week')+'</th><th>'+t('th_en')+'</th><th>'+t('th_mo')+'</th><th>'+t('th_df')+'</th><th>'+t('th_pc')+'</th></tr>'+
     rows.slice(-8).reverse().map(function(r){var d=r.mo-r.en;return '<tr><td>'+(r.w.IsoWeek||r.m)+(r.oos?' <span class="badge warn">'+t('oos')+'</span>':'')+'</td><td>'+nf(r.en)+'</td><td>'+nf(r.mo)+'</td><td>'+sg(d,1)+'</td><td>'+sg(d/r.en*100,2)+'</td></tr>'}).join('')+'</table></div></div>';
   /* daily */
   var pd=P.dates.map(function(d,i){return [dn(d),eqE(i)]}),dx0=pd[0][0],dx1=pd[pd.length-1][0];
-  h+='<div class="panel"><h2>'+t('en_daily')+'</h2>'+chart({w:680,h:230,x0:dx0,x1:dx1,yf:function(v){return nf(v)+' GWh'},xt:monthTicks(dx0,dx1),vline:dn(S.date),series:[{cls:'s1',pts:pd}]})+'</div>';
+  h+='<div class="panel"><h2>'+t('en_daily')+'</h2>'+chart({w:680,h:230,x0:dx0,x1:dx1,yf:function(v){return nf(v)+' GWh'},xt:monthTicks(dx0,dx1),vline:dn(S.date),xl:dfs,tv:function(v){return nf(v,0)+' GWh'},series:[{cls:'s1',name:t('e_entsoe'),pts:pd}]})+'</div>';
   /* rivers table */
   h+='<div class="panel"><h2>'+t('en_rivers')+'</h2><div class="scroll"><table><tr><th>'+t('th_river')+'</th><th>'+t('th_eq')+'</th><th>'+t('th_ph')+'</th><th>'+t('th_rel')+'</th></tr>'+
     M.rivers.map(function(R){var b=A[R.r.Id]||{};return '<tr><td>'+rname(R.r)+'</td><td>'+nf(R.eEq,1)+'</td><td>'+nf(R.ePh,1)+(R.r.Id==='arachthos'?' *':'')+'</td><td>'+(b.Reliability?relTxt(b.Reliability,b.SpreadPercent):'')+'</td></tr>'}).join('')+'</table></div><p class="note">* '+t('e_aoos')+': '+nf(M.aoosPh,1)+' GWh</p></div><p class="note">'+t('en_note')+'</p>';
@@ -321,12 +399,12 @@ function renderPump(){
      '<div class="card"><div class="lab">'+t('p_nr')+'</div><div class="val">'+nf(pm.NotRealizedMWh)+' MWh</div><div class="sm">'+t('p_pct_i',{x:nf(pm.IspMWh>0?pm.NotRealizedMWh/pm.IspMWh*100:0,1)})+'</div></div></div>'}
   else h+='<div class="panel">'+t('p_nosc')+'</div>';
   var x0=dn(A[0].Date),x1=dn(A[A.length-1].Date),pts=function(f){return A.map(function(x){return [dn(x.Date),x[f]]})};
-  var cfg=function(series){return {w:680,h:230,x0:x0,x1:x1,zero:true,y0:0,yf:function(v){return nf(v)},xt:monthTicks(x0,x1),vline:dn(S.date),series:series}};
-  h+='<div class="panel"><h2>'+t('p_daily')+'</h2>'+chart(cfg([{cls:'s1l',pts:pts('ScadaMWh')},{cls:'s2l',pts:pts('IspMWh')},{cls:'s1',pts:ma(pts('ScadaMWh'),7)},{cls:'s2',pts:ma(pts('IspMWh'),7)}]))+legend([['var(--c1)','SCADA'],['var(--c2)','ISP']])+'<div class="mut small" style="margin-top:4px">'+t('p_ma')+'</div></div>';
-  h+='<div class="panel"><h2>'+t('p_unit_sf')+'</h2>'+chart(cfg([{cls:'s1',pts:ma(pts('EstSfikiaMWh'),7)},{cls:'s2',pts:ma(pts('IspSfikiaMWh'),7)}]))+legend([['var(--c1)',t('p_estl')],['var(--c2)','ISP']])+'</div>';
-  h+='<div class="panel"><h2>'+t('p_unit_th')+'</h2>'+chart(cfg([{cls:'s1',pts:ma(pts('EstThesavrosMWh'),7)},{cls:'s2',pts:ma(pts('IspThesavrosMWh'),7)}]))+legend([['var(--c1)',t('p_estl')],['var(--c2)','ISP']])+'</div>';
+  var cfg=function(series){return {w:680,h:230,x0:x0,x1:x1,zero:true,y0:0,yf:function(v){return nf(v)},xl:dfs,tv:function(v){return nf(v,0)+' MWh'},xt:monthTicks(x0,x1),vline:dn(S.date),series:series}};
+  h+='<div class="panel"><h2>'+t('p_daily')+'</h2>'+chart(cfg([{cls:'s1l',name:'SCADA',pts:pts('ScadaMWh')},{cls:'s2l',name:'ISP',pts:pts('IspMWh')},{cls:'s1',name:'SCADA (7d)',pts:ma(pts('ScadaMWh'),7)},{cls:'s2',name:'ISP (7d)',pts:ma(pts('IspMWh'),7)}]))+legend([['var(--c1)','SCADA'],['var(--c2)','ISP']])+'<div class="mut small" style="margin-top:4px">'+t('p_ma')+'</div></div>';
+  h+='<div class="panel"><h2>'+t('p_unit_sf')+'</h2>'+chart(cfg([{cls:'s1',name:t('p_estl'),pts:ma(pts('EstSfikiaMWh'),7)},{cls:'s2',name:'ISP',pts:ma(pts('IspSfikiaMWh'),7)}]))+legend([['var(--c1)',t('p_estl')],['var(--c2)','ISP']])+'</div>';
+  h+='<div class="panel"><h2>'+t('p_unit_th')+'</h2>'+chart(cfg([{cls:'s1',name:t('p_estl'),pts:ma(pts('EstThesavrosMWh'),7)},{cls:'s2',name:'ISP',pts:ma(pts('IspThesavrosMWh'),7)}]))+legend([['var(--c1)',t('p_estl')],['var(--c2)','ISP']])+'</div>';
   if(S.rec&&S.rec.Hourly&&S.rec.Hourly.length){var pa=[],pb=[];for(var q=0;q<24;q++){var rw=S.rec.Hourly[q]||{};pa.push([q,rw.SCADA_Pump!=null?rw.SCADA_Pump:null]);pb.push([q,rw.ISP_Pump!=null?rw.ISP_Pump:null])}
-    h+='<div class="panel"><h2>'+t('p_hour')+' · '+fd(S.date)+'</h2>'+chart({w:680,h:210,x0:-0.6,x1:23.6,zero:true,y0:0,yf:function(v){return nf(v)+' MW'},xt:[0,3,6,9,12,15,18,21].map(function(x){return{x:x,l:String(x)+'h'}}),series:[{type:'bar',cls:'b1',pts:pa},{cls:'s2',pts:pb}]})+legend([['var(--c1)',t('scada')],['var(--c2)',t('isp')]])+'</div>'}
+    h+='<div class="panel"><h2>'+t('p_hour')+' · '+fd(S.date)+'</h2>'+chart({w:680,h:210,x0:-0.6,x1:23.6,zero:true,y0:0,yf:function(v){return nf(v)+' MW'},xt:[0,3,6,9,12,15,18,21].map(function(x){return{x:x,l:String(x)+'h'}}),xl:hfs,tv:tvMW,series:[{type:'bar',cls:'b1',name:t('scada'),pts:pa},{cls:'s2',name:t('isp'),pts:pb}]})+legend([['var(--c1)',t('scada')],['var(--c2)',t('isp')]])+'</div>'}
   var mo={},hr=0,dy=0,un=0,sc=0;
   A.forEach(function(x){if(x.ScadaMWh==null)return;var m=x.Date.slice(0,7),a=mo[m]||(mo[m]={s:0,i:0,u:0,n:0});a.s+=x.ScadaMWh;a.i+=x.IspMWh;a.u+=x.UnscheduledMWh;a.n+=x.NotRealizedMWh;sc+=x.ScadaMWh;hr+=x.ByHourlyShareMWh;dy+=x.ByDayShareMWh;un+=x.UnallocatedMWh});
   h+='<div class="panel"><h2>'+t('p_month')+'</h2><div class="scroll"><table><tr><th>'+t('th_month')+'</th><th>'+t('th_sc')+'</th><th>'+t('th_is')+'</th><th>'+t('th_ra')+'</th><th>'+t('th_un')+'</th><th>'+t('th_nr')+'</th></tr>'+
@@ -348,9 +426,9 @@ function renderWB(){
     '<div class="card"><div class="lab">'+lbl(G[hl])+'</div><div class="val">'+sg(sel.Inn[hl],1)+' hm³</div><div class="sm">≈ '+sg(sel.Inn[hl]*C,0)+' m³/s</div></div></div>'}
   else h+='<div class="panel">'+t('w_nosel')+'</div>';
   var x0=dn(D[0].Date),x1=dn(D[D.length-1].Date),pts=function(f){return D.map(function(x){return [dn(x.Date),f(x)*C]})};
-  var cfg=function(series){return {w:680,h:240,x0:x0,x1:x1,zero:true,yf:function(v){return nf(v)},xt:monthTicks(x0,x1),vline:dn(S.date),series:series}};
-  h+='<div class="panel"><h2>'+t('w_title_'+rid)+'</h2><h2 style="font-weight:500;font-size:13px;color:var(--mut)">'+t('w_c_river')+'</h2>'+chart(cfg([{cls:'s1',pts:ma(pts(function(x){return x.Rivern}),7)},{cls:'s2',pts:ma(pts(function(x){return x.Riverg}),7)}]))+legend([['var(--c1)',t('w_lg_n')],['var(--c2)',t('w_lg_g')]])+'</div>';
-  h+='<div class="panel"><h2>'+t('w_c_dam')+'</h2>'+chart(cfg(G.map(function(g,i){return {cls:COL[i],pts:ma(pts(function(x){return x.Inn[i]}),7)}})))+legend(G.map(function(g,i){return [CV[i],lbl(g)]}))+'</div>';
+  var cfg=function(series){return {w:680,h:240,x0:x0,x1:x1,zero:true,yf:function(v){return nf(v)},xl:dfs,tv:function(v){return sg(v,1)+' m³/s'},xt:monthTicks(x0,x1),vline:dn(S.date),series:series}};
+  h+='<div class="panel"><h2>'+t('w_title_'+rid)+'</h2><h2 style="font-weight:500;font-size:13px;color:var(--mut)">'+t('w_c_river')+'</h2>'+chart(cfg([{cls:'s1',name:t('w_lg_n'),pts:ma(pts(function(x){return x.Rivern}),7)},{cls:'s2',name:t('w_lg_g'),pts:ma(pts(function(x){return x.Riverg}),7)}]))+legend([['var(--c1)',t('w_lg_n')],['var(--c2)',t('w_lg_g')]])+'</div>';
+  h+='<div class="panel"><h2>'+t('w_c_dam')+'</h2>'+chart(cfg(G.map(function(g,i){return {cls:COL[i],name:lbl(g),pts:ma(pts(function(x){return x.Inn[i]}),7)}})))+legend(G.map(function(g,i){return [CV[i],lbl(g)]}))+'</div>';
   var mo={};D.forEach(function(x){var m=x.Date.slice(0,7),a=mo[m]||(mo[m]={dv:0,q:0,g:G.map(function(){return 0}),n:0,gg:0});a.dv+=sm(x.dV);a.q+=x.Qn[n-1];x.Inn.forEach(function(v,i){a.g[i]+=v});a.n+=x.Rivern;a.gg+=x.Riverg});
   h+='<div class="panel"><h2>'+t('w_month')+'</h2><div class="scroll"><table><tr><th>'+t('th_month')+'</th><th>'+t('w_th_dv')+'</th><th>'+t('w_q')+'</th>'+G.map(function(g){return '<th>'+lbl(g)+'</th>'}).join('')+'<th>'+t('w_th_n')+'</th><th>'+t('w_th_g')+'</th></tr>'+
    Object.keys(mo).sort().map(function(m){var a=mo[m];return '<tr><td>'+m+'</td><td>'+sg(a.dv,0)+'</td><td>'+nf(a.q,0)+'</td>'+a.g.map(function(v){return '<td>'+sg(v,0)+'</td>'}).join('')+'<td><b>'+sg(a.n,0)+'</b></td><td>'+sg(a.gg,0)+'</td></tr>'}).join('')+'</table></div></div>';
@@ -369,21 +447,35 @@ function renderKast(){
    '<div class="card"><div class="lab">'+t('k_days')+'</div><div class="val">'+over+' / '+n+'</div></div>'+
    '<div class="card"><div class="lab">'+t('k_big')+'</div><div class="val">'+big+' / '+dv.length+'</div><div class="sm">'+nf(big/dv.length*100,1)+'%</div></div>'+
    '<div class="card"><div class="lab">'+t('k_rise')+'</div><div class="val">'+sg(bw.v,1)+' hm³</div><div class="sm">'+fd(bw.a)+' → '+fd(bw.b)+'</div></div></div>'+
-   '<div class="panel"><h2>'+t('k_title')+'</h2>'+chart({w:680,h:240,x0:x0,x1:x1,yf:function(v){return nf(v)+'%'},xt:monthTicks(x0,x1),hlines:[{y:100,l:t('k_ref'),under:true}],vline:dn(S.date),series:[{cls:'s1',pts:pts}]})+'</div>'+
-   '<div class="panel"><h2>'+t('k_dv')+'</h2>'+chart({w:680,h:200,x0:x0,x1:x1,zero:true,yf:function(v){return nf(v,1)},xt:monthTicks(x0,x1),hlines:[{y:4.77,l:'+4,8'},{y:-4.77,l:'-4,8',under:true}],series:[{type:'bar',cls:'b1',pts:dv}]})+'</div><p class="note">'+t('k_note')+'</p>';
+   '<div class="panel"><h2>'+t('k_title')+'</h2>'+chart({w:680,h:240,x0:x0,x1:x1,yf:function(v){return nf(v)+'%'},xt:monthTicks(x0,x1),hlines:[{y:100,l:t('k_ref'),under:true}],vline:dn(S.date),xl:dfs,tv:function(v){return nf(v,1)+'%'},series:[{cls:'s1',name:t('k_line'),pts:pts}]})+'</div>'+
+   '<div class="panel"><h2>'+t('k_dv')+'</h2>'+chart({w:680,h:200,x0:x0,x1:x1,zero:true,yf:function(v){return nf(v,1)},xt:monthTicks(x0,x1),hlines:[{y:4.77,l:'+4,8'},{y:-4.77,l:'-4,8',under:true}],xl:dfs,tv:function(v){return sg(v,2)+' hm³'},series:[{type:'bar',cls:'b1',name:t('k_dv'),pts:dv}]})+'</div><p class="note">'+t('k_note')+'</p>';
   $('#t-kast').innerHTML=h}
 
 function renderMeth(){
-  $('#mmc').innerHTML='<div class="hd"><h2>'+t('m_title')+'</h2><button id="mclose">'+t('close')+'</button></div>'+t('m').map(function(p){return '<p>'+p+'</p>'}).join('');
+  $('#mmc').innerHTML='<div class="hd"><h2>'+t('m_title')+'</h2><button class="btn" id="mclose">'+t('close')+'</button></div>'+t('m').map(function(p){return '<p>'+p+'</p>'}).join('');
   $('#mclose').onclick=function(){$('#mm').hidden=true}}
+var USED=['reservoir','scada','isp','resmv'];                       // πηγές που χρησιμοποιεί η σελίδα (ο MCP/τιμή δεν εμφανίζεται πουθενά)
+var RUN_TIMES=['07:15','09:15','10:15'];                              // ώρες Ελλάδας των καθημερινών runs (cron-job.org)
+function srcLab(k){return k==='reservoir'?(S.lang==='el'?'ταμιευτήρες':'reservoirs'):k==='scada'?'SCADA':k==='isp'?'ISP':k==='resmv'?'RESMV':k}
+function athensMin(d){var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Athens',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d||new Date()).forEach(function(p){o[p.type]=p.value});return +o.hour*60+ +o.minute}
+function nextRun(min){for(var i=0;i<RUN_TIMES.length;i++){var q=RUN_TIMES[i].split(':');if(+q[0]*60+ +q[1]>min)return{t:RUN_TIMES[i],tomorrow:false}}return{t:RUN_TIMES[0],tomorrow:true}}
+function stampMs(u){return Date.parse(String(u).replace(/([+-]\d\d)(\d\d)$/,'$1:$2'))}
+function fmtStamp(u){var d=new Date(stampMs(u));if(isNaN(d))return '-';var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Athens',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).forEach(function(p){o[p.type]=p.value});return o.day+'/'+o.month+'/'+o.year+' '+o.hour+':'+o.minute}
+function lastUpdate(){var b=null;P.idx.Days.slice(0,4).forEach(function(x){if(!x.Updated)return;var m=stampMs(x.Updated);if(!isNaN(m)&&(b===null||m>b.m))b={m:m,u:x.Updated}});return b?fmtStamp(b.u):'-'}
+function ovSet(i,pct){var b=document.getElementById('loadBar'+i),l=document.getElementById('loadPct'+i);if(b)b.style.width=pct+'%';if(l)l.textContent=Math.round(pct)+'%'}
+function ovText(){['ov-title','ov-l0','ov-t1','ov-t2','ov-t3'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t(id.replace('-','_'))})}
+function ovHide(){var o=document.getElementById('loading-overlay');if(!o)return;o.classList.add('hide');setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},600)}
 function banner(){
-  var d=P.idx.Days.filter(function(x){return x.Date===S.date})[0],msg=[],lab={reservoir:S.lang==='el'?'ταμιευτήρες':'reservoirs',scada:'SCADA',isp:'ISP',resmv:'RESMV',mcp:'MCP'};
-  if(d&&d.Status){var miss=Object.keys(d.Status).filter(function(k){return d.Status[k]!=='ok'}).map(function(k){return lab[k]});if(miss.length)msg.push(t('q_missing',{x:miss.join(', ')}))}
+  var d=P.idx.Days.filter(function(x){return x.Date===S.date})[0],msg=[];
+  if(d&&d.Status){var miss=USED.filter(function(k){return d.Status[k]!=='ok'}).map(srcLab);if(miss.length)msg.push(t('q_missing',{x:miss.join(', ')}))}
   P.notes.forEach(function(n){if(S.date>=n.from&&S.date<=n.to)msg.push(t('q_zero',{x:dname(n.key)+' '+fd(n.from)+' → '+fd(n.to)}))});
   $('#banner').innerHTML=msg.map(function(m){return '<div class="b">'+m+'</div>'}).join('')}
 function chrome(){
-  document.documentElement.lang=S.lang;document.title=t('ttl');$('#ttl').textContent=t('ttl');$('#sub').textContent=t('sub');$('#dlab').textContent=t('date');
-  $('#lang').textContent=S.lang==='el'?'EN':'ΕΛ';$('#meth').textContent=t('meth');
+  document.documentElement.lang=S.lang;document.title=t('ttl');$('#ttl').textContent=t('ttl');$('#dlab').textContent=t('date')+':';
+  $('#lang').textContent=S.lang==='el'?'EN':'ΕΛ';$('#meth').innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+t('meth');
+  $('#lu-l').textContent=t('lu');$('#lu-v').textContent=lastUpdate();var nr=nextRun(athensMin());$('#nu-l').textContent=t('nu');$('#nu-v').textContent=nr.t+(nr.tomorrow?' ('+t('tmr')+')':'');
+  var dd=P.idx.Days.filter(function(x){return x.Date===S.date})[0],mi=dd&&dd.Status?USED.filter(function(k){return dd.Status[k]!=='ok'}):[],bd=$('#badge');bd.className='badge '+(mi.length?'warn':'ok');bd.textContent=mi.length?t('b_part'):t('b_full');bd.title=mi.map(srcLab).join(', ');
+  $('#ft-src').textContent=t('ft_src');$('#ft-disc').textContent=t('ft_disc');
   $('#tabs').innerHTML=['rivers','energy','pump','wb','kast'].map(function(k){return '<button data-t="'+k+'" class="'+(S.tab===k?'on':'')+'">'+t('t_'+k)+'</button>'}).join('');
   [].forEach.call(document.querySelectorAll('#tabs button'),function(b){b.onclick=function(){S.tab=b.getAttribute('data-t');chrome();showTab()}});
   var sel=$('#dsel'),cur=S.date;sel.innerHTML=P.idx.Days.map(function(x){var ok=x.Status&&x.Status.scada==='ok';return '<option value="'+x.Date+'"'+(x.Date===cur?' selected':'')+'>'+fd(x.Date)+(ok?'':' *')+'</option>'}).join('')}
@@ -394,15 +486,16 @@ function load(date){
     S.rec=rec||{Hourly:[]};S.M=model(date,S.rec);banner();cardsSummary(S.M,S.rec);cardsRivers(S.M);$('#rfoot').textContent=t('click');renderEnergy();renderPump();renderWB();renderKast();renderMeth();chrome();showTab()})}
 
 function boot(){
-  Promise.all([getJSON('index.json'),getJSON('reservoirs.json'),getJSON('energy_factors.json'),getJSON('reservoir_history.json'),opt('plant_heads.json'),opt('entsoe_reservoir.json'),opt('pump_daily.json'),opt('water_balance.json')]).then(function(a){
-    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];P.wb=a[7];P.pump=a[6]||[];P.pm={};P.pump.forEach(function(x){P.pm[x.Date]=x});sanitize();physE();
+  ovText();var nF=8,dF=0,tr=function(pr){return pr.then(function(x){dF++;ovSet(1,dF/nF*100);return x})};
+  Promise.all([tr(getJSON('index.json')),tr(getJSON('reservoirs.json')),tr(getJSON('energy_factors.json')),tr(getJSON('reservoir_history.json')),tr(opt('plant_heads.json')),tr(opt('entsoe_reservoir.json')),tr(opt('pump_daily.json')),tr(opt('water_balance.json'))]).then(function(a){
+    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];P.wb=a[7];P.pump=a[6]||[];P.pm={};P.pump.forEach(function(x){P.pm[x.Date]=x});sanitize();physE();ovSet(2,100);
     var pick=P.idx.Days.filter(function(x){return x.Status&&x.Status.scada==='ok'&&x.Status.isp==='ok'})[0]||P.idx.Days[0];
     $('#dsel').onchange=function(){load(this.value)};
-    $('#lang').onclick=function(){S.lang=S.lang==='el'?'en':'el';try{localStorage.setItem('bh_lang',S.lang)}catch(e){}load(S.date)};
-    $('#meth').onclick=function(){$('#mm').hidden=false};
+    $('#lang').onclick=function(){S.lang=S.lang==='el'?'en':'el';try{localStorage.setItem('kp_lang',S.lang)}catch(e){}load(S.date)};
+    $('#meth').onclick=function(){$('#mm').hidden=false};tipWire();
     $('#rm').onclick=function(e){if(e.target===this)this.hidden=true};$('#mm').onclick=function(e){if(e.target===this)this.hidden=true};
-    return load(pick.Date)}).catch(function(e){document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
-window.__bh={P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver};
+    return load(pick.Date).then(function(){ovSet(3,100);ovHide()})}).catch(function(e){ovHide();document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
+window.__bh={P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver,nextRun:nextRun,fmtStamp:fmtStamp,lastUpdate:lastUpdate,CH:CH};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>

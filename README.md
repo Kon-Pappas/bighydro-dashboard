@@ -55,7 +55,7 @@ A re-run overwrites old values with new non-null values; a missing value never e
 
 ## Tests
 `python tests/run_all.py` (pipeline, 127 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
-(page, ~70 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
+(page, ~90 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
 ## Read this before trusting a number

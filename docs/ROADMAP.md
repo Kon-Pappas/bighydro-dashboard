@@ -8,7 +8,7 @@ weekly ENTSO-E series · calibrated stored-energy model with out-of-sample check
 visible-hydro summary · tests and documentation in the repository.
 
 ## Next — no pipeline risk
-1. **Look and feel aligned with the other dashboards** (dark slate/emerald, English by default with Greek toggle, link back to the hub, "last update" stamp, loading overlay, footer with disclaimer, hover tooltips on the charts). The shared shell for *all* dashboards is a separate thread.
+1. ~~**Look and feel aligned with the other dashboards**~~ — **done** (dark slate, violet accent, English by default, breadcrumb to the hub, Last/Next Update, loading overlay, footer with disclaimer, chart tooltips; see D23–D28). The shared shell for *all* dashboards, and a possible Chart.js migration, are a separate thread.
 2. **Pumped-storage (PSH) view**, separate from the water balance: pumped volume, share of recycled water, cycle-efficiency indicator, per plant (Sfikia, Thesavros). Seed: METHODS §5.
 3. **Unit availability indicator** ("Ilarionas: no generation for N days") so an outage explains itself.
 4. **Data-quality notes from a file** (machine-readable version of KNOWN_ISSUES) shown in the banner of the affected days.
