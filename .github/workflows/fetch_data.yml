@@ -90,6 +90,10 @@ jobs:
         continue-on-error: true
         run: python scripts/build_unit_status.py
 
+      - name: Build stock-vs-previous-years data (non-blocking)
+        continue-on-error: true
+        run: python scripts/build_climatology.py
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
