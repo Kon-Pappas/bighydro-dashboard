@@ -82,6 +82,10 @@ jobs:
         continue-on-error: true
         run: python scripts/build_water_balance.py
 
+      - name: Build pumped-storage data (non-blocking)
+        continue-on-error: true
+        run: python scripts/build_psh.py
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
