@@ -26,7 +26,10 @@ h1{font-size:24px;margin:0;font-weight:700;color:var(--acc);line-height:1.2}
 @media (min-width:1024px){.ctrls{width:auto;align-items:flex-end}}
 .pill{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(15,23,42,.5);border:1px solid var(--line2);border-radius:10px;padding:6px 12px}
 .pill{flex-wrap:wrap}.pill label{font-size:12px;color:var(--ink2);font-weight:500}.pill select{flex:1 1 auto;min-width:0;max-width:200px}
-.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg2{display:inline-flex;background:rgba(15,23,42,.6);border:1px solid var(--line);border-radius:10px;padding:2px}
+.seg2 button{border:0;background:transparent;color:var(--mut);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:.03em}
+.seg2 button.on{background:var(--acc2);color:#fff}.seg2 button:not(.on):hover{color:var(--acc)}
 select{font:inherit;font-size:14px;font-weight:600;color:var(--ink2);background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:3px 6px;outline:none;cursor:pointer}
 select:focus{border-color:var(--acc)}
 button{font:inherit;color:var(--ink);cursor:pointer}
@@ -55,6 +58,7 @@ button.river:hover{border-color:var(--acc)}
 .mut{color:var(--mut)}.small{font-size:12px}
 .badge{display:inline-block;font-size:11px;padding:1px 8px;border-radius:10px;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
 .badge.warn{color:var(--warn);border-color:rgba(251,191,36,.45)}.badge.ok{color:var(--ok);border-color:rgba(52,211,153,.45)}
+#badge::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:1px}
 .note{font-size:12px;color:var(--mut);margin:10px 0}
 #banner .b{background:var(--warnbg);color:var(--warn);border:1px solid rgba(251,191,36,.3);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:13px}
 table{border-collapse:collapse;width:100%;font-size:13px}
@@ -71,10 +75,20 @@ svg.ch text{fill:var(--mut);font-size:11px}svg.ch .ax{stroke:var(--line)}svg.ch 
 #tip .th{color:var(--mut);margin-bottom:4px;font-weight:600}#tip .tr{display:flex;align-items:center;gap:6px;margin-top:2px}#tip .tr b{margin-left:auto;padding-left:12px;color:var(--ink)}
 #tip .dot{display:inline-block;width:8px;height:8px;border-radius:50%}.dot.c1{background:var(--c1)}.dot.c2{background:var(--c2)}.dot.c3{background:var(--c3)}
 /* modals */
-.modal-b{position:fixed;inset:0;background:rgba(2,6,23,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 10px;z-index:10}
+.modal-b{position:fixed;inset:0;background:rgba(2,6,23,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
 .modal-b[hidden]{display:none}
-.modal{background:var(--bg);border-radius:14px;max-width:760px;width:100%;padding:16px 16px 20px;border:1px solid var(--line2)}
-.modal .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.modal h2{margin:0;font-size:18px;color:var(--acc)}
+.modal{background:var(--bg);border:1px solid var(--line2);border-radius:14px;width:100%;max-width:760px;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden}
+.mh{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mh h2{margin:0;font-size:18px;color:var(--acc);line-height:1.25}.mh .sub{font-size:12px;color:var(--mut);margin-top:2px}
+.xbtn{flex:none;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:8px;background:rgba(30,41,59,.8);color:var(--mut);padding:0}
+.xbtn:hover{color:var(--acc);border-color:var(--acc)}.xbtn svg{width:18px;height:18px}
+.mb{flex:1 1 auto;min-height:0;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch}
+.mb p{margin:0 0 10px}.mb h3.mhd{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--acc);margin:16px 0 8px}.mb h3.mhd:first-child{margin-top:0}
+.mal{margin:0;padding-left:18px}.mal li{margin-bottom:7px}
+.mf{flex:none;display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
+.mf .btn{padding:8px 22px;font-size:13px}
+body.modal-open{overflow:hidden}
+@media (max-width:560px){.modal-b{padding:8px}.modal{max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px)}}
 .dam{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .flow{text-align:center;color:var(--mut);font-size:13px;line-height:1.2;padding:2px 0}.pump{color:var(--warn)}
 .seg{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.seg button{background:rgba(30,41,59,.8);border:1px solid var(--line);border-radius:8px;padding:6px 12px;color:var(--mut)}.seg button.on{border-color:var(--acc);color:var(--acc);font-weight:600}
@@ -89,19 +103,23 @@ footer p{margin:4px 0}footer .who{font-weight:600;color:var(--mut)}footer a{colo
 .ovh{display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(51,65,85,.5);padding-bottom:12px}.ovh h2{margin:0;font-size:16px;color:#fff}
 .spin{width:20px;height:20px;border:2px solid var(--line2);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .ovbox{background:rgba(15,23,42,.5);border:1px solid rgba(51,65,85,.5);border-radius:12px;padding:12px}
-.ovlab{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.lrow{margin-top:8px}.lrt{display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;color:var(--ink2);margin-bottom:4px}.lrt b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;color:var(--ok)}
-.lbar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden}.lbar i{display:block;height:100%;width:0;background:var(--acc);border-radius:99px;transition:width .3s ease-out}
+.ovlab{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}.ovlab svg{width:14px;height:14px;color:var(--acc)}
+.lrow{margin-top:8px;opacity:.5;transition:opacity .25s}.lrow.act,.lrow.done{opacity:1}
+.lrt{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink2);margin-bottom:4px}.lrt .ck{color:var(--ok);font-weight:700;opacity:0;transition:opacity .25s}.lrow.done .ck{opacity:1}
+.lbar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden}.lbar i{display:block;height:100%;width:0;background:var(--acc);border-radius:99px;transition:width .3s ease-out,background .25s}.lrow.done .lbar i{background:var(--ok)}
+.ovready{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:700;color:rgba(52,211,153,.45);background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:12px;padding:12px;transition:all .35s}
+.ovready svg{width:18px;height:18px}.ovready.on{color:var(--ok);background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.5)}
 </style>
 </head>
 <body>
 <div id="loading-overlay"><div class="ov">
   <div class="ovh"><div class="spin" id="mainSpinner"></div><h2 id="ov-title">System Initialization</h2></div>
-  <div class="ovbox"><div class="ovlab" id="ov-l0">Data Fetching</div>
-    <div class="lrow"><div class="lrt"><span id="ov-t1">Reading data files</span><b id="loadPct1">0%</b></div><div class="lbar"><i id="loadBar1"></i></div></div>
-    <div class="lrow"><div class="lrt"><span id="ov-t2">Building reservoir model</span><b id="loadPct2">0%</b></div><div class="lbar"><i id="loadBar2"></i></div></div>
-    <div class="lrow"><div class="lrt"><span id="ov-t3">Rendering views</span><b id="loadPct3">0%</b></div><div class="lbar"><i id="loadBar3"></i></div></div>
-  </div></div></div>
+  <div class="ovbox"><div class="ovlab"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg><span id="ov-l0">Data Fetching</span></div>
+    <div class="lrow" id="ovr0"><div class="lrt"><span id="ov-r0">Reading data files</span><span class="ck">✓</span></div><div class="lbar"><i></i></div></div></div>
+  <div class="ovbox"><div class="ovlab"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20V11m6 9V4m6 16v-7m4 7H2"/></svg><span id="ov-l1">Analytics Engine</span></div>
+    <div class="lrow" id="ovr1"><div class="lrt"><span id="ov-r1">Loading Rivers Overview</span><span class="ck">✓</span></div><div class="lbar"><i></i></div></div><div class="lrow" id="ovr2"><div class="lrt"><span id="ov-r2">Loading Stored Energy</span><span class="ck">✓</span></div><div class="lbar"><i></i></div></div><div class="lrow" id="ovr3"><div class="lrt"><span id="ov-r3">Loading Pumping</span><span class="ck">✓</span></div><div class="lbar"><i></i></div></div><div class="lrow" id="ovr4"><div class="lrt"><span id="ov-r4">Loading Water Balance</span><span class="ck">✓</span></div><div class="lbar"><i></i></div></div><div class="lrow" id="ovr5"><div class="lrt"><span id="ov-r5">Loading Kastraki Watch</span><span class="ck">✓</span></div><div class="lbar"><i></i></div></div></div>
+  <div class="ovready" id="ov-ready"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span id="ov-rd">Dashboard is ready!</span></div>
+</div></div>
 <div class="wrap">
 <header class="top">
   <div class="hl">
@@ -111,7 +129,7 @@ footer p{margin:4px 0}footer .who{font-weight:600;color:var(--mut)}footer a{colo
   </div>
   <div class="ctrls">
     <div class="pill" id="datewrap"><label id="dlab" for="dsel"></label><select id="dsel"></select><span id="badge" class="badge"></span></div>
-    <div class="btns"><button class="btn" id="meth"></button><button class="btn" id="lang"></button></div>
+    <div class="btns"><button class="btn" id="meth"></button><div class="seg2" id="lang" role="group" aria-label="Language"><button type="button" data-l="el">GR</button><button type="button" data-l="en">EN</button></div></div>
   </div>
 </header>
 <nav class="tabs" id="tabs"></nav>
@@ -144,7 +162,7 @@ if(S.lang!=='el')S.lang='en';   // κοινό κλειδί 'kp_lang' για όλ
 
 /* ---------- i18n ---------- */
 var T={el:{
- ttl:'Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες',date:'Ημέρα',meth:'Μεθοδολογία',lu:'Τελευταία ενημέρωση:',nu:'Επόμενη ενημέρωση:',tmr:'αύριο',b_full:'Πλήρη δεδομένα',b_part:'Μερικά δεδομένα',ov_title:'Εκκίνηση συστήματος',ov_l0:'Λήψη δεδομένων',ov_t1:'Ανάγνωση αρχείων',ov_t2:'Μοντέλο ταμιευτήρων',ov_t3:'Δημιουργία προβολών',ft_src:'Δεδομένα: ΑΔΜΗΕ (στάθμες ταμιευτήρων, SCADA, ISP, RESMV), ENTSO-E (τιμή αγοράς, εβδομαδιαίο αποθηκευμένο απόθεμα). Ώρα Ελλάδας.',ft_disc:'Ανεξάρτητη ανάλυση, χωρίς σχέση με ΑΔΜΗΕ, ΔΕΗ ή ENTSO-E· όχι επενδυτική ή λειτουργική συμβουλή. Το RESMV δεν είναι πιστοποιημένο· η «ενέργεια ισοδύναμη ENTSO-E», οι πτώσεις και οι αποδόσεις είναι εκτιμήσεις· το ισοζύγιο δείχνει φαινόμενη εισροή. Δες Μεθοδολογία.',
+ ttl:'Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες',date:'Ημέρα',meth:'Μεθοδολογία και παραδοχές',lu:'Τελευταία ενημέρωση:',nu:'Επόμενη ενημέρωση:',tmr:'αύριο',b_full:'Πλήρη δεδομένα',b_part:'Μερικά δεδομένα',ov_title:'Εκκίνηση συστήματος',ov_l0:'Λήψη δεδομένων',ov_l1:'Μηχανή ανάλυσης',ov_r0:'Ανάγνωση αρχείων',ov_r1:'Φόρτωση επισκόπησης ποταμών',ov_r2:'Φόρτωση αποθηκευμένης ενέργειας',ov_r3:'Φόρτωση άντλησης',ov_r4:'Φόρτωση ισοζυγίου νερού',ov_r5:'Φόρτωση Καστρακίου',ov_rd:'Ο πίνακας είναι έτοιμος!',ft_src:'Δεδομένα: ΑΔΜΗΕ (στάθμες ταμιευτήρων, SCADA, ISP, RESMV), ENTSO-E (τιμή αγοράς, εβδομαδιαίο αποθηκευμένο απόθεμα). Ώρα Ελλάδας.',ft_disc:'Ανεξάρτητη ανάλυση, χωρίς σχέση με ΑΔΜΗΕ, ΔΕΗ ή ENTSO-E· όχι επενδυτική ή λειτουργική συμβουλή. Το RESMV δεν είναι πιστοποιημένο· η «ενέργεια ισοδύναμη ENTSO-E», οι πτώσεις και οι αποδόσεις είναι εκτιμήσεις· το ισοζύγιο δείχνει φαινόμενη εισροή. Δες Μεθοδολογία.',
  t_rivers:'Ποτάμια',t_energy:'Αποθηκευμένη ενέργεια',t_pump:'Άντληση',t_wb:'Ισοζύγιο νερού',t_kast:'Καστράκι',
  c_hydro:'Υδροηλεκτρική παραγωγή (ορατή)',c_pump:'Άντληση (SCADA)',c_fill:'Πλήρωση, επίσημο ΑΔΜΗΕ',c_rec:'ανασύνθεση με χωρητικότητες: {x}% ({d} μον.)',
  c_en:'Ενέργεια αποθεμάτων (ισοδύναμο ENTSO-E)',c_en_s:'σύνολο, ± {x}% ανάμεσα σε μοντέλα',c_hydro_s:'μεγάλα {a} · μικρά ΔΕΗ {b} · μικρά ΜΤ (RESMV, εκτίμηση) {c}{d}',c_hydro_nomv:' · χωρίς RESMV (δεν υπάρχει για αυτή την ημέρα)',c_hydro_aul:' · Αυλάκι {x}',
@@ -165,7 +183,7 @@ var T={el:{
  k_title:'Καστράκι: στάθμη',k_stats:'Στατιστικά',k_dv:'Ημερήσια μεταβολή αποθέματος (hm³)',k_cur:'Τρέχουσα στάθμη',k_max:'Μέγιστο',k_days:'Ημέρες πάνω από 100%',k_big:'Ημέρες με |Δ| ≥ 4,8 hm³ (9% της λίμνης)',k_rise:'Μεγαλύτερη άνοδος σε 11 ημέρες',k_note:'Στάθμη πάνω από 100% είναι συνηθισμένη στο Καστράκι. Κάτω ταμιευτήρας της ΑΑΣ Αμφιλοχίας (πληροφορία χρήστη: έναρξη περίπου τέλη 2026, πλήρωση άνω ταμιευτήρων περίπου 9% της λίμνης, δηλαδή ~4,8 hm³).',
  k_line:'στάθμη %',k_ref:'100%',
  err:'Δεν φορτώθηκαν τα δεδομένα. Άνοιξε τη σελίδα από τον ιστότοπο (GitHub Pages), όχι ως τοπικό αρχείο.',
- m_title:'Μεθοδολογία και περιορισμοί',
+ m_title:'Μεθοδολογία και παραδοχές',m_h1:'Μεθοδολογία',m_h2:'Βασικές παραδοχές',m_a:['Ο όγκος ταμιευτήρα = πλήρωση ΑΔΜΗΕ × ωφέλιμη χωρητικότητα από την παρουσίαση ΔΕΗ/Στεφανάκου 2020. Η χωρητικότητα του Ιλαρίωνα (412 hm³) δεν έχει επαληθευτεί.','Οι πτώσεις και οι αποδόσεις των σταθμών προέρχονται από μη επίσημα έγγραφα και είναι προσεγγιστικές. Η φυσική εκτίμηση χρησιμοποιεί μικτές πτώσεις γιατί συμφωνούν με τα δεδομένα του ENTSO-E.','Η εβδομάδα ENTSO-E θεωρείται ο μέσος όρος των ημερήσιων τιμών τέλους ημέρας (Δευτέρα+1 … Δευτέρα+7), βάσει εμπειρικού ελέγχου.','Η σειρά των καταρρακτών είναι αυτή που έδωσε ο ιδιοκτήτης: Αχελώος Κρεμαστά → Καστράκι → Στράτος· Αλιάκμονας Ιλαρίων → Πολύφυτο → Σφηκιά → Ασώματα· Άραχθος Αώος → Πουρνάρι Ι → ΙΙ. Η κατεύθυνση της αντλίας Πλατανόβρυση → Θησαυρός είναι υπόθεση.','Οι Πηγές Αώου μένουν εκτός του ισοδύναμου ENTSO-E: η σειρά του ENTSO-E δεν δείχνει ίχνος τους. Η φυσική τους αξία εμφανίζεται ξεχωριστά.','Η άντληση ανά μονάδα (Σφηκιά, Θησαυρός) είναι εκτίμηση: το σύνολο του SCADA μοιράζεται με βάση το πρόγραμμα ISP.','Το ισοζύγιο νερού δείχνει φαινόμενη εισροή (περιλαμβάνει μη μετρούμενες λήψεις και απώλειες). Ο Στράτος ΙΙ δεν είναι στον όγκο· ο όγκος του Καστρακίου πάνω από 100% είναι αβέβαιος· ο Ιλαρίων είναι εκτός λειτουργίας, άρα η διάσπασή του από τον Πολύφυτο δεν είναι αξιόπιστη.','Το RESMV δεν είναι πιστοποιημένη μέτρηση· επτά ακόμα μικρά σταθμοί της ΔΕΗ δεν φαίνονται στο SCADA.'],
  m:['<b>Πηγές.</b> ΑΔΜΗΕ: Reservoir Filling Rate (στάθμες, μέτρηση 00:00), SCADA (πραγματική παραγωγή), ISP (πρόγραμμα αγοράς), RESMV (μικρά υδροηλεκτρικά). ENTSO-E: τιμή αγοράς και εβδομαδιαίο απόθεμα (16.1.D).',
  '<b>Ώρα.</b> Όλα τα ωριαία είναι σε ώρα Ελλάδας (H01 = 00:00–01:00). Το SCADA και το RESMV δημοσιεύονται έτσι. Το ISP και η τιμή δημοσιεύονται σε ώρα αγοράς (CET) και μετατοπίζονται κατά +1 ώρα (επαληθεύτηκε σε δεδομένα Ιουνίου–Οκτωβρίου 2026).',
  '<b>Πλήρωση.</b> Το ποσοστό ανά ταμιευτήρα είναι του ΑΔΜΗΕ. Ο όγκος προκύπτει από ποσοστό × ωφέλιμη χωρητικότητα (ΔΕΗ, Στεφανάκος 2020). Το επίσημο total είναι σταθμισμένο με όγκο· η ανασύνθεσή μας βγαίνει κατά μέσο όρο ~1 ποσοστιαία μονάδα χαμηλότερα (πιθανώς διαφορετικός όγκος σε κάποιο ταμιευτήρα, π.χ. Ιλαρίωνα).',
@@ -179,7 +197,7 @@ var T={el:{
  '<b>Άντληση.</b> Το SCADA δίνει μόνο το σύνολο άντλησης (και το ENTSO-E το ίδιο). Ανά μονάδα (Σφηκιά, Θησαυρός) υπάρχει μόνο το πρόγραμμα ISP. Η εκτίμηση μοιράζει κάθε ώρα το σύνολο του SCADA με βάση το πρόγραμμα ISP της ώρας· ώρες χωρίς πρόγραμμα παίρνουν το μερίδιο της ημέρας· ημέρες χωρίς πρόγραμμα δεν μοιράζονται. Είναι εκτίμηση και όχι μέτρηση.',
  '<b>Όρια.</b> Η αντλία Πλατανόβρυση → Θησαυρός είναι υπόθεση. Ο Στράτος ΙΙ προστίθεται στον Στράτο Ι μόνο για μέρες με δεδομένα SCADA ανά μονάδα. Οι συντελεστές θα επανεκτιμηθούν με φθινοπωρινή πλήρωση.']},
 en:{
- ttl:'Greek Hydro & Reservoir Analytics',date:'Date',meth:'Methodology',lu:'Last Update:',nu:'Next Update:',tmr:'tomorrow',b_full:'Complete data',b_part:'Partial data',ov_title:'System Initialization',ov_l0:'Data Fetching',ov_t1:'Reading data files',ov_t2:'Building reservoir model',ov_t3:'Rendering views',ft_src:'Data: ADMIE/IPTO (reservoir filling rate, SCADA, ISP, RESMV), ENTSO-E Transparency (day-ahead price, weekly stored energy). Greek local time.',ft_disc:'Independent analysis, not affiliated with ADMIE/IPTO, PPC or ENTSO-E; not investment or operational advice. RESMV is uncertified; the "ENTSO-E equivalent" energy, heads and efficiencies are estimates; the water balance shows apparent inflow. See Methodology.',
+ ttl:'Greek Hydro & Reservoir Analytics',date:'Date',meth:'Methodology & Assumptions',lu:'Last Update:',nu:'Next Update:',tmr:'tomorrow',b_full:'Complete Data',b_part:'Partial Data',ov_title:'System Initialization',ov_l0:'Data Fetching',ov_l1:'Analytics Engine',ov_r0:'Reading data files',ov_r1:'Loading Rivers Overview',ov_r2:'Loading Stored Energy',ov_r3:'Loading Pumping',ov_r4:'Loading Water Balance',ov_r5:'Loading Kastraki Watch',ov_rd:'Dashboard is ready!',ft_src:'Data: ADMIE/IPTO (reservoir filling rate, SCADA, ISP, RESMV), ENTSO-E Transparency (day-ahead price, weekly stored energy). Greek local time.',ft_disc:'Independent analysis, not affiliated with ADMIE/IPTO, PPC or ENTSO-E; not investment or operational advice. RESMV is uncertified; the "ENTSO-E equivalent" energy, heads and efficiencies are estimates; the water balance shows apparent inflow. See Methodology.',
  t_rivers:'Rivers',t_energy:'Stored energy',t_pump:'Pumping',t_wb:'Water balance',t_kast:'Kastraki',
  c_hydro:'Hydro generation (visible)',c_pump:'Pumping (SCADA)',c_fill:'Fill level, official ADMIE',c_rec:'rebuilt with capacities: {x}% ({d} pp)',
  c_en:'Stored energy (ENTSO-E equivalent)',c_en_s:'total, ± {x}% across model variants',c_hydro_s:'large {a} · small PPC {b} · small MV (RESMV, estimate) {c}{d}',c_hydro_nomv:' · no RESMV for this day',c_hydro_aul:' · Aulaki {x}',
@@ -200,7 +218,7 @@ en:{
  k_title:'Kastraki: reservoir level',k_stats:'Statistics',k_dv:'Daily storage change (hm³)',k_cur:'Current level',k_max:'Maximum',k_days:'Days above 100%',k_big:'Days with |Δ| ≥ 4.8 hm³ (9% of the lake)',k_rise:'Largest rise in 11 days',k_note:'Levels above 100% are common at Kastraki. It will be the lower reservoir of the Amfilochia pumped storage (user information: start around end-2026; filling the upper reservoirs needs roughly 9% of the lake, about 4.8 hm³).',
  k_line:'level %',k_ref:'100%',
  err:'Data could not be loaded. Open the page from the website (GitHub Pages), not as a local file.',
- m_title:'Methodology and limitations',
+ m_title:'Methodology & Assumptions',m_h1:'Methodology',m_h2:'Key assumptions',m_a:['Reservoir volume = ADMIE fill % × useful capacity from the PPC/Stefanakos 2020 presentation. The Ilarionas capacity (412 hm³) is unverified.','Plant heads and efficiencies come from unofficial documents and are approximate. The physical estimate uses gross heads because they agree with the ENTSO-E data.','An ENTSO-E week is taken as the mean of the daily end-of-day readings (Monday+1 … Monday+7), found empirically.','Cascade order is as provided by the owner: Acheloos Kremasta → Kastraki → Stratos; Aliakmon Ilarionas → Polyfyto → Sfikia → Asomata; Arachthos Aoos → Pournari I → II. The Platanovrysi → Thesavros pump direction is an assumption.','Pigai Aoou is left out of the ENTSO-E equivalent: the ENTSO-E series shows no trace of it. Its physical value is shown separately.','Per-plant pumping (Sfikia, Thesavros) is an estimate: the SCADA total is split using the ISP schedule.','The water balance shows apparent inflow (it includes unmeasured withdrawals and losses). Stratos II is not in the volume; Kastraki volume above 100% is uncertain; Ilarionas is out of service, so its split from Polyfyto is unreliable.','RESMV is an uncertified measurement; seven other small PPC plants are not visible in SCADA.'],
  m:['<b>Sources.</b> ADMIE: Reservoir Filling Rate (levels, 00:00 reading), SCADA (actual output), ISP (market schedule), RESMV (small hydro). ENTSO-E: day-ahead price and weekly reservoir stock (16.1.D).',
  '<b>Time.</b> All hourly data use Greek time (H01 = 00:00-01:00). SCADA and RESMV are published that way. ISP and price are published on market (CET) time and shifted by +1 h (verified on June-October 2026 data).',
  '<b>Fill level.</b> Percentages per reservoir are ADMIE\'s. Volume = percentage × useful capacity (PPC, Stefanakos 2020). The official total is volume-weighted; our rebuild comes out ~1 percentage point lower on average (possibly a different volume for one reservoir, e.g. Ilarionas).',
@@ -344,7 +362,6 @@ function cardsRivers(M){
 function openRiver(ix){
   var M=S.M,R=M.rivers[ix],r=R.r,rec=S.rec,br=P.fac.Latest.ByRiver[r.Id]||{},h='',pm=P.pm&&P.pm[S.date],pk=null;
   if(r.Pump&&pm&&pm.ScadaMWh!=null)pk=r.Pump.To==='SFIKIA'?{est:pm.EstSfikiaMWh,isp:pm.IspSfikiaMWh}:{est:pm.EstThesavrosMWh,isp:pm.IspThesavrosMWh};
-  h+='<div class="hd"><div><h2>'+rname(r)+'</h2><div class="sub">'+t('top_down')+' · '+fd(S.date)+'</div></div><button class="btn" id="rclose">'+t('close')+'</button></div>';
   R.dams.forEach(function(d,ix2){
     if(ix2>0){var pump=r.Pump&&r.Pump.To===R.dams[ix2-1].k&&r.Pump.From===d.k,pe='';
       if(pump&&pk)pe=' · '+t('pump_est',{x:nf(pk.est),y:nf(pk.isp)});
@@ -363,7 +380,8 @@ function openRiver(ix){
   h+='<div class="panel"><h2>'+t('stored')+'</h2><div class="row2"><span>'+t('e_entsoe')+'</span><b>'+nf(R.eEq)+' GWh</b></div><div class="row2"><span>'+t('e_phys')+'</span><b>'+nf(R.ePh)+' GWh</b></div>'+
     (r.Id==='arachthos'?'<div class="row2 small"><span>'+t('e_aoos')+'</span><b>'+nf(M.aoosPh)+' GWh</b></div>':'')+
     '<div style="margin-top:6px">'+(br.Reliability?relTxt(br.Reliability,br.SpreadPercent):'')+'</div></div>';
-  $('#rmc').innerHTML=h;$('#rm').hidden=false;$('#rclose').onclick=function(){$('#rm').hidden=true}}
+  $('#rmc').innerHTML=modalHtml(rname(r),t('top_down')+' · '+fd(S.date),h,'rclose','rclose-x');openModal('rm');
+  $('#rclose').onclick=$('#rclose-x').onclick=function(){closeModal('rm')}}
 
 function renderEnergy(){
   var M=S.M,F=P.fac,A=F.Latest.ByRiver,h='',k;
@@ -452,8 +470,9 @@ function renderKast(){
   $('#t-kast').innerHTML=h}
 
 function renderMeth(){
-  $('#mmc').innerHTML='<div class="hd"><h2>'+t('m_title')+'</h2><button class="btn" id="mclose">'+t('close')+'</button></div>'+t('m').map(function(p){return '<p>'+p+'</p>'}).join('');
-  $('#mclose').onclick=function(){$('#mm').hidden=true}}
+  var body='<h3 class="mhd">'+t('m_h1')+'</h3>'+t('m').map(function(p){return '<p>'+p+'</p>'}).join('')+'<h3 class="mhd">'+t('m_h2')+'</h3><ul class="mal">'+t('m_a').map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>';
+  $('#mmc').innerHTML=modalHtml(t('m_title'),'',body,'mclose','mclose-x');
+  $('#mclose').onclick=$('#mclose-x').onclick=function(){closeModal('mm')}}
 var USED=['reservoir','scada','isp','resmv'];                       // πηγές που χρησιμοποιεί η σελίδα (ο MCP/τιμή δεν εμφανίζεται πουθενά)
 var RUN_TIMES=['07:15','09:15','10:15'];                              // ώρες Ελλάδας των καθημερινών runs (cron-job.org)
 function srcLab(k){return k==='reservoir'?(S.lang==='el'?'ταμιευτήρες':'reservoirs'):k==='scada'?'SCADA':k==='isp'?'ISP':k==='resmv'?'RESMV':k}
@@ -462,9 +481,20 @@ function nextRun(min){for(var i=0;i<RUN_TIMES.length;i++){var q=RUN_TIMES[i].spl
 function stampMs(u){return Date.parse(String(u).replace(/([+-]\d\d)(\d\d)$/,'$1:$2'))}
 function fmtStamp(u){var d=new Date(stampMs(u));if(isNaN(d))return '-';var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Athens',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).forEach(function(p){o[p.type]=p.value});return o.day+'/'+o.month+'/'+o.year+' '+o.hour+':'+o.minute}
 function lastUpdate(){var b=null;P.idx.Days.slice(0,4).forEach(function(x){if(!x.Updated)return;var m=stampMs(x.Updated);if(!isNaN(m)&&(b===null||m>b.m))b={m:m,u:x.Updated}});return b?fmtStamp(b.u):'-'}
-function ovSet(i,pct){var b=document.getElementById('loadBar'+i),l=document.getElementById('loadPct'+i);if(b)b.style.width=pct+'%';if(l)l.textContent=Math.round(pct)+'%'}
-function ovText(){['ov-title','ov-l0','ov-t1','ov-t2','ov-t3'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t(id.replace('-','_'))})}
+var FAST=!!window.__BH_FAST,REDUCE=!FAST&&!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var STEP=FAST?0:(REDUCE?120:350),MIN_READ=FAST?0:(REDUCE?200:650),READY_MS=FAST?0:(REDUCE?200:650);   // παύσεις ώστε το μάτι να προλαβαίνει τα βήματα
+function pause(ms){return ms>0?new Promise(function(r){setTimeout(r,ms)}):Promise.resolve()}
+function ovRow(i){return document.getElementById('ovr'+i)}
+function ovSet(i,pct){var r=ovRow(i),b=r&&r.querySelector('.lbar i');if(b)b.style.width=pct+'%'}
+function ovRowStart(i){var r=ovRow(i);if(!r)return;r.className='lrow act';if(i>0){var b=r.querySelector('.lbar i');if(b){b.style.transitionDuration=STEP+'ms';b.style.width='100%'}}}
+function ovRowDone(i){var r=ovRow(i);if(r){r.className='lrow done';ovSet(i,100)}}
+function ovReady(){var e=document.getElementById('ov-ready'),sp=document.getElementById('mainSpinner');if(e)e.className='ovready on';if(sp)sp.style.display='none'}
+function ovText(){['ov-title','ov-l0','ov-l1','ov-r0','ov-r1','ov-r2','ov-r3','ov-r4','ov-r5','ov-rd'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t(id.replace('-','_'))})}
 function ovHide(){var o=document.getElementById('loading-overlay');if(!o)return;o.classList.add('hide');setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},600)}
+var XSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function modalHtml(title,sub,body,idc,idx){return '<div class="mh"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div><button type="button" class="xbtn" id="'+idx+'" aria-label="'+t('close')+'">'+XSVG+'</button></div><div class="mb">'+body+'</div><div class="mf"><button type="button" class="btn" id="'+idc+'">'+t('close')+'</button></div>'}
+function openModal(id){var e=document.getElementById(id);if(!e)return;e.hidden=false;document.body.classList.add('modal-open');var b=e.querySelector('.mb');if(b)b.scrollTop=0}
+function closeModal(id){var e=document.getElementById(id);if(e)e.hidden=true;if(!document.querySelector('.modal-b:not([hidden])'))document.body.classList.remove('modal-open')}
 function banner(){
   var d=P.idx.Days.filter(function(x){return x.Date===S.date})[0],msg=[];
   if(d&&d.Status){var miss=USED.filter(function(k){return d.Status[k]!=='ok'}).map(srcLab);if(miss.length)msg.push(t('q_missing',{x:miss.join(', ')}))}
@@ -472,7 +502,7 @@ function banner(){
   $('#banner').innerHTML=msg.map(function(m){return '<div class="b">'+m+'</div>'}).join('')}
 function chrome(){
   document.documentElement.lang=S.lang;document.title=t('ttl');$('#ttl').textContent=t('ttl');$('#dlab').textContent=t('date')+':';
-  $('#lang').textContent=S.lang==='el'?'EN':'ΕΛ';$('#meth').innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+t('meth');
+  [].forEach.call(document.querySelectorAll('#lang button'),function(b){var on=b.getAttribute('data-l')===S.lang;b.className=on?'on':'';b.setAttribute('aria-pressed',on?'true':'false')});$('#meth').innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+t('meth');
   $('#lu-l').textContent=t('lu');$('#lu-v').textContent=lastUpdate();var nr=nextRun(athensMin());$('#nu-l').textContent=t('nu');$('#nu-v').textContent=nr.t+(nr.tomorrow?' ('+t('tmr')+')':'');
   var dd=P.idx.Days.filter(function(x){return x.Date===S.date})[0],mi=dd&&dd.Status?USED.filter(function(k){return dd.Status[k]!=='ok'}):[],bd=$('#badge');bd.className='badge '+(mi.length?'warn':'ok');bd.textContent=mi.length?t('b_part'):t('b_full');bd.title=mi.map(srcLab).join(', ');
   $('#ft-src').textContent=t('ft_src');$('#ft-disc').textContent=t('ft_disc');
@@ -480,21 +510,26 @@ function chrome(){
   [].forEach.call(document.querySelectorAll('#tabs button'),function(b){b.onclick=function(){S.tab=b.getAttribute('data-t');chrome();showTab()}});
   var sel=$('#dsel'),cur=S.date;sel.innerHTML=P.idx.Days.map(function(x){var ok=x.Status&&x.Status.scada==='ok';return '<option value="'+x.Date+'"'+(x.Date===cur?' selected':'')+'>'+fd(x.Date)+(ok?'':' *')+'</option>'}).join('')}
 function showTab(){['rivers','energy','pump','wb','kast'].forEach(function(k){$('#t-'+k).hidden=S.tab!==k})}
-function load(date){
+function load(date,hook){
   S.date=date;
   return getJSON('days/'+date+'.json').catch(function(){return null}).then(function(rec){
-    S.rec=rec||{Hourly:[]};S.M=model(date,S.rec);banner();cardsSummary(S.M,S.rec);cardsRivers(S.M);$('#rfoot').textContent=t('click');renderEnergy();renderPump();renderWB();renderKast();renderMeth();chrome();showTab()})}
+    S.rec=rec||{Hourly:[]};S.M=model(date,S.rec);chrome();
+    var steps=[function(){banner();cardsSummary(S.M,S.rec);cardsRivers(S.M);$('#rfoot').textContent=t('click')},renderEnergy,renderPump,renderWB,renderKast],p=Promise.resolve();
+    steps.forEach(function(f,i){p=p.then(function(){f();return hook?hook(i):null})});
+    return p.then(function(){renderMeth();chrome();showTab()})})}
 
 function boot(){
-  ovText();var nF=8,dF=0,tr=function(pr){return pr.then(function(x){dF++;ovSet(1,dF/nF*100);return x})};
+  ovText();ovRowStart(0);var nF=8,dF=0,t0=Date.now(),tr=function(pr){return pr.then(function(x){dF++;ovSet(0,dF/nF*100);return x})};
   Promise.all([tr(getJSON('index.json')),tr(getJSON('reservoirs.json')),tr(getJSON('energy_factors.json')),tr(getJSON('reservoir_history.json')),tr(opt('plant_heads.json')),tr(opt('entsoe_reservoir.json')),tr(opt('pump_daily.json')),tr(opt('water_balance.json'))]).then(function(a){
-    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];P.wb=a[7];P.pump=a[6]||[];P.pm={};P.pump.forEach(function(x){P.pm[x.Date]=x});sanitize();physE();ovSet(2,100);
+    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];P.wb=a[7];P.pump=a[6]||[];P.pm={};P.pump.forEach(function(x){P.pm[x.Date]=x});sanitize();physE();
+    return pause(Math.max(0,MIN_READ-(Date.now()-t0))).then(function(){ovRowDone(0);return pause(STEP)})}).then(function(){
     var pick=P.idx.Days.filter(function(x){return x.Status&&x.Status.scada==='ok'&&x.Status.isp==='ok'})[0]||P.idx.Days[0];
     $('#dsel').onchange=function(){load(this.value)};
-    $('#lang').onclick=function(){S.lang=S.lang==='el'?'en':'el';try{localStorage.setItem('kp_lang',S.lang)}catch(e){}load(S.date)};
-    $('#meth').onclick=function(){$('#mm').hidden=false};tipWire();
-    $('#rm').onclick=function(e){if(e.target===this)this.hidden=true};$('#mm').onclick=function(e){if(e.target===this)this.hidden=true};
-    return load(pick.Date).then(function(){ovSet(3,100);ovHide()})}).catch(function(e){ovHide();document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
+    [].forEach.call(document.querySelectorAll('#lang button'),function(b){b.onclick=function(){var l=b.getAttribute('data-l');if(l===S.lang)return;S.lang=l;try{localStorage.setItem('kp_lang',l)}catch(e){}load(S.date)}});
+    $('#meth').onclick=function(){openModal('mm')};tipWire();
+    $('#rm').onclick=function(e){if(e.target===this)closeModal('rm')};$('#mm').onclick=function(e){if(e.target===this)closeModal('mm')};
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal('rm');closeModal('mm')}});
+    return load(pick.Date,function(i){ovRowStart(i+1);return pause(STEP).then(function(){ovRowDone(i+1)})}).then(function(){ovReady();return pause(READY_MS)}).then(ovHide)}).catch(function(e){ovHide();document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
 window.__bh={P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver,nextRun:nextRun,fmtStamp:fmtStamp,lastUpdate:lastUpdate,CH:CH};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

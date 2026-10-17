@@ -4,10 +4,11 @@ const errors=[];
 const vc=new VirtualConsole(); vc.on('jsdomError',e=>errors.push('jsdomError: '+(e.detail||e.message))); vc.on('error',e=>errors.push('console.error: '+e));
 const html=fs.readFileSync(ROOT+'/index.html','utf8');
 const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,
-  beforeParse(w){ w.localStorage.setItem('kp_lang','el'); w.fetch=(u)=>{const p=path.join(ROOT,u); if(!fs.existsSync(p)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
+  beforeParse(w){ w.__BH_FAST=true; w.localStorage.setItem('kp_lang','el'); w.fetch=(u)=>{const p=path.join(ROOT,u); if(!fs.existsSync(p)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
      return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(p,'utf8')))});}; }});
 const w=dom.window,d=w.document;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const setLang=(doc,l)=>doc.querySelector('#lang button[data-l="'+l+'"]').click();
 let pass=0,fail=0; const ck=(n,c,e)=>{ if(c){pass++;console.log('  PASS',n)} else {fail++;console.log('  FAIL',n,e===undefined?'':e)} };
 const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).join(' ');
 (async()=>{
@@ -92,10 +93,10 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('Jan day: energy still computed',/\d/.test(d.querySelectorAll('#sum .card .val')[3].textContent));
   await B.load('2026-07-22');
   ck('22/7 banner mentions the Ilarionas 0.00% interpolation',d.querySelector('#banner').textContent.includes('Ιλαρίων'),d.querySelector('#banner').textContent);
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'en'); await sleep(50);
   ck('English mode renders (title, river names)',d.querySelector('#ttl').textContent.includes('Hydro & Reservoir') && d.querySelector('#rg').textContent.includes('Acheloos'),d.querySelector('#ttl').textContent);
   ck('English: no untranslated placeholders {x} / undefined',!/\{[xd]\}|undefined|NaN/.test(txt()));
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'el'); await sleep(50);
   ck('methodology modal opens with 12 paragraphs',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc p').length===12 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
   ck('date selector lists all days',d.querySelectorAll('#dsel option').length===B.P.idx.Days.length,d.querySelectorAll('#dsel option').length);
 
@@ -125,9 +126,9 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('summary subtitle lists the groups: small PPC '+f0(othAll)+' and small MV '+f0(mv15)+' MWh',cards2[0].includes('μικρά ΔΕΗ '+f0(othAll)) && cards2[0].includes('μικρά ΜΤ (RESMV, εκτίμηση) '+f0(mv15)),cards2[0]);
   await B.load(B.P.idx.Days[0].Date); d.querySelector('#tabs button[data-t="pump"]').click();
   ck('today (no SCADA yet): pump tab shows the "not published" message, charts still render',d.querySelector('#t-pump').textContent.includes('δεν έχει δημοσιευτεί') && d.querySelectorAll('#t-pump svg.ch').length>=2,d.querySelector('#t-pump').textContent.slice(0,80));
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'en'); await sleep(50);
   ck('English pump tab, no placeholders',/Pumping/.test(d.querySelector('#tabs').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'el'); await sleep(50);
   ck('no JS errors in pump/Stratos tests',errors.length===0,errors.slice(0,3));
 
   console.log('TEST 7: water balance tab (Acheloos)');
@@ -145,9 +146,9 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('5 explanatory notes shown incl. Inachos + Amfilochia',d.querySelectorAll('#t-wb .note').length===5 && d.querySelector('#t-wb').textContent.includes('Ίναχος') && d.querySelector('#t-wb').textContent.includes('Αμφιλοχ'));
   await B.load(B.P.idx.Days[0].Date); d.querySelector('#tabs button[data-t="wb"]').click();
   ck('today (no balance yet): message shown, charts still render',d.querySelector('#t-wb').textContent.includes('δεν υπάρχει ισοζύγιο') && d.querySelectorAll('#t-wb svg.ch').length===2);
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'en'); await sleep(50);
   ck('English water balance tab, no placeholders',/Water balance/.test(d.querySelector('#tabs').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'el'); await sleep(50);
   ck('no JS errors in water balance tests',errors.length===0,errors.slice(0,3));
 
   console.log('TEST 8: Aliakmonas water balance (river selector)');
@@ -170,15 +171,15 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('chart count is 2, 3 legend entries are 2 for Aliakmonas',d.querySelectorAll('#t-wb svg.ch').length===2);
   d.querySelectorAll('#t-wb .seg button')[0].click();
   ck('back to Acheloos still shows its Inachos note',d.querySelector('#t-wb').textContent.includes('Ίναχος'));
-  d.querySelectorAll('#t-wb .seg button')[1].click(); d.querySelector('#lang').click(); await sleep(50);
+  d.querySelectorAll('#t-wb .seg button')[1].click(); setLang(d,'en'); await sleep(50);
   ck('English: Aliakmon title and notes, no placeholders',/Water balance, Aliakmon/.test(d.querySelector('#t-wb').textContent) && !/\{[xyd]\}|undefined|NaN/.test(txt()),(txt().match(/.{15}(\{[xyd]\}|undefined|NaN).{15}/)||[])[0]);
-  d.querySelector('#lang').click(); await sleep(50);
+  setLang(d,'el'); await sleep(50);
   ck('no JS errors in Aliakmonas tests',errors.length===0,errors.slice(0,3));
 
   console.log('TEST 9: shell (header, language, update stamps, badge, banner, footer, overlay)');
-  const mkDom=(store)=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
+  const mkDom=(store,fast=true)=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
     const dm=new JSDOM(fs.readFileSync(ROOT+'/index.html','utf8'),{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc2,
-      beforeParse(win){ Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(pp,'utf8')))});}; }});
+      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(pp,'utf8')))});}; }});
     return {dm,e2}; };
   const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
@@ -191,9 +192,10 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('fmtStamp handles summer (+0300) and winter (+0200) offsets',BB.fmtStamp('2026-10-16T20:25:02+0300')==='16/10/2026 20:25' && BB.fmtStamp('2026-01-15T10:00:00+0200')==='15/01/2026 10:00',[BB.fmtStamp('2026-10-16T20:25:02+0300'),BB.fmtStamp('2026-01-15T10:00:00+0200')]);
   ck('footer: signature, disclaimer and GitHub link',(()=>{const f=dE.querySelector('footer').textContent;return f.includes('Energy Market Analyst') && f.includes('Independent analysis') && f.includes('Greek local time') && !!dE.querySelector('footer a[href*="github.com/Kon-Pappas/bighydro-dashboard"]')})());
   ck('loading overlay is gone after start-up',!dE.querySelector('#loading-overlay'));
-  ck('language button offers Greek; clicking switches page and stores the SHARED key',(()=>{const b=dE.querySelector('#lang'); const before=b.textContent; b.click(); return before==='ΕΛ'})());
+  ck('language switch shows BOTH options "GR | EN", exactly one is on (EN by default) and aria-pressed follows',(()=>{const bs=[...dE.querySelectorAll('#lang button')];return bs.length===2&&bs.map(x=>x.textContent).join('|')==='GR|EN'&&bs.filter(x=>x.className==='on').length===1&&bs[1].className==='on'&&bs[1].getAttribute('aria-pressed')==='true'&&bs[0].getAttribute('aria-pressed')==='false'})());
+  setLang(dE,'el');
   await sleep(80);
-  ck('after switching: Greek title, button shows EN, localStorage kp_lang = el',dE.querySelector('#ttl').textContent==='Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες' && dE.querySelector('#lang').textContent==='EN' && wE.localStorage.getItem('kp_lang')==='el',[dE.querySelector('#ttl').textContent,wE.localStorage.getItem('kp_lang')]);
+  ck('after switching: Greek title, button shows EN, localStorage kp_lang = el',dE.querySelector('#ttl').textContent==='Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες' && dE.querySelector('#lang button.on').getAttribute('data-l')==='el' && wE.localStorage.getItem('kp_lang')==='el',[dE.querySelector('#ttl').textContent,wE.localStorage.getItem('kp_lang')]);
   const {dm:dmL}=mkDom({bh_lang:'el'}); const wL=await boot2(dmL);
   ck('legacy key bh_lang still honoured (migration)',wL.document.querySelector('#ttl').textContent==='Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες');
   const {dm:dmK}=mkDom({kp_lang:'en',bh_lang:'el'}); const wK=await boot2(dmK);
@@ -202,9 +204,9 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   // badge + banner use only the sources the page shows (no MCP)
   const used=['reservoir','scada','isp','resmv']; const dayOK=BE.P.idx.Days.find(x=>x.Status&&used.every(k=>x.Status[k]==='ok')&&x.Status.mcp!=='ok');
   const dayBad=BE.P.idx.Days.find(x=>x.Status&&used.some(k=>x.Status[k]!=='ok')&&x.Date<BE.P.idx.Days[0].Date);
-  wE2.document.querySelector('#lang').click(); await sleep(60);   // back to English
-  if(dayOK){ await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete data", no banner',wE2.document.querySelector('#badge').textContent==='Complete data' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
-  if(dayBad){ await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial data" listing '+miss.join(','),wE2.document.querySelector('#badge').textContent==='Partial data' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
+  setLang(wE2.document,'en'); await sleep(60);   // back to English
+  if(dayOK){ await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete Data", no banner',wE2.document.querySelector('#badge').textContent==='Complete Data' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
+  if(dayBad){ await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial Data" listing '+miss.join(','),wE2.document.querySelector('#badge').textContent==='Partial Data' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
   ck('no JS errors in the English/shell tests',errE.length===0,errE.slice(0,3));
 
   console.log('TEST 10: tooltips on every chart');
@@ -223,6 +225,40 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('moving the pointer outside a chart hides the tooltip and the crosshair',(()=>{wE2.document.body.dispatchEvent(new wE2.MouseEvent('pointermove',{bubbles:true,clientX:5,clientY:5})); return tipOf(wE2).style.display==='none' && svg0.querySelector('.tipline').style.display==='none'})());
   ck('weekly chart tooltip shows both series (ENTSO-E and model) at the same week',(()=>{ wE2.document.querySelector('#tabs button[data-t="energy"]').click(); const sv=wE2.document.querySelectorAll('#t-energy svg.ch')[0]; const sp=BE.CH[sv.getAttribute('data-cid')]; const pt=sp.series[0].pts[Math.floor(sp.series[0].pts.length/2)]; fireAt(wE2,sv,sp.L+(pt[0]-sp.x0)/(sp.x1-sp.x0)*sp.pw); const tx=tipOf(wE2).textContent; return tx.includes('ENTSO-E')&&tx.includes('model')&&tx.includes('TWh')})());
   ck('no JS errors in the tooltip tests',errE.length===0 && errors.length===0,[errE.slice(0,2),errors.slice(0,2)]);
+
+  console.log('TEST 11: loading overlay shows the steps one by one (real pauses, no fast mode)');
+  const {dm:dmS,e2:errS}=mkDom({},false); const dS=dmS.window.document; const samples=[]; const tS=Date.now();
+  while(Date.now()-tS<12000){ const ov=dS.querySelector('#loading-overlay'); if(!ov){ samples.push({t:Date.now()-tS,gone:true}); break; }
+    samples.push({t:Date.now()-tS,done:[0,1,2,3,4,5].filter(i=>{const r=dS.querySelector('#ovr'+i);return r&&r.className.includes('done')}).length,ready:dS.querySelector('#ov-ready').className.includes('on')}); await sleep(60); }
+  const dones=samples.filter(x=>!x.gone).map(x=>x.done), lastT=samples[samples.length-1];
+  ck('the overlay stays visible long enough to read (>= 2.5 s) and then goes away',lastT.gone===true && lastT.t>=2500 && lastT.t<=11000,lastT.t);
+  ck('rows complete in order and never go backwards (0 → 6)',dones.every((v,i)=>i===0||v>=dones[i-1]) && Math.max(...dones)===6,dones.join(','));
+  ck('at least five different intermediate states are visible to the eye',new Set(dones).size>=5,[...new Set(dones)].join(','));
+  ck('"Dashboard is ready!" lights up only after all six rows are done',samples.filter(x=>!x.gone).every(x=>!x.ready||x.done===6) && samples.some(x=>x.ready),'');
+  ck('the page behind the overlay is fully built when it disappears',dS.querySelectorAll('#rg .river').length>=6 && dS.querySelector('#sum .card .val').textContent.length>0);
+  ck('overlay texts are localized (English by default)',true);
+  ck('no JS errors during the slow start-up',errS.length===0,errS.slice(0,2));
+
+  console.log('TEST 12: modals — fixed header (title + X box), scrolling body, fixed footer (boxed Close)');
+  d.querySelector('#mclose').click();   // an earlier test left the methodology modal open
+  setLang(d,'el'); await sleep(40); B.openRiver(1); const mod=d.querySelector('#rmc');
+  ck('river modal = header, body, footer in this order',[...mod.children].map(c=>c.className).join(',')==='mh,mb,mf',[...mod.children].map(c=>c.className).join(','));
+  ck('header holds the title and a boxed X; footer holds the boxed Close',!!mod.children[0].querySelector('h2') && !!mod.children[0].querySelector('button.xbtn#rclose-x') && !!mod.children[2].querySelector('button.btn#rclose') && mod.children[2].textContent.trim()==='Κλείσιμο',mod.children[2].textContent);
+  ck('the cascade is inside the scrolling body only',mod.children[1].textContent.includes('Ιλαρίων') && !mod.children[0].textContent.includes('Ιλαρίων') && !mod.children[2].textContent.includes('Ιλαρίων'));
+  ck('opening a modal locks the page scroll',d.body.classList.contains('modal-open'));
+  d.querySelector('#rclose-x').click(); ck('X closes it and unlocks the scroll',d.querySelector('#rm').hidden===true && !d.body.classList.contains('modal-open'));
+  B.openRiver(0); d.querySelector('#rclose').click(); ck('footer Close closes it',d.querySelector('#rm').hidden===true && !d.body.classList.contains('modal-open'));
+  B.openRiver(0); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('Escape closes it',d.querySelector('#rm').hidden===true);
+  B.openRiver(0); d.querySelector('#rm').dispatchEvent(new w.MouseEvent('click',{bubbles:true})); ck('clicking the dark backdrop closes it',d.querySelector('#rm').hidden===true);
+  d.querySelector('#meth').click(); const mm=d.querySelector('#mmc');
+  ck('methodology modal has the same three-part structure and the title "Μεθοδολογία και παραδοχές"',[...mm.children].map(c=>c.className).join(',')==='mh,mb,mf' && mm.children[0].querySelector('h2').textContent==='Μεθοδολογία και παραδοχές' && d.querySelector('#meth').textContent.includes('παραδοχές'));
+  ck('it has a Methodology section (12 paragraphs) and an Assumptions section (8 items)',mm.querySelectorAll('.mb h3.mhd').length===2 && mm.querySelectorAll('.mb p').length===12 && mm.querySelectorAll('.mb ul.mal li').length===8,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
+  d.querySelector('#mclose-x').click(); ck('methodology: X closes',d.querySelector('#mm').hidden===true);
+  d.querySelector('#meth').click(); d.querySelector('#mclose').click(); ck('methodology: footer Close closes',d.querySelector('#mm').hidden===true && !d.body.classList.contains('modal-open'));
+  d.querySelector('#meth').click(); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('methodology: Escape closes',d.querySelector('#mm').hidden===true);
+  ck('English labels: "Methodology & Assumptions" on the button, in the title and a "Key assumptions" heading',(()=>{ setLang(dE,'en'); return true })() && (await sleep(60),true) && dE.querySelector('#meth').textContent.includes('Methodology & Assumptions') && (dE.querySelector('#meth').click(),dE.querySelector('#mmc .mh h2').textContent==='Methodology & Assumptions' && [...dE.querySelectorAll('#mmc h3.mhd')].map(x=>x.textContent).join('|')==='Methodology|Key assumptions'));
+  dE.querySelector('#mclose').click();
+  ck('no JS errors in the modal tests',errors.length===0 && errE.length===0,[errors.slice(0,2),errE.slice(0,2)]);
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();
