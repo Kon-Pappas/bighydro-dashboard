@@ -15,7 +15,7 @@ visible-hydro summary · tests and documentation in the repository.
 5. ~~**Capacity check**~~ — **done as an analysis** (K09, D58): ADMIE's total implies Ilarionas ≈ 305 hm³ (RMSE 0.79 → 0.15 pp). Recorded as a hypothesis; the switch is decided at the **December recalibration**.
 
 ## Next phase — what the data can tell us (see `QUESTIONS.md`)
-9. **Multi-year baseline:** run the manual workflow *Backfill ENTSO-E history* (first in diagnostic mode for one early year), then compute weekly percentiles → "stock and inflow compared with a normal year" (questions 1 and 3).
+9. ~~**Multi-year baseline**~~ — **done**: history fetched (432 weeks, 2017–2025), `climatology.json` and the panel *Stored energy compared with previous years* (D61–D66). Next: the same for **inflow** (needs ADMIE's per-reservoir history) and for **hydro generation**.
 10. **Days-of-cover panel** with named scenarios (current rate, 2026 average, a peak day, February 2026) and, once the baseline exists, an inflow scenario (question 2).
 11. **Inflow regime indicator** (dry / transition / wet) from the apparent inflow, and a "rising or falling" line with the date a level would be reached at the current trend (questions 3 and 4).
 12. **Forced vs demand-driven hydro generation** (question 7), with February 2026 as the test case; this is the bridge to the curtailment research thread.

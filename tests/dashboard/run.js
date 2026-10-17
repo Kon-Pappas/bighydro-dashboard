@@ -79,7 +79,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 4: energy + Kastraki tabs');
   d.querySelector('#tabs button[data-t="energy"]').click(); 
   ck('energy tab visible, rivers tab hidden',!d.querySelector('#t-energy').hidden && d.querySelector('#t-rivers').hidden);
-  ck('energy tab: 2 charts + 2 tables',d.querySelectorAll('#t-energy svg.ch').length===2 && d.querySelectorAll('#t-energy table').length===2);
+  ck('energy tab: 3 charts (vs previous years, weekly, daily) + 2 tables',d.querySelectorAll('#t-energy svg.ch').length===3 && d.querySelectorAll('#t-energy table').length===2);
   const addD=(x,n)=>new Date(Date.parse(x+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
   let lastW=null; ((B.P.ent&&B.P.ent.Weeks)||[]).forEach(w=>{ let ok=true; for(let t=1;t<=7;t++){ if(B.P.fi[addD(w.StartLocal,t)]==null) ok=false } if(ok) lastW=w });
   ck('there is at least one ENTSO-E week with full daily data',lastW!=null);
@@ -238,7 +238,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('tooltip shows the right x label and value (and series name) on '+nCharts+' charts across all tabs and the river modal',nCharts>=11 && badTip.length===0,[nCharts,badTip]);
   const svg0=wE2.document.querySelector('#t-kast svg.ch'); fireAt(wE2,svg0,svg0 && BE.CH[svg0.getAttribute('data-cid')].L+50);
   ck('moving the pointer outside a chart hides the tooltip and the crosshair',(()=>{wE2.document.body.dispatchEvent(new wE2.MouseEvent('pointermove',{bubbles:true,clientX:5,clientY:5})); return tipOf(wE2).style.display==='none' && svg0.querySelector('.tipline').style.display==='none'})());
-  ck('weekly chart tooltip shows both series (ENTSO-E and model) at the same week',(()=>{ wE2.document.querySelector('#tabs button[data-t="energy"]').click(); const sv=wE2.document.querySelectorAll('#t-energy svg.ch')[0]; const sp=BE.CH[sv.getAttribute('data-cid')]; const pt=sp.series[0].pts[Math.floor(sp.series[0].pts.length/2)]; fireAt(wE2,sv,sp.L+(pt[0]-sp.x0)/(sp.x1-sp.x0)*sp.pw); const tx=tipOf(wE2).textContent; return tx.includes('ENTSO-E')&&tx.includes('model')&&tx.includes('TWh')})());
+  ck('weekly chart tooltip shows both series (ENTSO-E and model) at the same week',(()=>{ wE2.document.querySelector('#tabs button[data-t="energy"]').click(); const sv=wE2.document.querySelectorAll('#t-energy svg.ch')[1]; const sp=BE.CH[sv.getAttribute('data-cid')]; const pt=sp.series[0].pts[Math.floor(sp.series[0].pts.length/2)]; fireAt(wE2,sv,sp.L+(pt[0]-sp.x0)/(sp.x1-sp.x0)*sp.pw); const tx=tipOf(wE2).textContent; return tx.includes('ENTSO-E')&&tx.includes('model')&&tx.includes('TWh')})());
   ck('no JS errors in the tooltip tests',errE.length===0 && errors.length===0,[errE.slice(0,2),errors.slice(0,2)]);
 
   console.log('TEST 11: loading overlay shows the steps one by one (real pauses, no fast mode)');
@@ -457,6 +457,40 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'nestos'); ck('Nestos note (EN) cites Albanakis, Psilovikos, Vouvalidis, 2001',d.querySelector('#t-wb').textContent.includes('Albanakis, Psilovikos, Vouvalidis, 2001'));
   setLang(d,'el'); await sleep(60);
   ck('no JS errors in the K11 tests',errors.length===0,errors.slice(0,3));
+  }
+
+  console.log('TEST 19: stored energy compared with previous years — recomputed independently from the raw ENTSO-E files');
+  {
+  setLang(d,'el'); await sleep(60); d.querySelector('#tabs button[data-t="energy"]').click();
+  const HW=jf('data/entsoe_history.json').Weeks, LW=jf('data/entsoe_reservoir.json').Weeks, mg={}; HW.forEach(w=>mg[w.Start]=w); LW.forEach(w=>mg[w.Start]=w);
+  const WS=Object.values(mg).sort((a,b)=>a.Start<b.Start?-1:1), iso=w=>w.IsoWeek.split('-W').map(Number), E={}, cnt={};
+  WS.forEach(w=>{const [y,k]=iso(w); E[y+'-'+k]=w.MWh/1000; cnt[y]=(cnt[y]||0)+1});
+  const cyr=Math.max(...Object.keys(cnt).map(Number)), base=Object.keys(cnt).map(Number).filter(y=>y<cyr&&cnt[y]>=50).sort(), P_=(a,p)=>{const v=[...a].sort((x,y)=>x-y); if(v.length===1) return v[0]; const k=(v.length-1)*p/100, lo=Math.floor(k), hi=Math.min(lo+1,v.length-1); return v[lo]+(v[hi]-v[lo])*(k-lo)};
+  const stat=k=>{const v=base.filter(y=>E[y+'-'+k]!=null).map(y=>E[y+'-'+k]); return {n:v.length,min:Math.min(...v),p25:P_(v,25),med:P_(v,50),p75:P_(v,75),max:Math.max(...v),v}};
+  const tab=d.querySelector('#t-energy'), svg=tab.querySelector('svg.ch'), sp=B.CH[svg.getAttribute('data-cid')], nf0=v=>Math.round(v).toLocaleString('el-GR');
+  ck('the new section is at the top of the energy tab, with its title and intro (8 full years)',tab.querySelector('h2.sect').textContent==='Η αποθηκευμένη ενέργεια σε σχέση με προηγούμενα έτη' && base.length===8 && tab.querySelector('.note').textContent.includes('8 πλήρη έτη '+base[0]+'–'+base[base.length-1]),[base,tab.querySelector('.note').textContent.slice(0,120)]);
+  const named=sp.series.filter(x=>x.name), byName=n=>sp.series.find(x=>x.name===n);
+  ck('chart: the current year line and five hidden tooltip series (max, upper quartile, median, lower quartile, min), plus two bands and a dashed median',named.length===6 && named[0].name===String(cyr) && svg.querySelectorAll('path.bd1').length===1 && svg.querySelectorAll('path.bd2').length===1 && svg.querySelectorAll('path.smed').length===1,named.map(x=>x.name));
+  const okWk=[1,10,20,30,41,52]; let bad=[];
+  okWk.forEach(k=>{const st=stat(k), at=(nm)=>{const q=byName(nm).pts.find(p=>p[0]===k); return q&&q[1]};
+    const chk=[['Μέγιστο',st.max],['Άνω τεταρτημόριο (75ο)',st.p75],['Διάμεσος',st.med],['Κάτω τεταρτημόριο (25ο)',st.p25],['Ελάχιστο',st.min]];
+    chk.forEach(([nm,v])=>{if(at(nm)==null||Math.abs(at(nm)-v)>0.06) bad.push([k,nm,at(nm),v])})});
+  ck('band values for weeks '+okWk.join(', ')+' equal the percentiles recomputed from the raw history (0.1 GWh)',bad.length===0,bad.slice(0,3));
+  const last=LW.map(w=>w).sort((a,b)=>a.StartLocal<b.StartLocal?-1:1).pop(), [ly,lk]=iso(last), ls=stat(lk), lv=last.MWh/1000, rank=1+ls.v.filter(x=>x>lv).length, cards=[...tab.querySelectorAll('.card')].slice(3);   // the first 3 cards belong to the existing energy summary
+  ck('card 1: latest ENTSO-E week '+last.IsoWeek+' = '+nf0(lv)+' GWh, rank '+rank+' of '+(ls.v.length+1),cards[0].querySelector('.val').textContent===nf0(lv)+' GWh' && cards[0].querySelector('.sm').textContent.includes('Θέση '+rank+' από '+(ls.v.length+1)),cards[0].textContent);
+  const dlt=lv-ls.med; ck('card 2: difference from the median = '+Math.round(dlt)+' GWh ('+(dlt/ls.med*100).toFixed(1)+' %), with the median and quartiles',cards[1].querySelector('.val').textContent.includes(nf0(Math.abs(dlt))) && cards[1].querySelector('.sm').textContent.includes(nf0(ls.med)) && cards[1].querySelector('.sm').textContent.includes(nf0(ls.p25)+'–'+nf0(ls.p75)),cards[1].textContent);
+  const cyW=Object.keys(E).filter(x=>x.startsWith(cyr+'-')).map(x=>[E[x],Number(x.split('-')[1])]), pkc=cyW.sort((a,b)=>b[0]-a[0])[0], allp=base.map(y=>Math.max(...Object.keys(E).filter(x=>x.startsWith(y+'-')).map(x=>E[x]))).concat([pkc[0]]).sort((a,b)=>b-a), prk=1+allp.indexOf(pkc[0]);
+  ck('card 3: the peak of '+cyr+' = '+nf0(pkc[0])+' GWh in week '+pkc[1]+', rank '+prk+' of '+allp.length+' among the yearly peaks',cards[2].querySelector('.val').textContent===nf0(pkc[0])+' GWh' && cards[2].querySelector('.sm').textContent.includes('εβδομάδα '+pkc[1]) && cards[2].querySelector('.sm').textContent.includes('θέση '+prk+' από '+allp.length),cards[2].textContent);
+  const k20=20, st20=stat(k20); svg.getBoundingClientRect=()=>({left:0,top:0,width:sp.W,height:260}); svg.dispatchEvent(new w.MouseEvent('pointermove',{bubbles:true,clientX:sp.L+(k20-sp.x0)/(sp.x1-sp.x0)*sp.pw,clientY:100}));
+  const tt=d.querySelector('#tip').textContent; ck('tooltip at week 20 shows the week, the '+cyr+' value and the five band values',tt.includes('Εβδομάδα 20') && tt.includes(nf0(E[cyr+'-20']))  && tt.includes(nf0(st20.med)) && tt.includes(nf0(st20.min)) && tt.includes(nf0(st20.max)),tt);
+  const cj=jf('data/climatology.json'); ck('missing weeks are footnoted when the data has a gap ('+(cj.MissingWeeks.join(', ')||'none')+')',cj.MissingWeeks.length===0 || tab.textContent.includes(cj.MissingWeeks[0]));
+  ck('the page agrees with the script: rank, median and difference in climatology.json equal the recomputation',(()=>{const c=cj.Current[cj.Current.length-1]; return c.Rank===rank && Math.abs(c.DeltaMedian-dlt)<0.1 && c.Of===ls.v.length+1})());
+  setLang(d,'en'); await sleep(80); d.querySelector('#tabs button[data-t="energy"]').click();
+  ck('English: title, rank text and legend; no placeholders',/Stored energy compared with previous years/.test(d.querySelector('#t-energy').textContent) && new RegExp('Rank '+rank+' of '+(ls.v.length+1)).test(d.querySelector('#t-energy').textContent) && /Median of previous years/.test(d.querySelector('#t-energy').textContent) && !/\{[a-z0-9]+\}|undefined|NaN/.test(d.querySelector('#t-energy').textContent));
+  setLang(d,'el'); await sleep(60);
+  const {dm:dmC,e2:errC}=mkDom({},true,['climatology.json']); const wC=await boot2(dmC); wC.document.querySelector('#tabs button[data-t="energy"]').click();
+  ck('without climatology.json the energy tab is exactly as before: 2 charts, no new section, no errors',!wC.document.querySelector('#t-energy h2.sect') && wC.document.querySelectorAll('#t-energy svg.ch').length===2 && errC.length===0,errC.slice(0,2));
+  ck('no JS errors in the previous-years tests',errors.length===0,errors.slice(0,3));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);

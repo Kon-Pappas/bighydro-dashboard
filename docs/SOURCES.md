@@ -7,6 +7,8 @@ Rule of the project: **a source is cited only if we opened it and can name it** 
 |---|---|
 | Ministry of Environment and Energy (YPEKA), flood-hazard maps for the Aliakmon, `floods.ypeka.gr` — e.g. [map 4470](https://floods.ypeka.gr/wp-content/uploads/2024/03/EL09-05-DMAX-100-025-34-4470-02.pdf) and [map 4455](https://floods.ypeka.gr/wp-content/uploads/2024/03/EL09-05-DMAX-050-025-34-4455-02.pdf) | Reservoir levels as marked on the maps (legend: "highest level of the lake-reservoir as marked"): **Sfikia +142.1 m** (and +140.9 m on another map), **Asomata +84.5 m**. Their difference, ≈ 57–58 m, is an indicative gross head of the Sfikia plant |
 
+| ENTSO-E Transparency Platform, data item 16.1.D *Water reservoirs and hydro storage plants* (aggregated filling rate), zone 10YGR-HTSO-----Y; fetched through the API on 17 Oct 2026: weekly from 25 Sep 2017 to 29 Dec 2025 into `data/entsoe_history.json`, and 2026 into `data/entsoe_reservoir.json` | The weekly stored energy used for the calibration (2026) and for the comparison with previous years. 2015–2016 returned "no matching data" |
+
 ## Tier 2 — academic and conference papers (reviewed or co-authored by the operator)
 | Document | What we take from it |
 |---|---|

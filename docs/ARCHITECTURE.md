@@ -27,7 +27,8 @@ Steps run in this order, in one job (`concurrency: bighydro-fetch`, runs never o
 3. `build_water_balance.py` — water balance (`continue-on-error`).
 4. `build_psh.py` — pumped-storage data (`continue-on-error`).
 5. `build_unit_status.py` — daily generation per unit (`continue-on-error`).
-6. Commit and push `data/` if anything changed (`git pull --rebase` first).
+6. `build_climatology.py` — stock vs previous years (`continue-on-error`).
+7. Commit and push `data/` if anything changed (`git pull --rebase` first).
 
 A second, **manual** workflow, `.github/workflows/backfill_entsoe.yml` (*Backfill ENTSO-E history*), shares the same concurrency group. It fetches the weekly stored energy for past years (one request per year) into the **separate** file `data/entsoe_history.json`, which the energy calibration does not read. It has a diagnostic mode that writes nothing.
 
@@ -70,6 +71,7 @@ so it must be served over http(s) (GitHub Pages), not opened as a local file.
 * **Modals:** one component (`modalHtml`) builds a fixed header (title, boxed ✕), a scrolling body and a fixed footer (boxed Close); `openModal`/`closeModal` also lock the page scroll, and Escape or a click on the backdrop closes them. The river modal also carries the date navigation (select, previous/next, arrow keys): `gotoDay` reloads the page data and re-renders the open modal in place.
 * **Language:** English by default; a two-option switch **GR | EN** with the active option highlighted; the choice is stored in `localStorage` under the shared key `kp_lang` (the legacy key `bh_lang` is still read).
 * **Days:** `dayList()` returns only the days in `index.json` that have reservoir levels (all calculations rest on them); the date selectors, the river-modal navigation and the default day use it, and `load()` falls back to the latest available day (with a notice) when asked for another one.
+* **Stock vs previous years:** `climSection()` (top of the Stored energy tab) draws the weekly ENTSO-E stock of the current year over the min–max and 25th–75th percentile bands of the previous years (a `band` series type in `chart()`), with three cards (latest week and its rank, difference from the median, peak of the year). A missing file hides the section.
 * **Unit availability:** `renderAvail()` (Rivers tab) computes, for the selected date, the zero-generation counts (30/90/180 days), the flag, the last normal day and the short runs from `unit_daily.json`; it draws the daily-generation chart for the chosen unit, and the river modal marks flagged units. A missing file simply hides the section.
 * **Water balance tab:** `renderWB()` offers an "All rivers" overview (`wbAll()`: cards, stacked monthly bars, total line, table) and one view per river, built from the `Groups` of `water_balance.json` (single-block rivers hide the by-block chart). Stacked bars are a chart option (`stack`, per-series `color`, a `hidden` series that only feeds the tooltip total); colours are inline styles.
 * **Tooltips:** every chart registers its scales and series; a delegated pointer handler finds the nearest point and shows a tooltip plus a crosshair (works with touch; `touch-action: pan-y` keeps vertical scrolling).

@@ -5,9 +5,9 @@ The data we collect and the models we build exist to answer questions, not only 
 ## The questions
 | # | Question | What it needs | Status |
 |---|---|---|---|
-| 1 | How much stored energy do we have **compared with a normal year for this week**? | a multi-year weekly series (ENTSO-E 16.1.D, 2015–2025) → weekly percentiles | **needs the baseline** (manual backfill workflow, D61) |
+| 1 | How much stored energy do we have **compared with a normal year for this week**? | a multi-year weekly series (ENTSO-E 16.1.D) → per-week ranges | **done** (Stored energy tab, D63–D66): baseline 2018–2025; today rank 7 of 9, −78 GWh from the median |
 | 2 | How many **days** can the stock sustain hydro output, at different rates? | stock (ENTSO-E / model), generation rates (SCADA) | data exist; panel not built |
-| 3 | What is the **inflow now**, and is it **unusual** for the season? Has the regime changed (dry → wet)? | apparent inflow (water balance) + the baseline | inflow exists; "unusual" needs the baseline |
+| 3 | What is the **inflow now**, and is it **unusual** for the season? Has the regime changed (dry → wet)? | apparent inflow (water balance) + a multi-year **inflow** history | inflow exists for 2026 only; the stock history is a rough proxy (weekly change), a true comparison needs ADMIE's per-reservoir history |
 | 4 | Is the stock **rising or falling**, how fast, and when would it reach a given level at the current trend? | stock and inflow series | data exist; panel not built |
 | 5 | How much of the hydro generation rests on **recycled (pumped) water**, and how does that change between dry and wet periods? | PSH section (2026 only) | exists for 2026 |
 | 6 | Which river or reservoir **limits flexibility** (fewest days of cover) or **risks spilling**? | fill, inflow, generation per river | partly exists |
@@ -32,11 +32,11 @@ Rules:
 * the **inflow scenario** (zero / recent / typical) will be added once the baseline exists, so that the days can grow or shrink with what is arriving.
 
 ## The inflow "nose": it already works
-The apparent inflow (storage change plus water turbined) reacts before the fill percentage does. Example, October 2026: from the 10th the inflow rose from 1–3 to 5–12 hm³ a day (7.6 against 2.6 hm³ a day over the previous month) while ADMIE's total fill rate **kept falling every day** (42.3 % → 40.9 %), because generation still exceeded inflow. What is missing is the **context**: is that unusual for October? (needs the baseline).
+The apparent inflow (storage change plus water turbined) reacts before the fill percentage does. Example, October 2026: from the 10th the inflow rose from 1–3 to 5–12 hm³ a day (7.6 against 2.6 hm³ a day over the previous month) while ADMIE's total fill rate **kept falling every day** (42.3 % → 40.9 %), because generation still exceeded inflow. What is missing is the **context**: is that unusual for October? The stock now has a baseline (Stored energy tab); the inflow does not yet.
 Limits: the apparent inflow is a lower bound of the natural inflow (irrigation, evaporation and spills are not measured) and cannot tell rain from snowmelt or from releases upstream.
 
 ## Data still to add, in order
-1. **Multi-year ENTSO-E weekly stock** (2015–2025): manual workflow *Backfill ENTSO-E history*, file `data/entsoe_history.json`. First run it in diagnostic mode for one early year.
+1. ~~**Multi-year ENTSO-E weekly stock**~~ — **done**: `data/entsoe_history.json` holds 432 weeks (25 Sep 2017 – 29 Dec 2025); 2015–2016 returned no data. Next: **multi-year hydro generation** (ENTSO-E) to compare February 2026 with other years (question 7), and **ADMIE's per-reservoir history** for an inflow baseline (question 3).
 2. **System-wide generation or load** (ADMIE / ENTSO-E) for question 8.
 3. Later, and only after 26 Oct: rainfall (and its forecast) for the catchments — a larger step.
 
