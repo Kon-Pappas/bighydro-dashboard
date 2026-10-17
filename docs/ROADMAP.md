@@ -16,8 +16,8 @@ visible-hydro summary · tests and documentation in the repository.
 
 ## Next phase — what the data can tell us (see `QUESTIONS.md`)
 9. ~~**Multi-year baseline**~~ — **done**: history fetched (432 weeks, 2017–2025), `climatology.json` and the panel *Stored energy compared with previous years* (D61–D66). Next: the same for **inflow** (needs ADMIE's per-reservoir history) and for **hydro generation**.
-10. **Days-of-cover panel** with named scenarios (current rate, 2026 average, a peak day, February 2026) and, once the baseline exists, an inflow scenario (question 2).
-11. **Inflow regime indicator** (dry / transition / wet) from the apparent inflow, and a "rising or falling" line with the date a level would be reached at the current trend (questions 3 and 4).
+10. ~~**Days-of-cover panel**~~ — **done** (scenarios, usual-stock column, trend line; D67–D71). Next: an **inflow scenario** (zero / recent / typical) once an inflow baseline exists.
+11. **Inflow regime indicator** (dry / transition / wet) from the apparent inflow, and the date a chosen level would be reached at the current trend (questions 3 and 4). The "rising or falling" line already exists in *Days of cover*.
 12. **Forced vs demand-driven hydro generation** (question 7), with February 2026 as the test case; this is the bridge to the curtailment research thread.
 
 ## After 26 Oct 2026

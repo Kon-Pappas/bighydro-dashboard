@@ -79,12 +79,12 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 4: energy + Kastraki tabs');
   d.querySelector('#tabs button[data-t="energy"]').click(); 
   ck('energy tab visible, rivers tab hidden',!d.querySelector('#t-energy').hidden && d.querySelector('#t-rivers').hidden);
-  ck('energy tab: 3 charts (vs previous years, weekly, daily) + 2 tables',d.querySelectorAll('#t-energy svg.ch').length===3 && d.querySelectorAll('#t-energy table').length===2);
+  ck('energy tab: 3 charts (vs previous years, weekly, daily) + 3 tables (days of cover, weekly, rivers)',d.querySelectorAll('#t-energy svg.ch').length===3 && d.querySelectorAll('#t-energy table').length===3);
   const addD=(x,n)=>new Date(Date.parse(x+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
   let lastW=null; ((B.P.ent&&B.P.ent.Weeks)||[]).forEach(w=>{ let ok=true; for(let t=1;t<=7;t++){ if(B.P.fi[addD(w.StartLocal,t)]==null) ok=false } if(ok) lastW=w });
   ck('there is at least one ENTSO-E week with full daily data',lastW!=null);
   if(lastW){ let sm=0; for(let t=1;t<=7;t++) sm+=B.eqE(B.P.fi[addD(lastW.StartLocal,t)]); const modelGWh=Math.round(sm/7).toLocaleString('el-GR'), enGWh=Math.round(lastW.MWh/1000).toLocaleString('el-GR');
-    const rowTxt=[...d.querySelectorAll('#t-energy table')[0].querySelectorAll('tr')].map(r=>r.textContent).find(t=>t.includes(lastW.IsoWeek))||'';
+    const rowTxt=[...d.querySelectorAll('#t-energy table')[1].querySelectorAll('tr')].map(r=>r.textContent).find(t=>t.includes(lastW.IsoWeek))||'';
     ck('weekly table row '+lastW.IsoWeek+' shows ENTSO-E '+enGWh+' and model '+modelGWh+' GWh',rowTxt.includes(enGWh)&&rowTxt.includes(modelGWh),rowTxt);
     const oosW=Date.parse(lastW.StartLocal)>Date.parse(B.P.fac.Weeks.To); ck('weeks after the calibration period are labelled out-of-sample',!oosW||rowTxt.includes('εκτός δείγματος'),rowTxt); }
   d.querySelector('#tabs button[data-t="kast"]').click();
@@ -489,8 +489,47 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English: title, rank text and legend; no placeholders',/Stored energy compared with previous years/.test(d.querySelector('#t-energy').textContent) && new RegExp('Rank '+rank+' of '+(ls.v.length+1)).test(d.querySelector('#t-energy').textContent) && /Median of previous years/.test(d.querySelector('#t-energy').textContent) && !/\{[a-z0-9]+\}|undefined|NaN/.test(d.querySelector('#t-energy').textContent));
   setLang(d,'el'); await sleep(60);
   const {dm:dmC,e2:errC}=mkDom({},true,['climatology.json']); const wC=await boot2(dmC); wC.document.querySelector('#tabs button[data-t="energy"]').click();
-  ck('without climatology.json the energy tab is exactly as before: 2 charts, no new section, no errors',!wC.document.querySelector('#t-energy h2.sect') && wC.document.querySelectorAll('#t-energy svg.ch').length===2 && errC.length===0,errC.slice(0,2));
+  ck('without climatology.json the previous-years section is gone (2 charts) and the days-of-cover table loses only its two "usual stock" columns; no errors',![...wC.document.querySelectorAll('#t-energy h2.sect')].some(h=>h.textContent.includes('προηγούμενα έτη')) && wC.document.querySelectorAll('#t-energy svg.ch').length===2 && wC.document.querySelector('#t-energy table tr').children.length===3 && errC.length===0,[errC.slice(0,2),wC.document.querySelector('#t-energy table tr').children.length]);
   ck('no JS errors in the previous-years tests',errors.length===0,errors.slice(0,3));
+  }
+
+  console.log('TEST 20: days of cover — recomputed independently from unit_daily.json, reservoirs.json and climatology.json');
+  {
+  setLang(d,'el'); await sleep(60);
+  const UJ=jf('data/unit_daily.json'), RS=jf('data/reservoirs.json'), CJ=jf('data/climatology.json'), nf0=v=>Math.round(v).toLocaleString('el-GR'), nf1=v=>v.toLocaleString('el-GR',{minimumFractionDigits:1,maximumFractionDigits:1});
+  const units=Object.keys(RS.Reservoirs).filter(k=>k!=='P_AOOU').flatMap(k=>RS.Reservoirs[k].Units).filter(u=>UJ.Units[u]);
+  const isoW=ds=>{const x=new Date(Date.UTC(+ds.slice(0,4),+ds.slice(5,7)-1,+ds.slice(8,10))), dw=x.getUTCDay()||7; x.setUTCDate(x.getUTCDate()+4-dw); const y0=new Date(Date.UTC(x.getUTCFullYear(),0,1)); return Math.ceil(((x-y0)/864e5+1)/7)};
+  const mean=a=>a.reduce((p,q)=>p+q,0)/a.length;
+  const expect=date=>{ let ei=-1; UJ.Dates.forEach((x,i)=>{if(x<=date) ei=i}); const tot=[]; for(let i=0;i<=ei;i++){let s0=0,ok=false; units.forEach(u=>{const v=UJ.Units[u].Mwh[i]; if(v!=null){s0+=v;ok=true}}); tot.push(ok?s0/1000:null)}
+    const okv=a=>a.filter(v=>v!=null), mo={}; UJ.Dates.slice(0,ei+1).forEach((x,i)=>{if(tot[i]==null) return; (mo[x.slice(0,7)]=mo[x.slice(0,7)]||[]).push(tot[i])});
+    let best=null; Object.keys(mo).forEach(m=>{if(mo[m].length>=15){const a=mean(mo[m]); if(!best||a>best.v) best={m,v:a}}});
+    let mx=-1,mxd=null; tot.forEach((v,i)=>{if(v!=null&&v>mx){mx=v;mxd=UJ.Dates[i]}});
+    const rows=[{r:mean(okv(tot.slice(Math.max(0,ei-29))))},{r:mean(okv(tot))}]; if(best) rows.push({r:best.v,m:best.m}); rows.push({r:mx,d:mxd});
+    const cw=CJ.Weeks.find(x=>x.Wk===isoW(date)&&x.N>=3); return {ei,rows,med:cw?cw.Median:null,g7:mean(okv(tot.slice(Math.max(0,ei-6))))}};
+  const stockOf=async date=>{await B.load(date); d.querySelector('#tabs button[data-t="energy"]').click(); return Number(d.querySelector('#t-energy .card .val').textContent.replace(/[^\d]/g,''))};
+  for(const DATE of ['2026-10-15','2026-02-20']){
+    const stock=await stockOf(DATE), ex=expect(DATE), sec=[...d.querySelectorAll('#t-energy h2.sect')].find(h=>h.textContent.includes('Ημέρες κάλυψης')), tb=d.querySelector('#t-energy table.cvt'), trs=[...tb.querySelectorAll('tr')].slice(1);
+    ck(DATE+': the section has its title and four scenarios',!!sec && trs.length===4 && ex.rows.length===4,[trs.length,ex.rows.length]);
+    ck(DATE+': rates = '+ex.rows.map(x=>nf1(x.r)).join(' / ')+' GWh a day (current 30 d, average so far, highest month, largest day)',trs.every((r,i)=>r.children[1].textContent===nf1(ex.rows[i].r)),trs.map(r=>r.children[1].textContent));
+    ck(DATE+': days with the current stock = '+nf0(stock)+' GWh ÷ rate (±1 day for rounding of the stock)',trs.every((r,i)=>Math.abs(Number(r.children[2].querySelector('b').textContent.replace(/[^\d]/g,''))-stock/ex.rows[i].r)<=1.1),trs.map(r=>r.children[2].textContent));
+    ck(DATE+': days with the usual stock of the week = median '+nf0(ex.med)+' GWh ÷ rate, and the difference column',trs.every((r,i)=>{const du=Math.round(ex.med/ex.rows[i].r), dnow=Number(r.children[2].querySelector('b').textContent.replace(/[^\d]/g,'')); return r.children[3].textContent===nf0(du) && Math.abs(Number(r.children[4].textContent.replace('−','-').replace('+',''))-(dnow-du))<=1}),trs.map(r=>[r.children[3].textContent,r.children[4].textContent]));
+    ck(DATE+': the highest-month row names a month and the largest-day row names a date',trs[2].children[0].textContent.includes('Φεβ') && trs[3].children[0].textContent.includes(ex.rows[3].d.slice(8,10)+'/'+ex.rows[3].d.slice(5,7)+'/2026'),[trs[2].children[0].textContent,trs[3].children[0].textContent]);
+    const tl=d.querySelector('#t-energy .trendline'), prev=await stockOf(addDS(DATE,-7)); await stockOf(DATE); const trend=(stock-prev)/7, tl2=d.querySelector('#t-energy .trendline');
+    const m=tl2&&tl2.textContent.match(/(πέφτει|ανεβαίνει) ([\d.,]+) GWh/); const shown=m?Number(m[2].replace(/\./g,'').replace(',','.')):null;
+    ck(DATE+': trend line says the stock is '+(trend<0?'falling':'rising')+' by '+Math.abs(trend).toFixed(1)+' GWh a day (±0.3 for rounding)',!!m && (trend<0?m[1]==='πέφτει':m[1]==='ανεβαίνει') && Math.abs(shown-Math.abs(trend))<=0.3,[tl2&&tl2.textContent.slice(0,120),trend]);
+    if(trend<0){ const inflow=Math.max(0,ex.g7+trend), m2=tl2.textContent.match(/≈ ([\d.,]+) GWh την ημέρα, σε ισοδύναμη/); ck(DATE+': the inflow equivalent = generation of the same 7 days ('+nf1(ex.g7)+') minus the fall → ≈ '+nf1(inflow)+' GWh a day',!!m2 && Math.abs(Number(m2[1].replace(',','.'))-inflow)<=0.35,[m2&&m2[1],inflow]) }
+  }
+  await B.load('2026-10-15'); d.querySelector('#tabs button[data-t="energy"]').click();
+  const txt=d.querySelector('#t-energy').textContent;
+  ck('wording: "upper bound, not a forecast", "electric value of the water", "no inflow", gross generation (pumping not subtracted), rates from 2026 only',txt.includes('άνω όριο και όχι πρόβλεψη') && txt.includes('ηλεκτρική αξία του νερού') && txt.includes('η άντληση δεν αφαιρείται') && txt.includes('μόνο από το 2026') && txt.includes('όχι πρόβλεψη'));
+  await B.load('2026-01-04'); d.querySelector('#tabs button[data-t="energy"]').click();
+  ck('too early in the year (fewer than 7 days of generation): the section is not shown',![...d.querySelectorAll('#t-energy h2.sect')].some(h=>h.textContent.includes('Ημέρες κάλυψης')));
+  await B.load('2026-10-15'); setLang(d,'en'); await sleep(80); d.querySelector('#tabs button[data-t="energy"]').click();
+  ck('English: title, scenario names, "not a forecast"; no placeholders',/Days of cover: how long the stock lasts if no water arrives at all/.test(d.querySelector('#t-energy').textContent) && /Current rate \(last 30 days\)/.test(d.querySelector('#t-energy').textContent) && /upper bound, not a forecast/.test(d.querySelector('#t-energy').textContent) && !/\{[a-z0-9]+\}|undefined|NaN/.test(d.querySelector('#t-energy').textContent));
+  setLang(d,'el'); await sleep(60);
+  const {dm:dmU2,e2:errU2}=mkDom({},true,['unit_daily.json']); const wU2=await boot2(dmU2); wU2.document.querySelector('#tabs button[data-t="energy"]').click();
+  ck('without unit_daily.json the days-of-cover section is absent and the rest of the energy tab works',![...wU2.document.querySelectorAll('#t-energy h2.sect')].some(h=>h.textContent.includes('Ημέρες κάλυψης')) && wU2.document.querySelectorAll('#t-energy svg.ch').length===3 && errU2.length===0,errU2.slice(0,2));
+  ck('no JS errors in the days-of-cover tests',errors.length===0,errors.slice(0,3));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);

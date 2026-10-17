@@ -14,7 +14,7 @@ estimate that reproduces the ENTSO-E weekly figure, and a water balance per rive
 | Tab | Content |
 |---|---|
 | Rivers | Summary cards (visible hydro, pumping, fill level, stored energy), one card per river, cascade view per river (dam order, fill, generation, pump arrows, hourly profile), and **unit availability** (units with zero generation on at least half of the last 90 days, with a daily-generation chart) |
-| Stored energy | "ENTSO-E equivalent" (calibrated) and "physical estimate" (gross head), weekly comparison with ENTSO-E, per-river table |
+| Stored energy | "ENTSO-E equivalent" (calibrated) and "physical estimate" (gross head), weekly comparison with ENTSO-E, per-river table; **comparison with previous years** (2018–2025 ranges per ISO week) and **days of cover** (named rate scenarios, never one number) |
 | Pumping | SCADA vs ISP pumping, per-plant estimate (Sfikia, Thesavros), monthly table; and a **pumped-storage section**: how much of the water each plant turbines had been pumped up first (recycled share, volume closure) |
 | Water balance | Apparent inflow (storage change + turbined water) for all six rivers, with an "All rivers" overview: stacked monthly bars, total line and table |
 | Kastraki | Level history and daily storage change of the Kastraki lake |
@@ -58,7 +58,7 @@ A re-run overwrites old values with new non-null values; a missing value never e
 
 ## Tests
 `python tests/run_all.py` (pipeline, 189 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
-(page, ~225 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
+(page, ~240 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
 ## Read this before trusting a number

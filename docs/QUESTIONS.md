@@ -6,9 +6,9 @@ The data we collect and the models we build exist to answer questions, not only 
 | # | Question | What it needs | Status |
 |---|---|---|---|
 | 1 | How much stored energy do we have **compared with a normal year for this week**? | a multi-year weekly series (ENTSO-E 16.1.D) → per-week ranges | **done** (Stored energy tab, D63–D66): baseline 2018–2025; today rank 7 of 9, −78 GWh from the median |
-| 2 | How many **days** can the stock sustain hydro output, at different rates? | stock (ENTSO-E / model), generation rates (SCADA) | data exist; panel not built |
+| 2 | How many **days** can the stock sustain hydro output, at different rates? | stock (ENTSO-E / model), generation rates (SCADA) | **done** (Stored energy tab, *Days of cover*, D67–D71) |
 | 3 | What is the **inflow now**, and is it **unusual** for the season? Has the regime changed (dry → wet)? | apparent inflow (water balance) + a multi-year **inflow** history | inflow exists for 2026 only; the stock history is a rough proxy (weekly change), a true comparison needs ADMIE's per-reservoir history |
-| 4 | Is the stock **rising or falling**, how fast, and when would it reach a given level at the current trend? | stock and inflow series | data exist; panel not built |
+| 4 | Is the stock **rising or falling**, how fast, and when would it reach a given level at the current trend? | stock and inflow series | **partly done**: trend line (7 days) and equivalent inflow in *Days of cover*; a chosen level and date are not yet shown |
 | 5 | How much of the hydro generation rests on **recycled (pumped) water**, and how does that change between dry and wet periods? | PSH section (2026 only) | exists for 2026 |
 | 6 | Which river or reservoir **limits flexibility** (fewest days of cover) or **risks spilling**? | fill, inflow, generation per river | partly exists |
 | 7 | How much of the generation was **forced by the need to release water** (must-run) and how much was demand-driven? | fill near 100 %, spills, apparent inflow, generation; February 2026 is the test case | **new**; links with the curtailment research thread |
