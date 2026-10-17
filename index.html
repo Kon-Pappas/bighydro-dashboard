@@ -51,7 +51,15 @@ nav.tabs button.on{background:var(--acc2);color:#fff;border-color:var(--acc);fon
 .card .lab{font-size:12px;color:var(--mut)}.card .val{font-size:22px;font-weight:700;margin-top:2px;color:var(--ink)}.card .sm{font-size:12px;color:var(--mut);margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .river{text-align:left;width:100%;padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
-button.river:hover{border-color:var(--acc)}
+.river.flat{background:transparent;border-style:dashed;box-shadow:none;cursor:default}.river.flat h3{color:var(--ink2)}
+button.river{position:relative;background:linear-gradient(180deg,rgba(51,65,85,.62),rgba(30,41,59,.72));border:1px solid var(--line2);box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 4px 12px rgba(0,0,0,.38);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+button.river h3{padding-right:34px}
+button.river:hover{transform:translateY(-2px);border-color:var(--acc);box-shadow:0 1px 0 rgba(255,255,255,.09) inset,0 10px 20px rgba(0,0,0,.5)}
+button.river:active{transform:translateY(0);box-shadow:0 2px 6px rgba(0,0,0,.45)}
+button.river:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.chev{position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);background:rgba(15,23,42,.55);color:var(--acc);display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.chev svg{width:14px;height:14px}button.river:hover .chev{background:var(--acc2);color:#fff;border-color:var(--acc);transform:translateX(2px)}
+.rfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;min-height:22px}.more{font-size:12px;font-weight:700;color:var(--acc);white-space:nowrap}
 .river h3{margin:0 0 4px;font-size:15px;color:var(--ink)}.big{font-size:24px;font-weight:700}
 .track{height:7px;background:var(--bar);border-radius:4px;margin:6px 0 8px;overflow:hidden}.fillb{height:100%;background:var(--c1);border-radius:4px}
 .row2{display:flex;justify-content:space-between;gap:8px;font-size:13px}
@@ -78,7 +86,11 @@ svg.ch text{fill:var(--mut);font-size:11px}svg.ch .ax{stroke:var(--line)}svg.ch 
 .modal-b{position:fixed;inset:0;background:rgba(2,6,23,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
 .modal-b[hidden]{display:none}
 .modal{background:var(--bg);border:1px solid var(--line2);border-radius:14px;width:100%;max-width:760px;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden}
-.mh{flex:none;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mh{flex:none;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px 12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.mh>div:first-child{flex:1 1 180px;min-width:0}
+.mhr{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.dnav{display:flex;align-items:center;gap:6px}.dnav select{min-width:0}
+.xbtn:disabled{opacity:.35;cursor:default}.xbtn:disabled:hover{color:var(--mut);border-color:var(--line2)}
 .mh h2{margin:0;font-size:18px;color:var(--acc);line-height:1.25}.mh .sub{font-size:12px;color:var(--mut);margin-top:2px}
 .xbtn{flex:none;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:8px;background:rgba(30,41,59,.8);color:var(--mut);padding:0}
 .xbtn:hover{color:var(--acc);border-color:var(--acc)}.xbtn svg{width:18px;height:18px}
@@ -88,7 +100,7 @@ svg.ch text{fill:var(--mut);font-size:11px}svg.ch .ax{stroke:var(--line)}svg.ch 
 .mf{flex:none;display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
 .mf .btn{padding:8px 22px;font-size:13px}
 body.modal-open{overflow:hidden}
-@media (max-width:560px){.modal-b{padding:8px}.modal{max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px)}}
+@media (max-width:560px){.mhr{width:100%}.dnav{width:100%}.dnav select{flex:1 1 auto}.modal-b{padding:8px}.modal{max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px)}}
 .dam{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr);gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .flow{text-align:center;color:var(--mut);font-size:13px;line-height:1.2;padding:2px 0}.pump{color:var(--warn)}
 .seg{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.seg button{background:rgba(30,41,59,.8);border:1px solid var(--line);border-radius:8px;padding:6px 12px;color:var(--mut)}.seg button.on{border-color:var(--acc);color:var(--acc);font-weight:600}
@@ -162,7 +174,7 @@ if(S.lang!=='el')S.lang='en';   // κοινό κλειδί 'kp_lang' για όλ
 
 /* ---------- i18n ---------- */
 var T={el:{
- ttl:'Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες',date:'Ημέρα',meth:'Μεθοδολογία και παραδοχές',lu:'Τελευταία ενημέρωση:',nu:'Επόμενη ενημέρωση:',tmr:'αύριο',b_full:'Πλήρη δεδομένα',b_part:'Μερικά δεδομένα',ov_title:'Εκκίνηση συστήματος',ov_l0:'Λήψη δεδομένων',ov_l1:'Μηχανή ανάλυσης',ov_r0:'Ανάγνωση αρχείων',ov_r1:'Φόρτωση επισκόπησης ποταμών',ov_r2:'Φόρτωση αποθηκευμένης ενέργειας',ov_r3:'Φόρτωση άντλησης',ov_r4:'Φόρτωση ισοζυγίου νερού',ov_r5:'Φόρτωση Καστρακίου',ov_rd:'Ο πίνακας είναι έτοιμος!',ft_src:'Δεδομένα: ΑΔΜΗΕ (στάθμες ταμιευτήρων, SCADA, ISP, RESMV), ENTSO-E (τιμή αγοράς, εβδομαδιαίο αποθηκευμένο απόθεμα). Ώρα Ελλάδας.',ft_disc:'Ανεξάρτητη ανάλυση, χωρίς σχέση με ΑΔΜΗΕ, ΔΕΗ ή ENTSO-E· όχι επενδυτική ή λειτουργική συμβουλή. Το RESMV δεν είναι πιστοποιημένο· η «ενέργεια ισοδύναμη ENTSO-E», οι πτώσεις και οι αποδόσεις είναι εκτιμήσεις· το ισοζύγιο δείχνει φαινόμενη εισροή. Δες Μεθοδολογία.',
+ ttl:'Ελληνικά Υδροηλεκτρικά και Ταμιευτήρες',date:'Ημέρα',meth:'Μεθοδολογία και παραδοχές',cascade:'Δες καταρράκτη',prev_day:'Προηγούμενη ημέρα',next_day:'Επόμενη ημέρα',lu:'Τελευταία ενημέρωση:',nu:'Επόμενη ενημέρωση:',tmr:'αύριο',b_full:'Πλήρη δεδομένα',b_part:'Μερικά δεδομένα',ov_title:'Εκκίνηση συστήματος',ov_l0:'Λήψη δεδομένων',ov_l1:'Μηχανή ανάλυσης',ov_r0:'Ανάγνωση αρχείων',ov_r1:'Φόρτωση επισκόπησης ποταμών',ov_r2:'Φόρτωση αποθηκευμένης ενέργειας',ov_r3:'Φόρτωση άντλησης',ov_r4:'Φόρτωση ισοζυγίου νερού',ov_r5:'Φόρτωση Καστρακίου',ov_rd:'Ο πίνακας είναι έτοιμος!',ft_src:'Δεδομένα: ΑΔΜΗΕ (στάθμες ταμιευτήρων, SCADA, ISP, RESMV), ENTSO-E (τιμή αγοράς, εβδομαδιαίο αποθηκευμένο απόθεμα). Ώρα Ελλάδας.',ft_disc:'Ανεξάρτητη ανάλυση, χωρίς σχέση με ΑΔΜΗΕ, ΔΕΗ ή ENTSO-E· όχι επενδυτική ή λειτουργική συμβουλή. Το RESMV δεν είναι πιστοποιημένο· η «ενέργεια ισοδύναμη ENTSO-E», οι πτώσεις και οι αποδόσεις είναι εκτιμήσεις· το ισοζύγιο δείχνει φαινόμενη εισροή. Δες Μεθοδολογία.',
  t_rivers:'Ποτάμια',t_energy:'Αποθηκευμένη ενέργεια',t_pump:'Άντληση',t_wb:'Ισοζύγιο νερού',t_kast:'Καστράκι',
  c_hydro:'Υδροηλεκτρική παραγωγή (ορατή)',c_pump:'Άντληση (SCADA)',c_fill:'Πλήρωση, επίσημο ΑΔΜΗΕ',c_rec:'ανασύνθεση με χωρητικότητες: {x}% ({d} μον.)',
  c_en:'Ενέργεια αποθεμάτων (ισοδύναμο ENTSO-E)',c_en_s:'σύνολο, ± {x}% ανάμεσα σε μοντέλα',c_hydro_s:'μεγάλα {a} · μικρά ΔΕΗ {b} · μικρά ΜΤ (RESMV, εκτίμηση) {c}{d}',c_hydro_nomv:' · χωρίς RESMV (δεν υπάρχει για αυτή την ημέρα)',c_hydro_aul:' · Αυλάκι {x}',
@@ -197,7 +209,7 @@ var T={el:{
  '<b>Άντληση.</b> Το SCADA δίνει μόνο το σύνολο άντλησης (και το ENTSO-E το ίδιο). Ανά μονάδα (Σφηκιά, Θησαυρός) υπάρχει μόνο το πρόγραμμα ISP. Η εκτίμηση μοιράζει κάθε ώρα το σύνολο του SCADA με βάση το πρόγραμμα ISP της ώρας· ώρες χωρίς πρόγραμμα παίρνουν το μερίδιο της ημέρας· ημέρες χωρίς πρόγραμμα δεν μοιράζονται. Είναι εκτίμηση και όχι μέτρηση.',
  '<b>Όρια.</b> Η αντλία Πλατανόβρυση → Θησαυρός είναι υπόθεση. Ο Στράτος ΙΙ προστίθεται στον Στράτο Ι μόνο για μέρες με δεδομένα SCADA ανά μονάδα. Οι συντελεστές θα επανεκτιμηθούν με φθινοπωρινή πλήρωση.']},
 en:{
- ttl:'Greek Hydro & Reservoir Analytics',date:'Date',meth:'Methodology & Assumptions',lu:'Last Update:',nu:'Next Update:',tmr:'tomorrow',b_full:'Complete Data',b_part:'Partial Data',ov_title:'System Initialization',ov_l0:'Data Fetching',ov_l1:'Analytics Engine',ov_r0:'Reading data files',ov_r1:'Loading Rivers Overview',ov_r2:'Loading Stored Energy',ov_r3:'Loading Pumping',ov_r4:'Loading Water Balance',ov_r5:'Loading Kastraki Watch',ov_rd:'Dashboard is ready!',ft_src:'Data: ADMIE/IPTO (reservoir filling rate, SCADA, ISP, RESMV), ENTSO-E Transparency (day-ahead price, weekly stored energy). Greek local time.',ft_disc:'Independent analysis, not affiliated with ADMIE/IPTO, PPC or ENTSO-E; not investment or operational advice. RESMV is uncertified; the "ENTSO-E equivalent" energy, heads and efficiencies are estimates; the water balance shows apparent inflow. See Methodology.',
+ ttl:'Greek Hydro & Reservoir Analytics',date:'Date',meth:'Methodology & Assumptions',cascade:'View cascade',prev_day:'Previous day',next_day:'Next day',lu:'Last Update:',nu:'Next Update:',tmr:'tomorrow',b_full:'Complete Data',b_part:'Partial Data',ov_title:'System Initialization',ov_l0:'Data Fetching',ov_l1:'Analytics Engine',ov_r0:'Reading data files',ov_r1:'Loading Rivers Overview',ov_r2:'Loading Stored Energy',ov_r3:'Loading Pumping',ov_r4:'Loading Water Balance',ov_r5:'Loading Kastraki Watch',ov_rd:'Dashboard is ready!',ft_src:'Data: ADMIE/IPTO (reservoir filling rate, SCADA, ISP, RESMV), ENTSO-E Transparency (day-ahead price, weekly stored energy). Greek local time.',ft_disc:'Independent analysis, not affiliated with ADMIE/IPTO, PPC or ENTSO-E; not investment or operational advice. RESMV is uncertified; the "ENTSO-E equivalent" energy, heads and efficiencies are estimates; the water balance shows apparent inflow. See Methodology.',
  t_rivers:'Rivers',t_energy:'Stored energy',t_pump:'Pumping',t_wb:'Water balance',t_kast:'Kastraki',
  c_hydro:'Hydro generation (visible)',c_pump:'Pumping (SCADA)',c_fill:'Fill level, official ADMIE',c_rec:'rebuilt with capacities: {x}% ({d} pp)',
  c_en:'Stored energy (ENTSO-E equivalent)',c_en_s:'total, ± {x}% across model variants',c_hydro_s:'large {a} · small PPC {b} · small MV (RESMV, estimate) {c}{d}',c_hydro_nomv:' · no RESMV for this day',c_hydro_aul:' · Aulaki {x}',
@@ -352,14 +364,18 @@ function cardsRivers(M){
   var BR=P.fac.Latest.ByRiver,h='';
   M.rivers.forEach(function(R,ix){
     var br=BR[R.r.Id]||{};
-    h+='<button class="river" data-i="'+ix+'"><h3>'+rname(R.r)+'</h3><div class="big">'+nf(R.fill,1)+'%</div><div class="track"><div class="fillb" style="width:'+Math.min(100,R.fill)+'%"></div></div>'+
+    h+='<button class="river" data-i="'+ix+'" title="'+t('cascade')+'" aria-label="'+rname(R.r)+' · '+t('cascade')+'"><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span><h3>'+rname(R.r)+'</h3><div class="big">'+nf(R.fill,1)+'%</div><div class="track"><div class="fillb" style="width:'+Math.min(100,R.fill)+'%"></div></div>'+
      '<div class="row2"><span>'+t('prod')+'</span><b>'+(R.prodN?nf(R.prod)+' MWh':'—')+'</b></div>'+
      '<div class="row2"><span>'+t('stored')+'</span><b>'+nf(R.eEq)+' GWh</b></div>'+
-     '<div class="row2 small" style="margin-top:6px"><span>'+(br.Reliability?relTxt(br.Reliability,br.SpreadPercent):'')+'</span></div></button>'});
-  M.noRes.forEach(function(w){h+='<div class="river" style="cursor:default"><h3>'+w.name+'</h3><div class="mut small">'+t('nores')+'</div><div class="row2" style="margin-top:10px"><span>'+t('prod')+'</span><b>'+(w.prod!=null?nf(w.prod)+' MWh':'—')+'</b></div><div class="mut small" style="margin-top:4px">'+w.parts.map(function(x){return x.name+' '+(x.prod!=null?nf(x.prod):'—')}).join(' · ')+'</div></div>'});
+     '<div class="rfoot"><span class="small">'+(br.Reliability?relTxt(br.Reliability,br.SpreadPercent):'')+'</span><span class="more">'+t('cascade')+' ›</span></div></button>'});
+  M.noRes.forEach(function(w){h+='<div class="river flat"><h3>'+w.name+'</h3><div class="mut small">'+t('nores')+'</div><div class="row2" style="margin-top:10px"><span>'+t('prod')+'</span><b>'+(w.prod!=null?nf(w.prod)+' MWh':'—')+'</b></div><div class="mut small" style="margin-top:4px">'+w.parts.map(function(x){return x.name+' '+(x.prod!=null?nf(x.prod):'—')}).join(' · ')+'</div></div>'});
   $('#rg').innerHTML=h;
   [].forEach.call(document.querySelectorAll('#rg .river[data-i]'),function(b){b.onclick=function(){openRiver(+b.getAttribute('data-i'))}})}
-function openRiver(ix){
+var RM_IX=null,SVGL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',SVGR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+function gotoDay(date){return load(date).then(function(){if(RM_IX!==null&&!$('#rm').hidden)openRiver(RM_IX,true)})}
+function stepDay(dir){var D=P.idx.Days,i=D.findIndex(function(x){return x.Date===S.date}),j=i-dir;if(i<0||j<0||j>=D.length)return Promise.resolve();return gotoDay(D[j].Date)}
+function openRiver(ix,keep){
+  var keepSc=!!keep&&!$('#rm').hidden,sc=keepSc&&$('#rmc .mb')?$('#rmc .mb').scrollTop:0;RM_IX=ix;
   var M=S.M,R=M.rivers[ix],r=R.r,rec=S.rec,br=P.fac.Latest.ByRiver[r.Id]||{},h='',pm=P.pm&&P.pm[S.date],pk=null;
   if(r.Pump&&pm&&pm.ScadaMWh!=null)pk=r.Pump.To==='SFIKIA'?{est:pm.EstSfikiaMWh,isp:pm.IspSfikiaMWh}:{est:pm.EstThesavrosMWh,isp:pm.IspThesavrosMWh};
   R.dams.forEach(function(d,ix2){
@@ -380,8 +396,10 @@ function openRiver(ix){
   h+='<div class="panel"><h2>'+t('stored')+'</h2><div class="row2"><span>'+t('e_entsoe')+'</span><b>'+nf(R.eEq)+' GWh</b></div><div class="row2"><span>'+t('e_phys')+'</span><b>'+nf(R.ePh)+' GWh</b></div>'+
     (r.Id==='arachthos'?'<div class="row2 small"><span>'+t('e_aoos')+'</span><b>'+nf(M.aoosPh)+' GWh</b></div>':'')+
     '<div style="margin-top:6px">'+(br.Reliability?relTxt(br.Reliability,br.SpreadPercent):'')+'</div></div>';
-  $('#rmc').innerHTML=modalHtml(rname(r),t('top_down')+' · '+fd(S.date),h,'rclose','rclose-x');openModal('rm');
-  $('#rclose').onclick=$('#rclose-x').onclick=function(){closeModal('rm')}}
+  var DY=P.idx.Days,di=DY.findIndex(function(x){return x.Date===S.date}),
+    nav='<div class="dnav"><button type="button" class="xbtn" id="rd-prev" aria-label="'+t('prev_day')+'" title="'+t('prev_day')+'"'+(di>=DY.length-1?' disabled':'')+'>'+SVGL+'</button><select id="rdsel" aria-label="'+t('date')+'">'+DY.map(function(x){var ok=x.Status&&x.Status.scada==='ok';return '<option value="'+x.Date+'"'+(x.Date===S.date?' selected':'')+'>'+fd(x.Date)+(ok?'':' *')+'</option>'}).join('')+'</select><button type="button" class="xbtn" id="rd-next" aria-label="'+t('next_day')+'" title="'+t('next_day')+'"'+(di<=0?' disabled':'')+'>'+SVGR+'</button></div>';
+  $('#rmc').innerHTML=modalHtml(rname(r),t('top_down'),h,'rclose',null,nav);if($('#rm').hidden)openModal('rm');if(keepSc&&$('#rmc .mb'))$('#rmc .mb').scrollTop=sc;
+  $('#rclose').onclick=function(){closeModal('rm')};$('#rdsel').onchange=function(){gotoDay(this.value)};$('#rd-prev').onclick=function(){stepDay(-1)};$('#rd-next').onclick=function(){stepDay(1)}}
 
 function renderEnergy(){
   var M=S.M,F=P.fac,A=F.Latest.ByRiver,h='',k;
@@ -492,7 +510,7 @@ function ovReady(){var e=document.getElementById('ov-ready'),sp=document.getElem
 function ovText(){['ov-title','ov-l0','ov-l1','ov-r0','ov-r1','ov-r2','ov-r3','ov-r4','ov-r5','ov-rd'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t(id.replace('-','_'))})}
 function ovHide(){var o=document.getElementById('loading-overlay');if(!o)return;o.classList.add('hide');setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},600)}
 var XSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-function modalHtml(title,sub,body,idc,idx){return '<div class="mh"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div><button type="button" class="xbtn" id="'+idx+'" aria-label="'+t('close')+'">'+XSVG+'</button></div><div class="mb">'+body+'</div><div class="mf"><button type="button" class="btn" id="'+idc+'">'+t('close')+'</button></div>'}
+function modalHtml(title,sub,body,idc,idx,extra){return '<div class="mh"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+((extra||idx)?'<div class="mhr">'+(extra||'')+(idx?'<button type="button" class="xbtn" id="'+idx+'" aria-label="'+t('close')+'">'+XSVG+'</button>':'')+'</div>':'')+'</div><div class="mb">'+body+'</div><div class="mf"><button type="button" class="btn" id="'+idc+'">'+t('close')+'</button></div>'}
 function openModal(id){var e=document.getElementById(id);if(!e)return;e.hidden=false;document.body.classList.add('modal-open');var b=e.querySelector('.mb');if(b)b.scrollTop=0}
 function closeModal(id){var e=document.getElementById(id);if(e)e.hidden=true;if(!document.querySelector('.modal-b:not([hidden])'))document.body.classList.remove('modal-open')}
 function banner(){
@@ -528,7 +546,7 @@ function boot(){
     [].forEach.call(document.querySelectorAll('#lang button'),function(b){b.onclick=function(){var l=b.getAttribute('data-l');if(l===S.lang)return;S.lang=l;try{localStorage.setItem('kp_lang',l)}catch(e){}load(S.date)}});
     $('#meth').onclick=function(){openModal('mm')};tipWire();
     $('#rm').onclick=function(e){if(e.target===this)closeModal('rm')};$('#mm').onclick=function(e){if(e.target===this)closeModal('mm')};
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal('rm');closeModal('mm')}});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal('rm');closeModal('mm')}else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&!$('#rm').hidden&&!(e.target&&/^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName||''))){e.preventDefault();stepDay(e.key==='ArrowLeft'?-1:1)}});
     return load(pick.Date,function(i){ovRowStart(i+1);return pause(STEP).then(function(){ovRowDone(i+1)})}).then(function(){ovReady();return pause(READY_MS)}).then(ovHide)}).catch(function(e){ovHide();document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
 window.__bh={P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver,nextRun:nextRun,fmtStamp:fmtStamp,lastUpdate:lastUpdate,CH:CH};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();

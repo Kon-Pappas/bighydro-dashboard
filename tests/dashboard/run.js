@@ -243,10 +243,10 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   d.querySelector('#mclose').click();   // an earlier test left the methodology modal open
   setLang(d,'el'); await sleep(40); B.openRiver(1); const mod=d.querySelector('#rmc');
   ck('river modal = header, body, footer in this order',[...mod.children].map(c=>c.className).join(',')==='mh,mb,mf',[...mod.children].map(c=>c.className).join(','));
-  ck('header holds the title and a boxed X; footer holds the boxed Close',!!mod.children[0].querySelector('h2') && !!mod.children[0].querySelector('button.xbtn#rclose-x') && !!mod.children[2].querySelector('button.btn#rclose') && mod.children[2].textContent.trim()==='Κλείσιμο',mod.children[2].textContent);
+  ck('river modal header holds the title and the date navigation (no X); footer holds the boxed Close',!!mod.children[0].querySelector('h2') && !!mod.children[0].querySelector('#rdsel') && !mod.querySelector('#rclose-x') && !!mod.children[2].querySelector('button.btn#rclose') && mod.children[2].textContent.trim()==='Κλείσιμο',mod.children[2].textContent);
   ck('the cascade is inside the scrolling body only',mod.children[1].textContent.includes('Ιλαρίων') && !mod.children[0].textContent.includes('Ιλαρίων') && !mod.children[2].textContent.includes('Ιλαρίων'));
   ck('opening a modal locks the page scroll',d.body.classList.contains('modal-open'));
-  d.querySelector('#rclose-x').click(); ck('X closes it and unlocks the scroll',d.querySelector('#rm').hidden===true && !d.body.classList.contains('modal-open'));
+  d.querySelector('#rclose').click(); ck('footer Close closes it and unlocks the scroll',d.querySelector('#rm').hidden===true && !d.body.classList.contains('modal-open'));
   B.openRiver(0); d.querySelector('#rclose').click(); ck('footer Close closes it',d.querySelector('#rm').hidden===true && !d.body.classList.contains('modal-open'));
   B.openRiver(0); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('Escape closes it',d.querySelector('#rm').hidden===true);
   B.openRiver(0); d.querySelector('#rm').dispatchEvent(new w.MouseEvent('click',{bubbles:true})); ck('clicking the dark backdrop closes it',d.querySelector('#rm').hidden===true);
@@ -259,6 +259,34 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English labels: "Methodology & Assumptions" on the button, in the title and a "Key assumptions" heading',(()=>{ setLang(dE,'en'); return true })() && (await sleep(60),true) && dE.querySelector('#meth').textContent.includes('Methodology & Assumptions') && (dE.querySelector('#meth').click(),dE.querySelector('#mmc .mh h2').textContent==='Methodology & Assumptions' && [...dE.querySelectorAll('#mmc h3.mhd')].map(x=>x.textContent).join('|')==='Methodology|Key assumptions'));
   dE.querySelector('#mclose').click();
   ck('no JS errors in the modal tests',errors.length===0 && errE.length===0,[errors.slice(0,2),errE.slice(0,2)]);
+
+  console.log('TEST 13: river cards look clickable; the river modal has date navigation');
+  setLang(d,'el'); await sleep(60);
+  const cardsBtn=[...d.querySelectorAll('#rg button.river')], flat=d.querySelectorAll('#rg .river.flat');
+  ck('every clickable river card has the chevron, the "view cascade" cue and a tooltip',cardsBtn.length===6 && cardsBtn.every(b=>b.querySelector('.chev svg') && b.querySelector('.more') && /καταρράκτη/.test(b.querySelector('.more').textContent) && b.getAttribute('title')),cardsBtn.length);
+  ck('the combined Agras/Edessaios card is flat (a div, no cue, no chevron), so it is clearly not clickable',flat.length===1 && flat[0].tagName==='DIV' && !flat[0].querySelector('.more') && !flat[0].querySelector('.chev'));
+  setLang(d,'en'); await sleep(60);
+  ck('card cue is localized (English: "View cascade")',[...d.querySelectorAll('#rg button.river .more')].every(m=>m.textContent.includes('View cascade')));
+  setLang(d,'el'); await sleep(60);
+  const DAYS=B.P.idx.Days.map(x=>x.Date); await B.load(DAYS[3]); B.openRiver(1);
+  const hd=d.querySelector('#rmc .mh');
+  ck('river modal header: title, date select on the current day, prev/next buttons, and no X',!!hd.querySelector('h2') && hd.querySelector('#rdsel').value===DAYS[3] && !!hd.querySelector('#rd-prev') && !!hd.querySelector('#rd-next') && !d.querySelector('#rclose-x'));
+  ck('the date select lists all days, newest first',hd.querySelectorAll('#rdsel option').length===DAYS.length && hd.querySelector('#rdsel option').value===DAYS[0]);
+  const target=DAYS[6], sel=d.querySelector('#rdsel'); sel.value=target; sel.dispatchEvent(new w.Event('change',{bubbles:true})); await sleep(150);
+  const kDam=B.S.M.rivers[1].dams[0].k, fT=B.P.fill[B.P.fi[target]][kDam].toLocaleString('el-GR',{minimumFractionDigits:1,maximumFractionDigits:1});
+  ck('changing the date inside the modal keeps it open, on the same river, and reloads the data behind it',!d.querySelector('#rm').hidden && B.S.date===target && d.querySelector('#rdsel').value===target && d.querySelector('#dsel').value===target && d.querySelector('#rmc h2').textContent.includes('Αλιάκμονας'),[B.S.date,d.querySelector('#rdsel').value]);
+  ck('the first dam shows the fill level of the NEW day ('+fT+'%)',d.querySelector('#rmc .mb').textContent.includes(fT+'%'),d.querySelector('#rmc .mb').textContent.slice(0,100));
+  d.querySelector('#rd-prev').click(); await sleep(150); ck('previous-day button goes one day back',B.S.date===DAYS[7] && d.querySelector('#rdsel').value===DAYS[7],B.S.date);
+  d.querySelector('#rd-next').click(); await sleep(150); d.querySelector('#rd-next').click(); await sleep(150); ck('next-day button goes forward',B.S.date===DAYS[5],B.S.date);
+  d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true})); await sleep(150); ck('keyboard ← goes to the previous day while the river modal is open',B.S.date===DAYS[6],B.S.date);
+  d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true})); await sleep(150); ck('keyboard → goes to the next day',B.S.date===DAYS[5],B.S.date);
+  await B.load(DAYS[0]); B.openRiver(1); ck('on the newest day the next-day button is disabled',d.querySelector('#rd-next').disabled===true && d.querySelector('#rd-prev').disabled===false);
+  d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true})); await sleep(100); ck('...and → does nothing there',B.S.date===DAYS[0]);
+  await B.load(DAYS[DAYS.length-1]); B.openRiver(1); ck('on the oldest day the previous-day button is disabled',d.querySelector('#rd-prev').disabled===true && d.querySelector('#rd-next').disabled===false);
+  d.querySelector('#rclose').click();
+  d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true})); await sleep(100); ck('arrow keys do nothing when no river modal is open',B.S.date===DAYS[DAYS.length-1]);
+  d.querySelector('#meth').click(); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true})); await sleep(100); ck('...nor with the methodology modal open',B.S.date===DAYS[DAYS.length-1]); d.querySelector('#mclose').click();
+  ck('no JS errors in the card and date-navigation tests',errors.length===0,errors.slice(0,3));
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();
