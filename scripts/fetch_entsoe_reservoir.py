@@ -15,6 +15,9 @@ ENTSO-E 16.1.D "Water Reservoirs and Hydro Storage Plants"  ->  data/entsoe_rese
   python scripts/fetch_entsoe_reservoir.py                       # από το τελευταίο δεδομένο (-4 εβδομάδες) ως σήμερα
   python scripts/fetch_entsoe_reservoir.py 2026-01-01 2026-10-07
   python scripts/fetch_entsoe_reservoir.py --diagnose            # δεν γράφει τίποτα
+  python scripts/fetch_entsoe_reservoir.py --history 2015 2025   # ΠΟΛΥΕΤΗΣ ΒΑΣΗ: ένα αίτημα ανά έτος -> data/entsoe_history.json
+  python scripts/fetch_entsoe_reservoir.py --history 2015 2025 --out=data/x.json
+Το αρχείο ιστορικού είναι ΧΩΡΙΣΤΟ από το data/entsoe_reservoir.json (η βαθμονόμηση ενέργειας διαβάζει μόνο το δεύτερο).
 
 Env: ENTSOE_TOKEN, (προαιρετικά) START_DATE, END_DATE
 """
@@ -180,17 +183,70 @@ def load():
     return data
 
 
-def write(weeks):
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+def write(weeks, out=None, extra=None):
+    out = out or OUT
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     doc = {"Schema": 1, "Source": SOURCE, "Domain": EIC_GR, "Unit": "MWh",
            "Updated": datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z"),
-           "Note": "Start/End σε UTC. Η αντιστοίχιση εβδομάδας -> ημέρες (μέσος όρος/αρχή/τέλος) δεν υποτίθεται εδώ.",
-           "Weeks": sorted(weeks, key=lambda w: w["Start"])}
-    tmp = OUT + ".tmp"
+           "Note": "Start/End σε UTC. Η αντιστοίχιση εβδομάδας -> ημέρες (μέσος όρος/αρχή/τέλος) δεν υποτίθεται εδώ."}
+    doc.update(extra or {})
+    doc["Weeks"] = sorted(weeks, key=lambda w: w["Start"])
+    tmp = out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, indent=1)
         f.write("\n")
-    os.replace(tmp, OUT)
+    os.replace(tmp, out)
+
+
+def load_from(path):
+    if not os.path.exists(path) or os.path.getsize(path) == 0:
+        return {"Weeks": []}
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict) or not isinstance(data.get("Weeks"), list):
+        raise ValueError(f"{path}: μη αναμενόμενη δομή")
+    return data
+
+
+HISTORY_OUT = os.path.join("data", "entsoe_history.json")
+
+
+def history(y0, y1, out):
+    """Πολυετής βάση: ένα αίτημα ανά ημερολογιακό έτος (το API δέχεται περιορισμένο εύρος ανά αίτημα).
+    Γράφει ΜΟΝΟ αν βρεθεί τουλάχιστον μία εβδομάδα· τα έτη χωρίς δεδομένα απλώς καταγράφονται."""
+    try:
+        existing = load_from(out)
+    except Exception as e:
+        log(f"ΣΤΑΜΑΤΑΜΕ: το {out} δεν διαβάζεται ({type(e).__name__}: {e}). Δεν γράφω τίποτα.")
+        return 1
+    today = datetime.now(ATHENS).date()
+    merged = {w["Start"]: w for w in existing["Weeks"]}
+    cover, failed = {}, []
+    for y in range(y0, y1 + 1):
+        a, b = date(y, 1, 1), min(date(y, 12, 31), today)
+        if a > today:
+            break
+        log(f"ENTSO-E history {y}: {a} -> {b}")
+        res = fetch(a, b)
+        if res is None:
+            failed.append(y)
+            continue
+        weeks, _ = res
+        for w in weeks:
+            merged[w["Start"]] = w                  # το ENTSO-E μπορεί να αναθεωρεί τιμές
+        cover[y] = len(weeks)
+        log(f"   + {len(weeks)} εβδομάδες")
+        time.sleep(1)
+    if not cover:
+        log("   - καμία εβδομάδα σε κανένα έτος: δεν γράφω τίποτα")
+        return 1
+    allw = sorted(merged.values(), key=lambda w: w["Start"])
+    years = {}
+    for w in allw:
+        years[w["StartLocal"][:4]] = years.get(w["StartLocal"][:4], 0) + 1
+    write(allw, out, {"Kind": "history", "Coverage": {"WeeksPerYear": years, "FailedOrEmptyYears": failed}})
+    log(f"   Σύνολο {len(allw)} εβδομάδες ({allw[0]['StartLocal']} → {allw[-1]['StartLocal']}) στο {out}" + (f" | χωρίς δεδομένα: {failed}" if failed else ""))
+    return 0
 
 
 def diagnose(start, end):
@@ -214,10 +270,22 @@ def diagnose(start, end):
 def main():
     argv = sys.argv[1:]
     diag = "--diagnose" in argv
+    hist = "--history" in argv
+    out_arg = next((a.split("=", 1)[1] for a in argv if a.startswith("--out=")), None)
     args = [a for a in argv if not a.startswith("--")]
     if not TOKEN:
         log("ENTSOE_TOKEN δεν υπάρχει: παραλείπεται")
         return 1
+    if hist and not diag:
+        try:
+            y0, y1 = int(args[0]), int(args[1]) if len(args) > 1 else int(args[0])
+        except (IndexError, ValueError):
+            log("Χρήση: --history ΑΡΧΙΚΟ_ΕΤΟΣ ΤΕΛΙΚΟ_ΕΤΟΣ  (π.χ. --history 2015 2025)")
+            return 1
+        if not (2000 <= y0 <= y1 <= 2100):
+            log(f"Μη έγκυρα έτη: {y0}–{y1}")
+            return 1
+        return history(y0, y1, out_arg or HISTORY_OUT)
     existing = {"Weeks": []}
     if not diag:
         try:

@@ -68,7 +68,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('Aliakmonas order Ilarion→Polyfyto→Sfikia→Asomata',order.every((v,i)=>v>=0&&(i===0||v>order[i-1])),order);
   ck('pump Asomata → Sfikia shown',m.includes('Ασώματα → Σφηκιά') && !m.includes('υπόθεση)') ,m.slice(m.indexOf('άντληση'),m.indexOf('άντληση')+60));
   ck('modal has hourly chart + energy block',d.querySelectorAll('#rmc svg.ch').length===1 && m.includes('Ισοδύναμο ENTSO-E'));
-  m=open('nestos'); ck('Nestos pump flagged as assumption',m.includes('Πλατανόβρυση → Θησαυρός') && m.includes('υπόθεση'));
+  m=open('nestos'); ck('Nestos pump direction is shown as confirmed (no "assumption" label)',m.includes('Πλατανόβρυση → Θησαυρός') && !m.includes('υπόθεση'));
   m=open('acheloos'); const o2=['Κρεμαστά','Καστράκι','Στράτος'].map(n=>m.indexOf(n)); ck('Acheloos order',o2.every((v,i)=>v>=0&&(i===0||v>o2[i-1])),o2);
   ck('Stratos shown as 1+2 once per-unit data exists (no "not stored" note)',m.includes('Στράτος (1+2)') && !m.includes('Στράτος ΙΙ περιλαμβάνεται'),m.slice(m.indexOf('Στράτος'),m.indexOf('Στράτος')+30));
   m=open('arachthos'); const o3=['Πηγές Αώου','Πουρνάρι I','Πουρνάρι II'].map(n=>m.indexOf(n)); ck('Arachthos order Aoos→Pournari I→II',o3.every((v,i)=>v>=0&&(i===0||v>o3[i-1])),o3);
@@ -129,7 +129,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   let ali=(B.openRiver(1),d.querySelector('#rmc').textContent);
   ck('Aliakmonas modal: Sfikia estimate = '+f0(pm.EstSfikiaMWh)+' MWh and ISP '+f0(pm.IspSfikiaMWh),ali.includes('Ασώματα → Σφηκιά') && ali.includes('≈ '+f0(pm.EstSfikiaMWh)+' MWh') && ali.includes('ISP '+f0(pm.IspSfikiaMWh)+' MWh') ,ali.slice(ali.indexOf('άντληση'),ali.indexOf('άντληση')+140));
   let nes=(B.openRiver(2),d.querySelector('#rmc').textContent);
-  ck('Nestos modal: Thesavros estimate = '+f0(pm.EstThesavrosMWh),nes.includes('≈ '+f0(pm.EstThesavrosMWh)+' MWh') && nes.includes('υπόθεση'),nes.slice(nes.indexOf('άντληση'),nes.indexOf('άντληση')+140));
+  ck('Nestos modal: Thesavros estimate = '+f0(pm.EstThesavrosMWh),nes.includes('≈ '+f0(pm.EstThesavrosMWh)+' MWh') && !nes.includes('υπόθεση'),nes.slice(nes.indexOf('άντληση'),nes.indexOf('άντληση')+140));
   ck('modal explains it is an estimate',ali.includes('εκτίμηση') && ali.includes('μοιράζεται με βάση το πρόγραμμα ISP'));
   d.querySelector('#rclose').click();
   const rec15=JSON.parse(fs.readFileSync(ROOT+'/data/days/2026-09-15.json','utf8')); const s1=rec15.Hourly.reduce((a,h)=>a+h.SCADA_Stratos1,0), s2=rec15.Hourly.reduce((a,h)=>a+h.SCADA_Stratos2,0);
@@ -444,6 +444,19 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const {dm:dmU,e2:errU}=mkDom({},true,['unit_daily.json']); const wU=await boot2(dmU); wU.document.querySelector('#tabs button[data-t="rivers"]').click(); wU.__bh.openRiver(1);
   ck('without unit_daily.json the Rivers tab and the modal still work, with no availability section and no warnings',!wU.document.querySelector('#avail h2') && wU.document.querySelectorAll('#rmc .dam').length>=3 && wU.document.querySelectorAll('#rmc .dam .badge.warn').length===0 && errU.length===0,errU.slice(0,2));
   ck('no JS errors in the availability tests',errors.length===0,errors.slice(0,3));
+  }
+
+  console.log('TEST 18: the Nestos pump direction is confirmed by a published paper (K11 closed)');
+  {
+  setLang(d,'el'); await sleep(60); d.querySelector('#meth').click(); const m18=d.querySelector('#mmc').textContent; d.querySelector('#mclose').click();
+  ck('methodology (GR): the direction is "confirmed by a published paper (2001)" and nowhere called an assumption',m18.includes('Η κατεύθυνση της αντλίας Πλατανόβρυση → Θησαυρός επιβεβαιώνεται από δημοσιευμένη εργασία (2001)') && !/αντλία Πλατανόβρυση → Θησαυρός είναι υπόθεση/.test(m18));
+  d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'nestos'); const n18=d.querySelector('#t-wb').textContent;
+  ck('Nestos water-balance note (GR) cites the paper (Αλμπανάκης, Ψιλοβίκος, Βουβαλίδης, 2001)',n18.includes('Αλμπανάκης, Ψιλοβίκος, Βουβαλίδης, 2001'));
+  setLang(d,'en'); await sleep(80); d.querySelector('#meth').click(); const m18e=d.querySelector('#mmc').textContent; d.querySelector('#mclose').click();
+  ck('methodology (EN): "confirmed by a published paper (2001)"; no "pump is an assumption"',m18e.includes('The Platanovrysi → Thesavros pump direction is confirmed by a published paper (2001)') && !/pump is an assumption/.test(m18e));
+  d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'nestos'); ck('Nestos note (EN) cites Albanakis, Psilovikos, Vouvalidis, 2001',d.querySelector('#t-wb').textContent.includes('Albanakis, Psilovikos, Vouvalidis, 2001'));
+  setLang(d,'el'); await sleep(60);
+  ck('no JS errors in the K11 tests',errors.length===0,errors.slice(0,3));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);

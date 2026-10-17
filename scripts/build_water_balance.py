@@ -61,13 +61,16 @@ def log(m=""):
     print(m, flush=True)
 
 
-def k_values(heads, dams):
-    ratios = [h["GrossHeadM"] / ((h["NetHeadMinM"] + h["NetHeadMaxM"]) / 2) for h in heads.values() if "NetHeadMinM" in h]
-    if ratios:
-        ratio = sum(ratios) / len(ratios)
-    else:
-        ratio = 1.125                    # δεν υπάρχουν καθαρές πτώσεις στο plant_heads.json: μέσος λόγος των PDF
-        log("   ! plant_heads.json χωρίς καθαρές πτώσεις: χρήση λόγου μικτής/καθαρής 1,125 για όλους τους σταθμούς")
+def k_values(heads, dams, ratio=None):
+    """ratio: ρητός λόγος μικτής/καθαρής πτώσης για σταθμούς ΧΩΡΙΣ τεκμηριωμένη καθαρή πτώση (plant_heads.json: GrossToNetRatio).
+    Αν λείπει, υπολογίζεται ως μέσος όρος των σταθμών με τεκμηριωμένη καθαρή πτώση· αν δεν υπάρχουν, 1,125."""
+    if ratio is None:
+        ratios = [h["GrossHeadM"] / ((h["NetHeadMinM"] + h["NetHeadMaxM"]) / 2) for h in heads.values() if "NetHeadMinM" in h]
+        if ratios:
+            ratio = sum(ratios) / len(ratios)
+        else:
+            ratio = 1.125                # δεν υπάρχουν καθαρές πτώσεις στο plant_heads.json: μέσος λόγος των PDF
+            log("   ! plant_heads.json χωρίς καθαρές πτώσεις: χρήση λόγου μικτής/καθαρής 1,125 για όλους τους σταθμούς")
     net, gross, est = {}, {}, []
     for k in dams:
         h = heads[k]
@@ -119,14 +122,14 @@ def sanitized_fill(days, dams, caps):
     return fill, notes
 
 
-def build_river(river, meta, heads, days):
+def build_river(river, meta, heads, days, ratio=None):
     rid = river["Id"]
     groups = GROUPS[rid]
     dams = [k for g, _a, _b in groups for k in g]
     caps = {k: float(meta["Reservoirs"][k]["CapacityHm3"]) for k in dams}
     outs = [g[-1] for g, _a, _b in groups]                              # σταθμός εξόδου κάθε ομάδας
     unit = {k: TURBINE_UNIT.get(k, meta["Reservoirs"][k]["Units"][0]) for k in outs}
-    net, gross, est, ratio = k_values(heads, outs)
+    net, gross, est, ratio = k_values(heads, outs, ratio)
     fill, notes = sanitized_fill(days, dams, caps)
     vol = lambda d, k: fill[(d, k)] / 100.0 * caps[k]
     out = []
@@ -166,7 +169,8 @@ def main():
     with open(os.path.join(DATA, "reservoirs.json"), encoding="utf-8") as f:
         meta = json.load(f)
     with open(os.path.join(DATA, "plant_heads.json"), encoding="utf-8") as f:
-        heads = json.load(f)["Plants"]
+        heads_doc = json.load(f)
+    heads, ratio = heads_doc["Plants"], heads_doc.get("GrossToNetRatio")
     days = load_days()
     if not days:
         log("Δεν βρέθηκαν ημέρες")
@@ -174,7 +178,7 @@ def main():
     res = {}
     for r in meta["Rivers"]:
         if r["Id"] in GROUPS:
-            res[r["Id"]] = build_river(r, meta, heads, days)
+            res[r["Id"]] = build_river(r, meta, heads, days, ratio)
             n = res[r["Id"]]
             log(f"{r['Id']}: {len(n['Daily'])} ημέρες" + "".join(f" | παρεμβλήθηκε {x['Dam']} {x['From']}→{x['To']}" for x in n["Sanitized"]))
     doc = {"Schema": 2, "Generated": datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z"),

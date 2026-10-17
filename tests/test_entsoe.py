@@ -83,6 +83,33 @@ print("TEST 6: diagnose writes nothing")
 F.TOKEN="x"; os.remove('data/entsoe_reservoir.json'); resp["v"]=doc("2026-09-20T22:00Z","2026-10-04T22:00Z",[(1,1650000),(2,1610776)])
 sys.argv=['x','--diagnose']; rc,lg=cap(F.main)
 check("diagnose rc0, no file, prints structure",rc==0 and not os.path.exists('data/entsoe_reservoir.json') and "P7D" in lg and "1,610,776" in lg,lg[-300:])
+
+print("TEST 7: history mode (multi-year baseline, separate file)")
+import datetime as _dt
+os.chdir(tempfile.mkdtemp()); F.TOKEN="secret-token"; seen_years=[]
+def fake_hist(params,tries=3):
+    y=int(params["periodStart"][:4]) if params["periodStart"][4:6] != "12" else int(params["periodStart"][:4])+1   # local midnight Jan 1 = 22:00Z on Dec 31
+    seen_years.append(y)
+    if y in (2015,): return R(200,ack)                                   # no data that year
+    if y==2017: return R(401,"<text>Unauthorized</text>")               # a failing year
+    return R(200,doc(f"{y-1}-12-28T22:00Z",f"{y}-01-11T22:00Z",[(1,1000000+y),(2,2000000+y)]))
+F.http_get=fake_hist; F.time.sleep=lambda s:None
+sys.argv=['x','--history','2015','2018']; rc,lg=cap(F.main)
+h=json.load(open('data/entsoe_history.json'))
+check("history rc0; one request per year (2015-2018), written to data/entsoe_history.json",rc==0 and seen_years==[2015,2016,2017,2018] and h.get("Kind")=="history",(seen_years,rc))
+check("years without data (2015) and failing years (2017) are skipped and reported, others merged",sorted(h["Coverage"]["FailedOrEmptyYears"])==[2015,2017] and len(h["Weeks"])>=4,h["Coverage"])
+check("the live file data/entsoe_reservoir.json is NEVER touched by history mode",not os.path.exists('data/entsoe_reservoir.json'))
+check("token never printed","secret-token" not in lg)
+check("weeks sorted ascending and each year counted",[w["Start"] for w in h["Weeks"]]==sorted(w["Start"] for w in h["Weeks"]) and sum(h["Coverage"]["WeeksPerYear"].values())==len(h["Weeks"]))
+before=open('data/entsoe_history.json').read()
+F.http_get=lambda p,tries=3:R(200,ack); sys.argv=['x','--history','2015','2016']; rc,lg=cap(F.main)
+check("no data in any year -> rc1 and the file is untouched",rc==1 and open('data/entsoe_history.json').read()==before)
+F.http_get=fake_hist; sys.argv=['x','--history','2016','2016','--out=data/other.json']; rc,_=cap(F.main)
+check("--out= writes elsewhere and leaves the default file alone",rc==0 and os.path.exists('data/other.json') and open('data/entsoe_history.json').read()==before)
+sys.argv=['x','--history','2018','2016']; rc,lg=cap(F.main); check("years in the wrong order -> rc1 with a message",rc==1 and "Μη έγκυρα" in lg)
+sys.argv=['x','--history']; rc,lg=cap(F.main); check("missing years -> rc1 with usage",rc==1 and "Χρήση" in lg)
+open('data/entsoe_history.json','w').write('{ broken'); sys.argv=['x','--history','2016','2016']; rc,lg=cap(F.main); check("corrupt history file -> rc1, untouched",rc==1 and open('data/entsoe_history.json').read()=='{ broken' and "ΣΤΑΜΑΤΑΜΕ" in lg)
+F.TOKEN=None; sys.argv=['x','--history','2016','2016']; rc,_=cap(F.main); check("no token -> rc1",rc==1)
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

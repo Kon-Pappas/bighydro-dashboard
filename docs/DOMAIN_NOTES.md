@@ -10,7 +10,7 @@ River cascades, upstream → downstream (`data/reservoirs.json`):
 |---|---|---|---|
 | Acheloos | Kremasta → Kastraki → Stratos (I + II) | — | [owner] order, and "Stratos 1+2" counts as one dam |
 | Aliakmon | Ilarionas → Polyfyto → Sfikia → Asomata | Asomata → Sfikia (upward) | [owner] order and pump direction (confirmed) |
-| Nestos | Thesavros → Platanovrysi | Platanovrysi → Thesavros | Platanovrysi is the lower reservoir of the Thesavros plant [public article, SOURCES.md]; the Nestos inflow comes from Bulgaria [owner; press]; pump direction **[assumption]**, supported by the volume-closure test (METHODS §4), not yet confirmed by the owner |
+| Nestos | Thesavros → Platanovrysi | Platanovrysi → Thesavros | Platanovrysi is the lower reservoir of the Thesavros plant [public article, SOURCES.md]; the Nestos inflow comes from Bulgaria [owner; press]; pump direction **confirmed** by a published paper (Albanakis et al. 2001; K11 closed) |
 | Arachthos | Pigai Aoou (Aoos) → Pournari I → Pournari II | — | [owner] the Aoos water is diverted to the Arachthos basin and used again at Pournari |
 | Plastiras (Tavropos), Ladonas | one dam each | — | |
 Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river).
@@ -24,6 +24,8 @@ Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river)
 
 ## 3. Plants that matter for interpretation
 * **Ilarionas is out of service** [owner] (a fault being repaired). [data] last normal day 12 June 2026; since then zero generation on 118 days and 8 short runs, none above 372 MWh a day (see METHODS §7).
+* **February 2026 was exceptionally wet** [owner]: after several years without comparable rain, the dams were opened and water ran almost continuously because the reservoirs could not hold it, while new water kept arriving from the mountains. It is rare but it happened and may recur with climate change. The very high generation days of that month (up to ≈ 48 GWh a day for the 15 large units) belong to this regime and are **not an artefact**; part of that generation was probably forced by the need to release water rather than demand-driven (an inference to test, see `QUESTIONS.md`).
+* **Ilarionas capacity:** 412 hm³ in the 2020 presentation [doc]; ADMIE's own total fill rate is reproduced best with ≈ 305 hm³ [data]. Recorded as a hypothesis (412 may be a total, ≈ 305 the useful volume); the switch is left to the December recalibration (K09, D58).
 * **Kastraki above 100 %** is a common occurrence [owner]. It is not an anomaly.
 * **Amfilochia pumped storage** (planned start ≈ end-2026) will use the Kastraki lake as its lower reservoir [owner]. The owner's estimate is that first filling of its upper reservoirs needs about 9 % of the lake (≈ 4.8 hm³); the recent >100 % levels may be chance or preparation [owner]. [data] single-day swings ≥ 4.8 hm³ are rare (7 of 279 days up to 16 Oct); the strongest 11-day rise of 2026 was +24.6 hm³ (22 Sep → 3 Oct).
 * **The Inachos river flows into Kastraki** [owner] — a source of natural inflow not passing through Kremasta.
@@ -38,7 +40,7 @@ Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river)
 Two PDF/AI-generated tables supplied by the owner give gross head, efficiency range and, for four plants, net head: Kremasta 160 m (net 140–150), Kastraki 95 (80–85), Polyfyto 112 (95–102), Thesavros 172 (150–160), Sfikia 54, Asomata 50, Ilarionas 118, Stratos I 38, Stratos II 6, Platanovrysi 85, Pigai Aoou 670, Pournari I 72, Pournari II 12, Plastiras 577, Ladonas 225.
 Five of them were checked against the ENTSO-E data and agree within ≈ 5 % (Kremasta, Kastraki, Polyfyto, Thesavros, Plastiras); the rest are small or not testable. Net heads for plants without a published net head are taken as gross/1.125 (the average ratio of the four that have both).
 
-Source cross-checks of the Sfikia and Thesavros heads are in `SOURCES.md`: the Sfikia value is consistent with the public reservoir levels; the Thesavros gross head (172 m) equals the dam height and is suspect (KNOWN_ISSUES K19).
+Source cross-checks of the Sfikia and Thesavros heads are in `SOURCES.md`: the Sfikia value is consistent with the public reservoir levels; the Thesavros gross head was 172 m (the dam height) and was corrected on 17 Oct 2026 to 142 m (net 136–140) from published levels (KNOWN_ISSUES K19, D59); `GrossToNetRatio` is now an explicit parameter so that the correction moved no other plant.
 
 ## 6. Reference documents
 The 2020 presentation by Professor Stefanakos: slide 15 (PPC small hydro list), **slide 17 (useful volumes, source of `CapacityHm3`)**, slide 30 (volumes by river; e.g. Acheloos 2,869 hm³, Aliakmon 1,458, Nestos 582, Arachthos 307, Plastiras 300, Aoos 145, Ladon 46.2). An earlier version of the page quoted an irrigation figure for the Acheloos reservoirs and attributed it to this slide; it could not be verified, so it was **removed** (D42). It may be restored only after it has been checked against the PDF.

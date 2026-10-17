@@ -18,8 +18,8 @@ def day(d, e=None, scada='ok'):
     H = [dict({"Hour": f"H{h+1:02d}"}, **{"SCADA_" + u: v / 24 for u, v in base.items()}) for h in range(24)]
     json.dump({"Date": d, "Hourly": H, "Meta": {"Status": {"scada": scada}}}, open(f'data/days/{d}.json', 'w'))
 def pumpfile(rows): json.dump(rows, open('data/pump_daily.json', 'w'))
-heads = json.load(open('data/plant_heads.json', encoding='utf-8'))['Plants']
-net, gross, est, ratio = W.k_values(heads, ['SFIKIA', 'POLYFYTO', 'ASOMATA', 'THESAVROS', 'PLATANOVRYSI'])
+heads_doc = json.load(open('data/plant_heads.json', encoding='utf-8')); heads = heads_doc['Plants']
+net, gross, est, ratio = W.k_values(heads, ['SFIKIA', 'POLYFYTO', 'ASOMATA', 'THESAVROS', 'PLATANOVRYSI'], heads_doc.get('GrossToNetRatio'))
 kp_sf = 2.725 * heads['SFIKIA']['GrossHeadM'] * 1.02 / 0.87; kp_th = 2.725 * heads['THESAVROS']['GrossHeadM'] * 1.02 / 0.87
 print("TEST 1: formulas")
 day('2026-07-01'); day('2026-07-02', e={"Sfikia": 1800})

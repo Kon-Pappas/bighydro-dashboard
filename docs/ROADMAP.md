@@ -12,7 +12,13 @@ visible-hydro summary · tests and documentation in the repository.
 2. ~~**Pumped-storage (PSH) view**~~ — **done**, as a section of the Pumping tab (recycled share, volume closure, monthly bars and tables for Sfikia and Thesavros; D43–D46). Next: the unit-availability indicator (item 3).
 3. ~~**Unit availability indicator**~~ — **done** (Rivers tab, *Unit availability*; D52–D57). Next: the capacity check (item 5), then the daylight-saving work after 26 Oct.
 4. **Data-quality notes from a file** (machine-readable version of KNOWN_ISSUES) shown in the banner of the affected days.
-5. **Capacity check:** derive the capacities implied by ADMIE's own totals and explain the −0.98 pp gap (Ilarionas 412 hm³ is unverified).
+5. ~~**Capacity check**~~ — **done as an analysis** (K09, D58): ADMIE's total implies Ilarionas ≈ 305 hm³ (RMSE 0.79 → 0.15 pp). Recorded as a hypothesis; the switch is decided at the **December recalibration**.
+
+## Next phase — what the data can tell us (see `QUESTIONS.md`)
+9. **Multi-year baseline:** run the manual workflow *Backfill ENTSO-E history* (first in diagnostic mode for one early year), then compute weekly percentiles → "stock and inflow compared with a normal year" (questions 1 and 3).
+10. **Days-of-cover panel** with named scenarios (current rate, 2026 average, a peak day, February 2026) and, once the baseline exists, an inflow scenario (question 2).
+11. **Inflow regime indicator** (dry / transition / wet) from the apparent inflow, and a "rising or falling" line with the date a level would be reached at the current trend (questions 3 and 4).
+12. **Forced vs demand-driven hydro generation** (question 7), with February 2026 as the test case; this is the bridge to the curtailment research thread.
 
 ## After 26 Oct 2026
 6. **Daylight-saving handling** (ISP, SCADA, RESMV, MCP) and an **automatic clock-alignment flag** (SCADA–ISP correlation per day, stored in `Meta`); repair 30 March and 25–26 October by re-running those days.

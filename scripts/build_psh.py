@@ -62,10 +62,11 @@ def main():
         if not os.path.exists(os.path.join(DATA, f)):
             log(f"Λείπει το data/{f}")
             return 1
-    heads = load_json(os.path.join(DATA, "plant_heads.json"))["Plants"]
+    heads_doc = load_json(os.path.join(DATA, "plant_heads.json"))
+    heads, ratio = heads_doc["Plants"], heads_doc.get("GrossToNetRatio")
     pump = {x["Date"]: x for x in load_json(os.path.join(DATA, "pump_daily.json"))}
     dams = sorted({k for p, c in PLANTS.items() for k in (p, c["lower"], c["upper"]) if k})
-    net, _gross, est, _ratio = k_values(heads, dams)
+    net, _gross, est, _ratio = k_values(heads, dams, ratio)
     plants = {}
     for dam, c in PLANTS.items():
         kg, kl = net[dam], net[c["lower"]]

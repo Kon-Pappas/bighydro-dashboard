@@ -29,6 +29,8 @@ Steps run in this order, in one job (`concurrency: bighydro-fetch`, runs never o
 5. `build_unit_status.py` — daily generation per unit (`continue-on-error`).
 6. Commit and push `data/` if anything changed (`git pull --rebase` first).
 
+A second, **manual** workflow, `.github/workflows/backfill_entsoe.yml` (*Backfill ENTSO-E history*), shares the same concurrency group. It fetches the weekly stored energy for past years (one request per year) into the **separate** file `data/entsoe_history.json`, which the energy calibration does not read. It has a diagnostic mode that writes nothing.
+
 Inputs: `start_date`, `end_date`, `only`, `diagnose`. Secret: `ENTSOE_TOKEN`. Python 3.12; the job installs `pandas numpy requests openpyxl xlrd`.
 `calibrate_energy.py` needs `scipy` and is **not** part of the daily job.
 
