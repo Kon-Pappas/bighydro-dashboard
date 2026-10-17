@@ -506,6 +506,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
     let mx=-1,mxd=null; tot.forEach((v,i)=>{if(v!=null&&v>mx){mx=v;mxd=UJ.Dates[i]}});
     const rows=[{r:mean(okv(tot.slice(Math.max(0,ei-29))))},{r:mean(okv(tot))}]; if(best) rows.push({r:best.v,m:best.m}); rows.push({r:mx,d:mxd});
     const cw=CJ.Weeks.find(x=>x.Wk===isoW(date)&&x.N>=3); return {ei,rows,med:cw?cw.Median:null,g7:mean(okv(tot.slice(Math.max(0,ei-6))))}};
+  const PJ=jf('data/pump_daily.json'), CFS=jf('data/psh_daily.json').Plants, gainOf=date=>{const a=[]; for(let k=0;k<7;k++){const r=PJ.find(x=>x.Date===addDS(date,-k)); if(!r) continue; if(r.EstSfikiaMWh!=null&&r.EstThesavrosMWh!=null) a.push((r.EstSfikiaMWh*CFS.SFIKIA.CycleFactor+r.EstThesavrosMWh*CFS.THESAVROS.CycleFactor)/1000); else if(r.ScadaMWh!=null) a.push(r.ScadaMWh*0.7/1000)} return a.length>=4?mean(a):null};
   const stockOf=async date=>{await B.load(date); d.querySelector('#tabs button[data-t="energy"]').click(); return Number(d.querySelector('#t-energy .card .val').textContent.replace(/[^\d]/g,''))};
   for(const DATE of ['2026-10-15','2026-02-20']){
     const stock=await stockOf(DATE), ex=expect(DATE), sec=[...d.querySelectorAll('#t-energy h2.sect')].find(h=>h.textContent.includes('Ημέρες κάλυψης')), tb=d.querySelector('#t-energy table.cvt'), trs=[...tb.querySelectorAll('tr')].slice(1);
@@ -517,8 +518,18 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
     const tl=d.querySelector('#t-energy .trendline'), prev=await stockOf(addDS(DATE,-7)); await stockOf(DATE); const trend=(stock-prev)/7, tl2=d.querySelector('#t-energy .trendline');
     const m=tl2&&tl2.textContent.match(/(πέφτει|ανεβαίνει) ([\d.,]+) GWh/); const shown=m?Number(m[2].replace(/\./g,'').replace(',','.')):null;
     ck(DATE+': trend line says the stock is '+(trend<0?'falling':'rising')+' by '+Math.abs(trend).toFixed(1)+' GWh a day (±0.3 for rounding)',!!m && (trend<0?m[1]==='πέφτει':m[1]==='ανεβαίνει') && Math.abs(shown-Math.abs(trend))<=0.3,[tl2&&tl2.textContent.slice(0,120),trend]);
-    if(trend<0){ const inflow=Math.max(0,ex.g7+trend), m2=tl2.textContent.match(/≈ ([\d.,]+) GWh την ημέρα, σε ισοδύναμη/); ck(DATE+': the inflow equivalent = generation of the same 7 days ('+nf1(ex.g7)+') minus the fall → ≈ '+nf1(inflow)+' GWh a day',!!m2 && Math.abs(Number(m2[1].replace(',','.'))-inflow)<=0.35,[m2&&m2[1],inflow]) }
+    const pg=gainOf(DATE), inflow=ex.g7+trend-pg, txtT=tl2?tl2.textContent:'';
+    if(Math.abs(inflow-1)>0.35 || trend>0){
+      if(trend>0) ck(DATE+': rising stock -> the text says inflow together with the energy pumping puts back exceeds generation',/ανεβαίνει/.test(txtT) && txtT.includes('μαζί με την ενέργεια που ξαναμπαίνει με την άντληση'),txtT.slice(0,160));
+      else if(inflow>=1){ const m2=txtT.match(/≈ ([\d.,]+) GWh την ημέρα, σε ισοδύναμη ενέργεια, ± περίπου 1/); ck(DATE+': inflow equivalent = generation of the same 7 days ('+nf1(ex.g7)+') + change of stock − energy put back by pumping ('+nf1(pg)+') ≈ '+nf1(inflow)+' GWh a day, and the text says pumping was subtracted',!!m2 && Math.abs(Number(m2[1].replace(',','.'))-inflow)<=0.35 && txtT.includes('έχει αφαιρεθεί') && txtT.includes('καλύπτεται ήδη από εισροή'),[m2&&m2[1],inflow,txtT.slice(0,200)]) }
+      else ck(DATE+': inflow equivalent ≈ '+nf1(inflow)+' (< 1 GWh a day) -> the page does NOT claim inflow; it says it cannot be told from zero',txtT.includes('δεν ξεχωρίζει από το μηδέν') && !txtT.includes('καλύπτεται ήδη από εισροή'),txtT.slice(0,200)) }
   }
+  { let claims=0,expClaims=0,wrong=[],checked=0,days=0;
+    for(let dd=1;dd<=31;dd++){ const dt='2026-08-'+String(dd).padStart(2,'0'); await B.load(dt); d.querySelector('#tabs button[data-t="energy"]').click(); days++;
+      const el=d.querySelector('#t-energy .trendline'), tx=el?el.textContent:'', mt=tx.match(/πέφτει ([\d.,]+) GWh/); if(!mt) continue; const tShown=Number(mt[1].replace(/\./g,'').replace(',','.')), ex=expect(dt), inflow=ex.g7-tShown-gainOf(dt), claim=tx.includes('καλύπτεται ήδη από εισροή');
+      if(/\{[a-z0-9]+\}/.test(tx)) wrong.push([dt,'placeholder',tx.slice(0,80)]);
+      if(claim) claims++; if(inflow>=1) expClaims++; if(Math.abs(inflow-1)>0.2){ checked++; if(claim!==(inflow>=1)) wrong.push([dt,inflow.toFixed(2),claim]) } }
+    ck('every day of August ('+days+' days): the page claims "covered by inflow" only when generation + stock change − pumping gives at least 1 GWh a day ('+claims+' claims; '+checked+' days clear of the threshold checked)',wrong.length===0 && checked>=15,wrong.slice(0,4)); }
   await B.load('2026-10-15'); d.querySelector('#tabs button[data-t="energy"]').click();
   const txt=d.querySelector('#t-energy').textContent;
   ck('wording: "upper bound, not a forecast", "electric value of the water", "no inflow", gross generation (pumping not subtracted), rates from 2026 only',txt.includes('άνω όριο και όχι πρόβλεψη') && txt.includes('ηλεκτρική αξία του νερού') && txt.includes('η άντληση δεν αφαιρείται') && txt.includes('μόνο από το 2026') && txt.includes('όχι πρόβλεψη'));

@@ -31,8 +31,9 @@ Rules:
 * **February 2026 is a real regime, not an outlier**: after several years without comparable rain the dams were opened and water ran almost continuously because the reservoirs could not hold it [owner]. It may recur. The scenario is therefore kept and named; it is also the test case for question 7 (part of that output was probably forced, which is an inference to test);
 * the **inflow scenario** (zero / recent / typical) will be added once the baseline exists, so that the days can grow or shrink with what is arriving.
 
-## The inflow "nose": it already works
+## The inflow "nose": it works, with limits
 The apparent inflow (storage change plus water turbined) reacts before the fill percentage does. Example, October 2026: from the 10th the inflow rose from 1–3 to 5–12 hm³ a day (7.6 against 2.6 hm³ a day over the previous month) while ADMIE's total fill rate **kept falling every day** (42.3 % → 40.9 %), because generation still exceeded inflow. What is missing is the **context**: is that unusual for October? The stock now has a baseline (Stored energy tab); the inflow does not yet.
+**Correction:** the stock-based version in *Days of cover* (generation + change of stock − pumping) is much less precise than the water balance: in August 2026 it cannot be told from zero on most days (K21). The example above uses the water balance.
 Limits: the apparent inflow is a lower bound of the natural inflow (irrigation, evaporation and spills are not measured) and cannot tell rain from snowmelt or from releases upstream.
 
 ## Data still to add, in order
