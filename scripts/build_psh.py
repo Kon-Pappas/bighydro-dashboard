@@ -2,18 +2,24 @@
 """
 Αντλησιοταμίευση: νερό που ανακυκλώνεται έναντι νερού ποταμού  ->  data/psh_daily.json
 
-Για κάθε ημέρα και για τους δύο σταθμούς με άντληση (Σφηκιά, Θησαυρός):
-    Q   = E_παραγωγής / k_παραγωγής        νερό που στροβιλίστηκε στον σταθμό (hm3)   k_παραγωγής = 2,725·H_καθαρή·η_μέση (όπως στο ισοζύγιο νερού)
-    P   = E_άντλησης  / k_άντλησης         νερό που αντλήθηκε (hm3)                    k_άντλησης  = 2,725·(H_μικτή·1,02)/0,87  (ΥΠΟΘΕΣΕΙΣ)
-    Qc  = E_γειτονικού / k_γειτονικού      νερό που στροβίλισε ο «γειτονικός» σταθμός (hm3)
-          Σφηκιά: ο ανάντη Πολύφυτος (το νερό ποταμού που φτάνει)·  Θησαυρός: η κατάντη Πλατανόβρυση
+Ο κύκλος γίνεται ανάμεσα στον ΑΝΩ και τον ΚΑΤΩ ταμιευτήρα του ίδιου σταθμού:
+    Σφηκιά   <-> Ασώματα          (ο Πολύφυτος ΔΕΝ ανήκει στον κύκλο· είναι μόνο πηγή νερού ποταμού που φτάνει στη Σφηκιά)
+    Θησαυρός <-> Πλατανόβρυση     (το νερό του Νέστου έρχεται από τη Βουλγαρία: δεν υπάρχει μετρημένος σταθμός ανάντη)
 
-Παράγωγοι δείκτες (υπολογίζονται στη σελίδα από αθροίσματα περιόδου):
-    ανακυκλωμένο ποσοστό = P / Q          (το νερό που στροβιλίστηκε και είχε αντληθεί πρώτα)
-    κλείσιμο όγκων       = (Qc + P) / Q   (≈ 1 όταν ο υπολογισμός είναι συνεπής· > 1 όταν προστίθεται φυσική εισροή)
+Για κάθε ημέρα και σταθμό:
+    Q   = E_παραγωγής / k_παραγωγής       νερό που στροβιλίστηκε στον άνω σταθμό (hm3)    k = 2,725·H_καθαρή·η_μέση (όπως στο ισοζύγιο νερού)
+    P   = E_άντλησης  / k_άντλησης        νερό που αντλήθηκε (hm3)                        k_άντλησης = 2,725·(H_μικτή·1,02)/0,87  (ΥΠΟΘΕΣΕΙΣ)
+    Ql  = E_κάτω σταθμού / k_κάτω         νερό που στροβίλισε ο κάτω σταθμός (Ασώματα / Πλατανόβρυση): φεύγει προς το ποτάμι
+    Qu  = E_ανάντη σταθμού / k_ανάντη     (μόνο Σφηκιά) νερό που στροβίλισε ο Πολύφυτος: φτάνει στον ταμιευτήρα της Σφηκιάς
+
+Δείκτες (υπολογίζονται στη σελίδα από αθροίσματα περιόδου):
+    ανακυκλωμένο ποσοστό      = P / Q          (σε ΟΓΚΟ νερού, όχι ενέργεια)
+    έλεγχος ΚΑΤΩ ταμιευτήρα   = (Ql + P) / Q   νερό που μπαίνει στον κάτω ταμιευτήρα = νερό που φεύγει προς το ποτάμι + νερό που αντλείται πίσω
+    έλεγχος ΑΝΩ ταμιευτήρα    = (Qu + P) / Q   (μόνο όπου υπάρχει μετρημένη ανάντη πηγή)
+Κοντά στο 1: οι ανεξάρτητες εκτιμήσεις συμφωνούν· > 1: προστίθεται φυσική εισροή· < 1: νερό φεύγει χωρίς να περάσει από στρόβιλο ή να αντληθεί.
 
 Η άντληση ανά σταθμό είναι ΕΚΤΙΜΗΣΗ (pump_daily.json: το σύνολο SCADA μοιρασμένο με το ISP). Η πτώση άντλησης και ο βαθμός
-απόδοσης είναι υποθέσεις· ±10% στο k_άντλησης μετακινεί ανάλογα το ανακυκλωμένο ποσοστό.
+απόδοσης είναι υποθέσεις· ο «συντελεστής κύκλου» k_παραγωγής/k_άντλησης είναι υποπροϊόν τους, ΟΧΙ μετρημένος βαθμός απόδοσης.
 
 Είσοδοι: data/days/*.json, data/pump_daily.json, data/plant_heads.json     Έξοδος: data/psh_daily.json
 """
@@ -35,10 +41,10 @@ PUMP_HEAD_FACTOR = 1.02     # ανύψωση = μικτή πτώση × 1,02 (υ
 PUMP_ETA = 0.87             # βαθμός απόδοσης άντλησης (υπόθεση)
 
 PLANTS = {
-    "SFIKIA": {"unit": "Sfikia", "est": "EstSfikiaMWh", "isp": "IspSfikiaMWh", "comp": "POLYFYTO", "comp_unit": "Polyfyto",
-               "lower": "ASOMATA", "comp_role": "upstream"},
-    "THESAVROS": {"unit": "Thesavros", "est": "EstThesavrosMWh", "isp": "IspThesavrosMWh", "comp": "PLATANOVRYSI", "comp_unit": "Platanovrysi",
-                  "lower": "PLATANOVRYSI", "comp_role": "lower"},
+    "SFIKIA": {"unit": "Sfikia", "est": "EstSfikiaMWh", "isp": "IspSfikiaMWh", "lower": "ASOMATA", "lower_unit": "Asomata",
+               "upper": "POLYFYTO", "upper_unit": "Polyfyto"},
+    "THESAVROS": {"unit": "Thesavros", "est": "EstThesavrosMWh", "isp": "IspThesavrosMWh", "lower": "PLATANOVRYSI", "lower_unit": "Platanovrysi",
+                  "upper": None, "upper_unit": None},
 }
 
 
@@ -58,15 +64,17 @@ def main():
             return 1
     heads = load_json(os.path.join(DATA, "plant_heads.json"))["Plants"]
     pump = {x["Date"]: x for x in load_json(os.path.join(DATA, "pump_daily.json"))}
-    dams = sorted({k for p, c in PLANTS.items() for k in (p, c["comp"])})
+    dams = sorted({k for p, c in PLANTS.items() for k in (p, c["lower"], c["upper"]) if k})
     net, _gross, est, _ratio = k_values(heads, dams)
     plants = {}
     for dam, c in PLANTS.items():
-        kg, kc = net[dam], net[c["comp"]]
+        kg, kl = net[dam], net[c["lower"]]
+        ku = net[c["upper"]] if c["upper"] else None
         kp = G * heads[dam]["GrossHeadM"] * PUMP_HEAD_FACTOR / PUMP_ETA
-        plants[dam] = {"Unit": c["unit"], "Companion": c["comp"], "CompanionRole": c["comp_role"], "LowerDam": c["lower"],
-                       "KGenNet": round(kg, 1), "KCompNet": round(kc, 1), "KPump": round(kp, 1), "CycleFactor": round(kg / kp, 3),
-                       "NetHeadEstimatedFor": [k for k in (dam, c["comp"]) if k in est], "Daily": []}
+        plants[dam] = {"Unit": c["unit"], "LowerDam": c["lower"], "UpperSource": c["upper"],
+                       "KGenNet": round(kg, 1), "KLowerNet": round(kl, 1), "KUpperNet": round(ku, 1) if ku else None,
+                       "KPump": round(kp, 1), "CycleFactor": round(kg / kp, 3),
+                       "NetHeadEstimatedFor": [k for k in (dam, c["lower"], c["upper"]) if k and k in est], "Daily": []}
     skipped = 0
     for f in sorted(glob.glob(os.path.join(DATA, "days", "*.json"))):
         try:
@@ -87,19 +95,23 @@ def main():
                 continue
             try:
                 eg = sum(h["SCADA_" + c["unit"]] for h in H)
-                ec = sum(h["SCADA_" + c["comp_unit"]] for h in H)
+                el = sum(h["SCADA_" + c["lower_unit"]] for h in H)
+                eu = sum(h["SCADA_" + c["upper_unit"]] for h in H) if c["upper_unit"] else None
             except (KeyError, TypeError):
                 continue
             p = plants[dam]
-            p["Daily"].append({"Date": d, "Eg": round(eg, 1), "Ep": round(ep, 1), "Ei": pr.get(c["isp"]),
-                               "Q": round(eg / p["KGenNet"], 3), "P": round(ep / p["KPump"], 3), "Qc": round(ec / p["KCompNet"], 3)})
+            row = {"Date": d, "Eg": round(eg, 1), "Ep": round(ep, 1), "Ei": pr.get(c["isp"]),
+                   "Q": round(eg / p["KGenNet"], 3), "P": round(ep / p["KPump"], 3), "Ql": round(el / p["KLowerNet"], 3)}
+            if eu is not None:
+                row["Qu"] = round(eu / p["KUpperNet"], 3)
+            p["Daily"].append(row)
     for dam, p in plants.items():
         log(f"{dam}: {len(p['Daily'])} ημέρες | k παραγωγής {p['KGenNet']} · k άντλησης {p['KPump']} · συντελεστής κύκλου {p['CycleFactor']}")
     if not any(p["Daily"] for p in plants.values()):
         log("Δεν βρέθηκαν ημέρες με SCADA και εκτίμηση άντλησης")
         return 1
-    doc = {"Schema": 1, "Generated": datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z"),
-           "Method": "ανακυκλωμένο ποσοστό = νερό που αντλήθηκε / νερό που στροβιλίστηκε· κλείσιμο όγκων = (νερό γειτονικού σταθμού + αντλούμενο) / νερό που στροβιλίστηκε",
+    doc = {"Schema": 2, "Generated": datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z"),
+           "Method": "ανακυκλωμένο ποσοστό = νερό που αντλήθηκε / νερό που στροβιλίστηκε (όγκος νερού)· έλεγχος κάτω ταμιευτήρα = (νερό κάτω σταθμού + αντλούμενο) / νερό που στροβιλίστηκε· έλεγχος άνω ταμιευτήρα = (νερό ανάντη σταθμού + αντλούμενο) / νερό που στροβιλίστηκε (μόνο Σφηκιά)",
            "Assumptions": {"PumpHeadFactor": PUMP_HEAD_FACTOR, "PumpEfficiency": PUMP_ETA,
                            "Note": "Η πτώση άντλησης (μικτή × 1,02) και ο βαθμός απόδοσης 0,87 είναι υποθέσεις· ±10% στο k άντλησης μετακινεί ανάλογα το ανακυκλωμένο ποσοστό. Η άντληση ανά σταθμό είναι εκτίμηση (SCADA σύνολο μοιρασμένο με ISP)."},
            "Plants": plants}

@@ -10,7 +10,7 @@ Needs `pandas numpy requests openpyxl xlrd` (see `requirements.txt`). Exit code 
 | `test_only.py` | `--only` / `ONLY` source selection, date env variables |
 | `test_perunit.py` | per-unit small hydro, per-plant ISP pumping, `(ΜΥΗΣ)` rows in the renewables block |
 | `test_pump.py` | SCADA/ISP pump split logic and `pump_daily.json` |
-| `test_psh.py` | pumped-storage builder: Q, P, Qc and factors, which days are used, ISP pumping carried along, robustness |
+| `test_psh.py` | pumped-storage builder: Q, P, lower- and upper-plant water (Ql, Qu), factors, which days are used, ISP pumping carried along, robustness |
 | `test_wb.py` | water balance builder for all six rivers: formulas, grouping, pump independence (Sfikia/Asomata, Thesavros/Platanovrysi, Pournari I/II), Ilarionas outage, 0.00 % readings, fallbacks |
 | `test_entsoe.py` | ENTSO-E weekly parser: DST-safe week boundaries, compressed curves, merge/revision, failure modes |
 

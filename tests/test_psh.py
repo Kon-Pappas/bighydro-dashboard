@@ -14,12 +14,12 @@ def cap(fn, *a, **k):
 tmp = tempfile.mkdtemp(); os.chdir(tmp); os.makedirs('data/days')
 shutil.copy(os.path.join(ROOT, 'data', 'plant_heads.json'), 'data/')
 def day(d, e=None, scada='ok'):
-    base = {"Sfikia": 1500, "Polyfyto": 2400, "Thesavros": 3000, "Platanovrysi": 1100}; base.update(e or {})
+    base = {"Sfikia": 1500, "Polyfyto": 2400, "Asomata": 900, "Thesavros": 3000, "Platanovrysi": 1100}; base.update(e or {})
     H = [dict({"Hour": f"H{h+1:02d}"}, **{"SCADA_" + u: v / 24 for u, v in base.items()}) for h in range(24)]
     json.dump({"Date": d, "Hourly": H, "Meta": {"Status": {"scada": scada}}}, open(f'data/days/{d}.json', 'w'))
 def pumpfile(rows): json.dump(rows, open('data/pump_daily.json', 'w'))
 heads = json.load(open('data/plant_heads.json', encoding='utf-8'))['Plants']
-net, gross, est, ratio = W.k_values(heads, ['SFIKIA', 'POLYFYTO', 'THESAVROS', 'PLATANOVRYSI'])
+net, gross, est, ratio = W.k_values(heads, ['SFIKIA', 'POLYFYTO', 'ASOMATA', 'THESAVROS', 'PLATANOVRYSI'])
 kp_sf = 2.725 * heads['SFIKIA']['GrossHeadM'] * 1.02 / 0.87; kp_th = 2.725 * heads['THESAVROS']['GrossHeadM'] * 1.02 / 0.87
 print("TEST 1: formulas")
 day('2026-07-01'); day('2026-07-02', e={"Sfikia": 1800})
@@ -28,11 +28,11 @@ pumpfile([{"Date": "2026-07-01", "EstSfikiaMWh": 600.0, "EstThesavrosMWh": 900.0
 r, _ = cap(S.main); doc = json.load(open('data/psh_daily.json', encoding='utf-8')); sf = doc['Plants']['SFIKIA']; th = doc['Plants']['THESAVROS']
 check("rc 0 and two plants with two days each", r == 0 and set(doc['Plants']) == {'SFIKIA', 'THESAVROS'} and len(sf['Daily']) == 2 and len(th['Daily']) == 2)
 d0 = sf['Daily'][0]
-check("Sfikia: Q = E/k_gen(net), P = Ep/k_pump, Qc = E_Polyfyto/k_Polyfyto",abs(d0['Q'] - 1500 / net['SFIKIA']) < 0.01 and abs(d0['P'] - 600 / kp_sf) < 0.01 and abs(d0['Qc'] - 2400 / net['POLYFYTO']) < 0.01, d0)
+check("Sfikia: Q = E/k_gen(net), P = Ep/k_pump, Ql = E_Asomata/k_Asomata (lower plant), Qu = E_Polyfyto/k_Polyfyto (upstream river source)",abs(d0['Q'] - 1500 / net['SFIKIA']) < 0.01 and abs(d0['P'] - 600 / kp_sf) < 0.01 and abs(d0['Ql'] - 900 / net['ASOMATA']) < 0.01 and abs(d0['Qu'] - 2400 / net['POLYFYTO']) < 0.01, d0)
 t0 = th['Daily'][0]
-check("Thesavros: Q, P and the companion is Platanovrysi (the lower plant)", abs(t0['Q'] - 3000 / net['THESAVROS']) < 0.01 and abs(t0['P'] - 900 / kp_th) < 0.01 and abs(t0['Qc'] - 1100 / net['PLATANOVRYSI']) < 0.01 and th['CompanionRole'] == 'lower' and sf['CompanionRole'] == 'upstream', t0)
+check("Thesavros: Q, P and Ql = Platanovrysi (the lower plant); NO upstream source exists (the Nestos water comes from Bulgaria), so there is no Qu",abs(t0['Q'] - 3000 / net['THESAVROS']) < 0.01 and abs(t0['P'] - 900 / kp_th) < 0.01 and abs(t0['Ql'] - 1100 / net['PLATANOVRYSI']) < 0.01 and 'Qu' not in t0 and th['UpperSource'] is None and th['LowerDam'] == 'PLATANOVRYSI' and sf['LowerDam'] == 'ASOMATA' and sf['UpperSource'] == 'POLYFYTO', t0)
 check("pump factor k = 2.725·(gross head × 1.02)/0.87 and the cycle factor = k_gen/k_pump", abs(sf['KPump'] - kp_sf) < 0.1 and abs(sf['CycleFactor'] - net['SFIKIA'] / kp_sf) < 0.002 and doc['Assumptions']['PumpEfficiency'] == 0.87 and doc['Assumptions']['PumpHeadFactor'] == 1.02)
-check("the generation factors are the SAME as the water balance uses", abs(sf['KGenNet'] - round(net['SFIKIA'], 1)) < 1e-9 and abs(sf['KCompNet'] - round(net['POLYFYTO'], 1)) < 1e-9)
+check("the generation factors (own, lower, upper) are the SAME as the water balance uses", abs(sf['KGenNet'] - round(net['SFIKIA'], 1)) < 1e-9 and abs(sf['KLowerNet'] - round(net['ASOMATA'], 1)) < 1e-9 and abs(sf['KUpperNet'] - round(net['POLYFYTO'], 1)) < 1e-9)
 check("ISP pumping is carried along and the days are in ascending order", d0['Ei'] == 650.0 and [x['Date'] for x in sf['Daily']] == ['2026-07-01', '2026-07-02'])
 check("zero pumping gives P = 0 (not a missing value)", th['Daily'][1]['P'] == 0 and th['Daily'][1]['Ep'] == 0.0)
 print("TEST 2: which days are used")

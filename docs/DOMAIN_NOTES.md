@@ -10,7 +10,7 @@ River cascades, upstream → downstream (`data/reservoirs.json`):
 |---|---|---|---|
 | Acheloos | Kremasta → Kastraki → Stratos (I + II) | — | [owner] order, and "Stratos 1+2" counts as one dam |
 | Aliakmon | Ilarionas → Polyfyto → Sfikia → Asomata | Asomata → Sfikia (upward) | [owner] order and pump direction (confirmed) |
-| Nestos | Thesavros → Platanovrysi | Platanovrysi → Thesavros | order [doc]; pump direction **[assumption]**, supported by the volume-closure test (METHODS §4), not yet confirmed by the owner |
+| Nestos | Thesavros → Platanovrysi | Platanovrysi → Thesavros | Platanovrysi is the lower reservoir of the Thesavros plant [public article, SOURCES.md]; the Nestos inflow comes from Bulgaria [owner; press]; pump direction **[assumption]**, supported by the volume-closure test (METHODS §4), not yet confirmed by the owner |
 | Arachthos | Pigai Aoou (Aoos) → Pournari I → Pournari II | — | [owner] the Aoos water is diverted to the Arachthos basin and used again at Pournari |
 | Plastiras (Tavropos), Ladonas | one dam each | — | |
 Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river).
@@ -37,6 +37,8 @@ Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river)
 ## 5. Heads and efficiencies (`data/plant_heads.json`) [doc]
 Two PDF/AI-generated tables supplied by the owner give gross head, efficiency range and, for four plants, net head: Kremasta 160 m (net 140–150), Kastraki 95 (80–85), Polyfyto 112 (95–102), Thesavros 172 (150–160), Sfikia 54, Asomata 50, Ilarionas 118, Stratos I 38, Stratos II 6, Platanovrysi 85, Pigai Aoou 670, Pournari I 72, Pournari II 12, Plastiras 577, Ladonas 225.
 Five of them were checked against the ENTSO-E data and agree within ≈ 5 % (Kremasta, Kastraki, Polyfyto, Thesavros, Plastiras); the rest are small or not testable. Net heads for plants without a published net head are taken as gross/1.125 (the average ratio of the four that have both).
+
+Source cross-checks of the Sfikia and Thesavros heads are in `SOURCES.md`: the Sfikia value is consistent with the public reservoir levels; the Thesavros gross head (172 m) equals the dam height and is suspect (KNOWN_ISSUES K19).
 
 ## 6. Reference documents
 The 2020 presentation by Professor Stefanakos: slide 15 (PPC small hydro list), **slide 17 (useful volumes, source of `CapacityHm3`)**, slide 30 (volumes by river; e.g. Acheloos 2,869 hm³, Aliakmon 1,458, Nestos 582, Arachthos 307, Plastiras 300, Aoos 145, Ladon 46.2). An earlier version of the page quoted an irrigation figure for the Acheloos reservoirs and attributed it to this slide; it could not be verified, so it was **removed** (D42). It may be restored only after it has been checked against the PDF.

@@ -32,7 +32,7 @@ The question is about curtailment seasonality versus the room river-fed plants h
 Data needed: a curtailment/surplus series (the owner's BESS dashboard already tracks avoided curtailment), `pump_daily.json` (per plant), upper-reservoir fill (Sfikia 16 hm³, Thesavros 570 hm³), `water_balance.json` for natural inflow, and the recycled-share estimate from METHODS §5.
 
 ## Deliberately out of scope
-Per-dam stored energy (not identifiable) · price/capture-price tab (decided against) · seasonal comparison with previous years (ENTSO-E already offers it) · conclusions about Aoos without more data · any claim about Amfilochia's water availability.
+Future projects such as the Sfikia–Bravas expansion (years away, and it would enlarge the Sfikia reservoir) · Per-dam stored energy (not identifiable) · price/capture-price tab (decided against) · seasonal comparison with previous years (ENTSO-E already offers it) · conclusions about Aoos without more data · any claim about Amfilochia's water availability.
 
 ## Working agreements for future threads
 * Discuss design first, then write code (the owner's preference for anything that changes the look or the pipeline).
@@ -40,5 +40,6 @@ Per-dam stored energy (not identifiable) · price/capture-price tab (decided aga
 * Verify on a staged copy of the repository: `python tests/run_all.py` and `node tests/dashboard/run.js`.
 * Recompute every number you quote from the data; label estimates as estimates; keep personal information out of this public repository.
 * Chat is in Greek, repository documentation in English.
+* **Sources:** follow `docs/SOURCES.md` — cite only documents we have opened; web or AI summaries with generic attributions are leads, not sources.
 * **Private correspondence** with any third party is never quoted or referred to in this repository (page, data, documents, comments) without that person's explicit permission. Citing a public document is fine.
 * **Naming rule:** wherever Professor Stefanakos is mentioned (page, data files, documents, code comments) he is named *Professor Stefanakos* in English and *ο κ. καθηγητής Στεφανάκος* in Greek. Do not state his affiliation unless it has been verified.
