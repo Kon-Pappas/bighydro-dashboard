@@ -1,0 +1,98 @@
+name: Backfill ADMIE history (manual)
+
+# ΧΕΙΡΟΚΙΝΗΤΟ. Κατεβάζει ιστορικά αρχεία του ΑΔΜΗΕ (στάθμες ταμιευτήρων + παραγωγή SCADA) και τα γράφει σε ΧΩΡΙΣΤΑ αρχεία
+# data/history/admie_ΕΤΟΣ.json. ΔΕΝ αγγίζει το data/days/ ούτε το pipeline.
+# ΣΕΙΡΑ ΧΡΗΣΗΣ: 1) μικρή δοκιμή: ένα έτος + from_date/to_date λίγων ημερών (π.χ. 2016-07-10 → 2016-07-20)· έλεγξε το log.
+#              2) πλήρη έτη σε ομάδες των 2–3 (κάθε έτος ≈ 15 λεπτά). Μια δεύτερη εκτέλεση συνεχίζει από εκεί που έμεινε.
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_year:
+        description: 'Πρώτο έτος (π.χ. 2016)'
+        required: true
+        default: '2016'
+        type: string
+      end_year:
+        description: 'Τελευταίο έτος (π.χ. 2018)'
+        required: true
+        default: '2016'
+        type: string
+      from_date:
+        description: 'Προαιρετικά: πρώτη ημέρα (YYYY-MM-DD) — για μικρή δοκιμή'
+        required: false
+        default: ''
+        type: string
+      to_date:
+        description: 'Προαιρετικά: τελευταία ημέρα (YYYY-MM-DD) — για μικρή δοκιμή'
+        required: false
+        default: ''
+        type: string
+      only:
+        description: 'Ποιες κατηγορίες'
+        required: true
+        default: 'both'
+        type: choice
+        options: [both, reservoir, scada]
+      refresh:
+        description: 'Ξανακατέβασμα ακόμα και ό,τι υπάρχει ήδη'
+        required: false
+        type: boolean
+        default: false
+
+# Το ίδιο group με τον καθημερινό fetcher: δύο εκτελέσεις δεν γράφουν ταυτόχρονα στο repo
+concurrency:
+  group: bighydro-fetch
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy requests openpyxl xlrd
+
+      - name: Backfill ADMIE history
+        env:
+          START_YEAR: ${{ inputs.start_year }}
+          END_YEAR: ${{ inputs.end_year }}
+          FROM_DATE: ${{ inputs.from_date }}
+          TO_DATE: ${{ inputs.to_date }}
+          ONLY: ${{ inputs.only }}
+          REFRESH: ${{ inputs.refresh }}
+        run: |
+          ARGS="$START_YEAR $END_YEAR --max-minutes=330"
+          if [ -n "$FROM_DATE" ]; then ARGS="$ARGS --from=$FROM_DATE"; fi
+          if [ -n "$TO_DATE" ]; then ARGS="$ARGS --to=$TO_DATE"; fi
+          if [ "$ONLY" != "both" ]; then ARGS="$ARGS --only=$ONLY"; fi
+          if [ "$REFRESH" = "true" ]; then ARGS="$ARGS --refresh"; fi
+          echo "python scripts/backfill_admie_history.py $ARGS"
+          python scripts/backfill_admie_history.py $ARGS
+
+      - name: Commit and push history files
+        if: ${{ !cancelled() }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Fetcher"
+          git add data/history
+          if git diff --staged --quiet; then
+            echo "Καμία αλλαγή."
+          else
+            git commit -m "ADMIE history backfill"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push
+          fi
