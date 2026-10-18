@@ -48,3 +48,11 @@ The 2020 presentation by Professor Stefanakos: slide 15 (PPC small hydro list), 
 ## 7. Glossary
 **ISP** integrated scheduling process (schedule) · **SCADA** actual measured output · **RESMV** RES injections at medium voltage · **MCP** market clearing price (day-ahead) ·
 **PSH** pumped-storage hydro · **apparent inflow** natural inflow minus unmeasured losses/withdrawals · **river-fed (mixed) PSH** upper reservoir receives natural inflow, **closed-loop PSH** does not · **hm³** million cubic metres · **κ** common scale factor used to compare heads.
+
+## 8. ADMIE history (diagnose run of 17 Oct 2026) [data]
+* **The history exists, for both categories, from 2016 to 2026**: daily `.xls` files of `ReservoirFillingRate` and `SystemRealizationSCADA`, covering 91–100 % of the days of every year (the weakest: reservoir files of 2020, 334 of 366 days).
+* **API:** `getOperationMarketFilewRange` accepts windows of up to (at least) 366 days; `getOperationMarketFile` answers 200 with an **empty list** for any window longer than one day (so an empty list means "not supported", never "no data").
+* **Reservoir files:** the pipeline's parser reads **14 of 14** reservoirs from 2022; **11 of 14 in 2018–2021** (Stratos, Pournari I and II not matched) and **10 of 14 in 2016–2017** (Ilarionas as well). Probably different labels, not absent reservoirs (Stratos has existed since 1989); to be confirmed with the formats diagnose. Kastraki is above 100 % in some samples (135.6 % in 2016), as today.
+* **SCADA files:** all 16 units are matched in every year, but the rows **TOTAL HYDRO and TOTAL PUMPING are absent before 2020** (present from 2020). Per-unit generation is therefore available for the whole period; the pumping needed for the pumping-gain correction is not, for the early years.
+* **Duplicates:** 2018 reservoir files have 375 files for 365 days and 2020 SCADA files 404 for 366: some days have more than one file (revisions?). A selection rule is needed.
+* **First readings (15 July of each year, indications only):** Ilarionas was at **15.2 % in 2026, the lowest of the eleven years** (next lowest 25.3 %); hydro generation that day was 17.8 GWh in 2026 against 12.0–13.7 GWh in 2020–2025; the total fill rate was 69.4 %, in the middle of the eleven years (56.7 % in 2025 to 78.7 % in 2023).

@@ -37,7 +37,7 @@ The apparent inflow (storage change plus water turbined) reacts before the fill 
 Limits: the apparent inflow is a lower bound of the natural inflow (irrigation, evaporation and spills are not measured) and cannot tell rain from snowmelt or from releases upstream.
 
 ## Data still to add, in order
-1. ~~**Multi-year ENTSO-E weekly stock**~~ — **done**: `data/entsoe_history.json` holds 432 weeks (25 Sep 2017 – 29 Dec 2025); 2015–2016 returned no data. Next: **multi-year hydro generation** (ENTSO-E) to compare February 2026 with other years (question 7), and **ADMIE's per-reservoir history** for an inflow baseline (question 3): the read-only workflow *Diagnose ADMIE history* is ready to find out what exists; the result decides whether a backfill is worth designing.
+1. ~~**Multi-year ENTSO-E weekly stock**~~ — **done**: `data/entsoe_history.json` holds 432 weeks (25 Sep 2017 – 29 Dec 2025); 2015–2016 returned no data. Next: **multi-year hydro generation** (ENTSO-E) to compare February 2026 with other years (question 7), and **ADMIE's per-reservoir history** for an inflow baseline (question 3): the read-only diagnose of 17 Oct 2026 found **daily files for 2016–2026 for both stations and generation** (DOMAIN_NOTES §8); a second read-only diagnose (*Diagnose ADMIE formats*) will show how the old files are labelled before any backfill is written.
 2. **System-wide generation or load** (ADMIE / ENTSO-E) for question 8.
 3. Later, and only after 26 Oct: rainfall (and its forecast) for the catchments — a larger step.
 

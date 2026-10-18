@@ -10,6 +10,7 @@ Needs `pandas numpy requests openpyxl xlrd` (see `requirements.txt`). Exit code 
 | `test_only.py` | `--only` / `ONLY` source selection, date env variables |
 | `test_perunit.py` | per-unit small hydro, per-plant ISP pumping, `(ΜΥΗΣ)` rows in the renewables block |
 | `test_pump.py` | SCADA/ISP pump split logic and `pump_daily.json` |
+| `test_admie_formats.py` | formats diagnose with simulated old-format files: missing and unmatched reservoir labels (a renamed Stratos), SCADA unit matching and differently named total rows, duplicate files with their record fields, a non-Excel file, network down, read-only |
 | `test_admie_diag.py` | ADMIE history diagnose with a simulated API: the probe of addresses and window sizes (including the real case where the default address answers long windows with an empty list), scans with 366-day, 31-day and single-day windows, samples parsed with the pipeline's own parsers (complete and incomplete files), read-only, never raises |
 | `test_clim.py` | climatology builder: baseline selection (partial years excluded, current year not in its own baseline), percentiles, ranks, week 53, missing weeks, overlap, failures never write |
 | `test_units.py` | unit-availability builder: daily sums, which days count, null vs zero, metadata, robustness |
