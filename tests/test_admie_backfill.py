@@ -24,9 +24,10 @@ def xlsx(sheet, rows):
     with pd.ExcelWriter(bio, engine="openpyxl") as w: pd.DataFrame(rows).to_excel(w, sheet_name=sheet, header=False, index=False)
     return bio.getvalue()
 OLD_RES = ["POLYFYTO", "SFIKIA", "ASOMATA", "KREMASTA", "KASTRAKI", "STRATOS1", "P_AOOU", "POURNARI1", "POURNARI2", "THESAVROS1", "THESAVROS2", "THESAVROS3", "PLATANOVRYSI", "LADONAS", "PLASTIRAS", "AGRAS", "EDESSAIOS"]
-def res_file(kremasta=0.5, total=0.7):
+def res_file(kremasta=0.5, total=0.7, ilar=None):
     rows = [[None, "2019-07-15", None, "Lake Filling-Rate (as of)", None], [None, None, "Filling Rate (%)", None, None]]
     for n in OLD_RES: rows.append([None, n, (kremasta if n == "KREMASTA" else (None if n in ("AGRAS", "EDESSAIOS") else 0.37))])
+    if ilar is not None: rows.append([None, "ILARIONAS", ilar])
     rows.append(["FILLING RATE (%) TOTAL", None, None, total, None])
     return xlsx("20190715ReservoirFillingRate", rows)
 def sc_file():
@@ -47,7 +48,7 @@ FILES = {}
 for cat in CAT:
     for e in CAT[cat]:
         FILES[e["file_path"]] = res_file() if "/res/" in e["file_path"] else sc_file()
-FILES[f"files/res/{D(17).isoformat()}_ReservoirFillingRate_02.xls"] = res_file(kremasta=0.55)       # a LATER version that differs
+FILES[f"files/res/{D(17).isoformat()}_ReservoirFillingRate_02.xls"] = res_file(kremasta=0.55, ilar=0.28)       # a LATER version that differs
 downloads, FAILING = [], {f"files/res/{D(19).isoformat()}_ReservoirFillingRate_01.xls"}
 def fake(url, params=None, tries=3, what="", use_session=True):
     if url == B.RANGE_URL:
@@ -65,10 +66,11 @@ check("rc 0; one yearly file under data/history/, nothing in data/days/, no .tmp
 check("days with any data are stored in ascending order (14–19 July)", d["Dates"] == [f"2019-07-{n}" for n in range(14, 20)], d["Dates"])
 i14 = ix["2019-07-14"]
 check("old reservoir names are mapped: STRATOS1 → STRATOS, POURNARI1/2 → POYRNARI1/2 (37 %), the official total 70 %, Kremasta 50 %", d["Fill"]["STRATOS"][i14] == 37.0 and d["Fill"]["POYRNARI1"][i14] == 37.0 and d["Fill"]["POYRNARI2"][i14] == 37.0 and d["FillTotal"][i14] == 70.0 and d["Fill"]["KREMASTA"][i14] == 50.0, {k: d["Fill"][k][i14] for k in ("STRATOS", "POYRNARI1", "KREMASTA")})
-check("Ilarionas is absent from the old file: null, never zero", d["Fill"]["ILARIONAS"][i14] is None and d["Quality"]["ReservoirFirstDay"]["ILARIONAS"] is None)
+check("Ilarionas is absent from the old file (14 July): null, never zero; its first published day (17 July) is recorded", d["Fill"]["ILARIONAS"][i14] is None and d["Quality"]["ReservoirFirstDay"]["ILARIONAS"] == "2019-07-17" and d["Fill"]["ILARIONAS"][ix["2019-07-17"]] == 28.0)
 check("SCADA: 100 MW × 24 h = 2400 MWh per unit; the 4 small plants 240; TOTAL HYDRO 1640 MW × 24 = 39360; pumping 5 MW × 24 = 120", d["Gen"]["Kremasta"][i14] == 2400.0 and d["Gen"]["Stratos2"][i14] == 240.0 and d["TotalHydro"][i14] == 39360.0 and d["Pump"][i14] == 120.0 and len(d["Gen"]) == 20, {k: d["Gen"][k][i14] for k in ("Kremasta", "Stratos2")})
 check("the mapping is recorded: reservoir {STRATOS1, POURNARI1, POURNARI2}, SCADA {ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ, ΑΝΤΛΗΣΗ}", set(d["Quality"]["Relabelled"]["reservoir"]) == {"STRATOS1", "POURNARI1", "POURNARI2"} and set(d["Quality"]["Relabelled"]["scada"]) == {"ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ", "ΑΝΤΛΗΣΗ"}, d["Quality"]["Relabelled"])
-check("the warnings of the parsers are summarised, not printed day by day (Ilarionas missing)", any("λείπουν" in k for k in d["Quality"]["WarningsLastRun"]) and out.count("λείπουν") == 1 and "×5" in out, d["Quality"]["WarningsLastRun"])
+check("the message about reservoirs that appear later is relative to the FIRST STORED DAY (14 July): only Ilarionas (17 July) is named, not the reservoirs present from the start", "ΜΕΤΑ την πρώτη αποθηκευμένη ημέρα (2019-07-14): {'ILARIONAS': '2019-07-17'}" in out and "'KREMASTA': '2019" not in out.split("ΜΕΤΑ την πρώτη")[1].split("\n")[0], out[:900])
+check("the warnings of the parsers are summarised, not printed day by day (Ilarionas missing)", any("λείπουν" in k for k in d["Quality"]["WarningsLastRun"]) and out.count("λείπουν") == 1 and "×4" in out, d["Quality"]["WarningsLastRun"])
 print("TEST 2: gaps, duplicates, failures")
 check("a day without a SCADA file (15 July) has null generation and is listed in NoScadaData; a day without a reservoir file (18 July) in NoReservoirData", d["Gen"]["Kremasta"][ix["2019-07-15"]] is None and "2019-07-15" in d["Quality"]["NoScadaData"] and d["Fill"]["KREMASTA"][ix["2019-07-18"]] is None and "2019-07-18" in d["Quality"]["NoReservoirData"])
 check("the same file listed twice (16 July SCADA, two records with the same path) is downloaded ONCE", sum(1 for p in downloads if p == f"files/sc/{D(16).isoformat()}_SystemRealizationSCADA_01.xls") == 1, downloads)

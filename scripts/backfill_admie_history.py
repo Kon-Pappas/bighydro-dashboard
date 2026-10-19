@@ -326,9 +326,9 @@ def run_year(year, a, today, deadline):
     qual["Relabelled"] = {k: dict(v) for k, v in qual["Relabelled"].items()}
     if recs:
         doc = write_year(year, recs, qual, warn, today)
-        first = {k: v for k, v in doc["Quality"]["ReservoirFirstDay"].items() if v and v > f"{year}-01-01"}
+        first = {k: v for k, v in doc["Quality"]["ReservoirFirstDay"].items() if v and v > doc["Dates"][0]}   # εμφανίζονται ΜΕΤΑ την πρώτη αποθηκευμένη ημέρα
         log(f"   → data/history/admie_{year}.json: {len(doc['Dates'])} ημέρες | λήψεις {fetched} | αποτυχίες {fails} | συγκρούσεις εκδόσεων {len(doc['Quality']['Conflicts'])}"
-            + (f" | ταμιευτήρες που εμφανίζονται μετά την 1η Ιαν: {first}" if first else "")
+            + (f" | ταμιευτήρες που εμφανίζονται ΜΕΤΑ την πρώτη αποθηκευμένη ημέρα ({doc['Dates'][0]}): {first}" if first else "")
             + (f" | μετονομασίες: {doc['Quality']['Relabelled']}" if any(doc['Quality']['Relabelled'].values()) else ""))
         for msg, n in warn.most_common(5):
             log(f"      προειδοποίηση ×{n}: {msg}")
