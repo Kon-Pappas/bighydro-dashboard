@@ -1,0 +1,40 @@
+name: Diagnose ADMIE clock-change days (manual, read-only)
+
+# ΧΕΙΡΟΚΙΝΗΤΟ και ΜΟΝΟ ΑΝΑΓΝΩΣΗΣ (permissions: contents: read). 3ο διαγνωστικό ΑΔΜΗΕ.
+# Κοιτάει τα ΠΡΑΓΜΑΤΙΚΑ αρχεία SCADA και ISP τις ημέρες αλλαγής ώρας (23 και 25 ώρες) παλιών ετών και μιας κανονικής ημέρας δίπλα,
+# για να διορθωθούν δοκιμασμένα τα K05/K04. Δεν γράφει τίποτα στο repo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dates:
+        description: 'Ημερομηνίες χωρισμένες με κενό (π.χ. 2025-10-26). Κενό = προεπιλογή: οι αλλαγές ώρας 2024–2026 και μια κανονική ημέρα δίπλα'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy requests openpyxl xlrd
+
+      - name: Diagnose clock-change days
+        env:
+          DATES: ${{ inputs.dates }}
+        run: python scripts/diagnose_admie_dst.py $DATES
