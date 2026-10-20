@@ -36,6 +36,8 @@ A third **manual, read-only** workflow, `.github/workflows/diagnose_admie_histor
 
 A fifth, **manual** workflow, `.github/workflows/backfill_admie_history.yml` (*Backfill ADMIE history*, `scripts/backfill_admie_history.py`), writes the **historical** ADMIE series into **separate yearly files** `data/history/admie_YEAR.json` and never touches `data/days/` or `update_hydro.py`. It reuses the pipeline's own parsers after renaming the labels of old files (STRATOS1 → STRATOS, POURNARI1/2 → POYRNARI1/2; ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ → TOTAL HYDRO, ΑΝΤΛΗΣΗ → TOTAL PUMPING), requests a whole year per category with `getOperationMarketFilewRange`, then downloads day by day; every extra version of a day's file is downloaded and compared, the latest is kept and each difference is recorded. It resumes where it stopped, shares the concurrency group of the daily job and can be tried first on a few days (`from_date`, `to_date`).
 
+A sixth, **manual, read-only** workflow, `.github/workflows/diagnose_admie_dst.yml` (*Diagnose ADMIE clock-change days*, `scripts/diagnose_admie_dst.py`), looks at the real SCADA and ISP files of past clock-change days (23 or 25 hours) and of an ordinary day next to each: how many hour columns and quarter-hours the file really has, and how much energy the pipeline would lose by reading only the first 24 columns and 96 quarter-hours (K05, K04).
+
 Inputs: `start_date`, `end_date`, `only`, `diagnose`. Secret: `ENTSOE_TOKEN`. Python 3.12; the job installs `pandas numpy requests openpyxl xlrd`.
 `calibrate_energy.py` needs `scipy` and is **not** part of the daily job.
 
