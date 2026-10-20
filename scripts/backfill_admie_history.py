@@ -4,16 +4,21 @@
 
 ΔΕΝ γράφει στο data/days/ και ΔΕΝ αλλάζει το pipeline (update_hydro.py): χρησιμοποιεί τους ΙΔΙΟΥΣ parsers του, αφού πρώτα μετονομάσει
 τις ετικέτες των παλιών αρχείων (το διαγνωστικό της 18/10/2026 έδειξε ότι ΜΕΤΟΝΟΜΑΣΤΗΚΑΝ, δεν έλειπαν):
-    στάθμες:  STRATOS1 -> STRATOS · POURNARI1 -> POYRNARI1 · POURNARI2 -> POYRNARI2          (ο Ιλαρίων ΔΕΝ υπάρχει στα αρχεία του 2016)
+    στάθμες:  STRATOS1 -> STRATOS · POURNARI1 -> POYRNARI1 · POURNARI2 -> POYRNARI2          (ο Ιλαρίων δεν δημοσιεύεται πριν το 2018)
     SCADA:    ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ -> TOTAL HYDRO · ΑΝΤΛΗΣΗ -> TOTAL PUMPING                 (πριν το 2020)
 Μία αίτηση ανά έτος και κατηγορία (διεύθυνση getOperationMarketFilewRange), μετά λήψη ανά ημέρα.
 
-ΔΙΠΛΑ ΑΡΧΕΙΑ: οι εγγραφές της ίδιας ημέρας ομαδοποιούνται κατά διαδρομή (μία εγγραφή που εμφανίζεται δύο φορές κατεβαίνει ΜΙΑ φορά)·
-αν υπάρχουν περισσότερες εκδόσεις (π.χ. _01, _02), κατεβαίνουν ΟΛΕΣ, συγκρίνονται, και επιλέγεται η ΤΕΛΕΥΤΑΙΑ (μεγαλύτερη ημερομηνία
-δημοσίευσης, μετά μεγαλύτερος αριθμός _NN)· κάθε διαφορά καταγράφεται στο Quality.Conflicts.
+ΚΑΘΑΡΙΣΜΟΣ (μετά τον έλεγχο της 19/10/2026: κενά κελιά, εκδόσεις χωρίς τιμές, ψευδή μηδενικά):
+  * κενά κελιά (NaN) -> null· ποτέ NaN στο JSON (δεν είναι έγκυρο JSON)·
+  * ΕΠΙΛΟΓΗ ΕΚΔΟΣΗΣ: η πιο ΠΛΗΡΗΣ (περισσότερες τιμές), και σε ισοπαλία η τελευταία (δημοσίευση, μετά _NN) — μια «νεότερη» έκδοση
+    μπορεί να είναι κενή (2018-04-24: η _01 έχει τιμές, η _02 είναι κενή)· κάθε διαφορά καταγράφεται στο Quality.Conflicts·
+  * αρχείο χωρίς καμία τιμή = «άκυρο αρχείο»: δεν αποθηκεύεται, καταγράφεται στο Quality.InvalidFiles και δεν ξαναζητείται εκτός --refresh·
+  * ημέρα στάθμης με ≥ 10 ταμιευτήρες ακριβώς 0,0 ή επίσημο σύνολο 0 = «γεμάτη μηδενικά» (π.χ. 19–22/3/2020) -> άκυρη·
+  * ταμιευτήρας ακριβώς 0,0 ενώ οι γειτονικές ημέρες (≤ 3 ημέρες πριν και μετά) είναι > 5% = μεμονωμένο μηδενικό -> null (Quality.ZeroGlitches).
 
 Αποθηκεύεται ΗΜΕΡΗΣΙΑ ενέργεια (MWh = άθροισμα των 24 ωριαίων MW) ανά μονάδα και στάθμη % ανά ταμιευτήρα (όπως δημοσιεύεται, όριο αναφοράς του ΑΔΜΗΕ).
-Τιμή null = λείπει (ποτέ μηδέν). Τα αρχεία είναι ανακτήσιμα: μια δεύτερη εκτέλεση δεν ξανακατεβάζει ό,τι υπάρχει (εκτός από --refresh).
+Τιμή null = λείπει (ποτέ μηδέν). Τα αρχεία είναι ανακτήσιμα: μια δεύτερη εκτέλεση δεν ξανακατεβάζει ό,τι υπάρχει (εκτός από --refresh)·
+εφαρμόζει όμως ξανά τον καθαρισμό στα αποθηκευμένα δεδομένα, άρα μια εκτέλεση ΧΩΡΙΣ --refresh διορθώνει και παλιότερα αρχεία.
 
 Χρήση:  python scripts/backfill_admie_history.py ΠΡΩΤΟ_ΕΤΟΣ [ΤΕΛΕΥΤΑΙΟ_ΕΤΟΣ] [--only=reservoir|scada] [--from=ΗΜΕΡΟΜΗΝΙΑ] [--to=ΗΜΕΡΟΜΗΝΙΑ]
                                                                            [--refresh] [--max-minutes=N]
@@ -43,13 +48,16 @@ RES_ALIASES = {"STRATOS1": "STRATOS", "POURNARI1": "POYRNARI1", "POURNARI2": "PO
 SCADA_ALIASES = [("ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ", "TOTAL HYDRO"), ("ΑΝΤΛΗΣΗ", "TOTAL PUMPING")]
 UNIT_ALL = list(U.UNIT_KEYS) + [k for k, _ in U.OTHER_HYDRO_SCADA]
 SLEEP = 0.25
+ZERO_DAY_MIN = 10          # ≥ τόσοι ταμιευτήρες ακριβώς 0,0 την ίδια ημέρα = ημέρα «γεμάτη μηδενικά»
+GLITCH_NEIGHBOUR = 5.0     # % — οι γειτονικές ημέρες πρέπει να είναι πάνω από αυτό
+GLITCH_WINDOW = 3          # ημέρες προς κάθε κατεύθυνση
 
 
 def log(m=""):
     print(m, flush=True)
 
 
-# ---------- ΛΙΣΤΑ ΚΑΙ ΕΠΙΛΟΓΗ ΕΚΔΟΣΗΣ ----------
+# ---------- ΛΙΣΤΑ ΚΑΙ ΟΜΑΔΟΠΟΙΗΣΗ ----------
 def list_year(category, d0, d1):
     r = U.http_get(RANGE_URL, params={"dateStart": d0.isoformat(), "dateEnd": d1.isoformat(), "FileCategory": category},
                    what=f"ADMIE {category} λίστα {d0}..{d1}")
@@ -125,9 +133,18 @@ def relabel_scada(content):
     return (_to_xlsx(df, sheet), changed) if changed else (content, {})
 
 
+def clean(v):
+    """Αριθμός ή None· τα κενά κελιά (NaN) γίνονται None."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return None if f != f else f
+
+
 def day_sum(v):
-    """Ημερήσια ενέργεια MWh από 24 ωριαία MW· None αν λείπει έστω μία ώρα (δεν συμπληρώνουμε)."""
-    if v is None or any(x is None for x in v):
+    """Ημερήσια ενέργεια MWh από 24 ωριαία MW· None αν λείπει (ή είναι NaN) έστω μία ώρα (δεν συμπληρώνουμε)."""
+    if v is None or any(clean(x) is None for x in v):
         return None
     return round(float(sum(v)), 1)
 
@@ -138,7 +155,10 @@ def parse_reservoir_day(content):
     if not res:
         return None, ch
     reservoirs, official = res
-    return {"fill": {k: reservoirs.get(k) for k in U.RESERVOIRS}, "total": official}, ch
+    p = {"fill": {k: clean(reservoirs.get(k)) for k in U.RESERVOIRS}, "total": clean(official)}
+    if all(v is None for v in p["fill"].values()) and p["total"] is None:
+        return None, ch                                  # αρχείο χωρίς καμία τιμή
+    return p, ch
 
 
 def parse_scada_day(content):
@@ -147,7 +167,10 @@ def parse_scada_day(content):
     gen = {k: day_sum(v) for k, v in out.items()}
     for k, v in (extra.get("Parts") or {}).items():
         gen[k] = day_sum(v)
-    return {"gen": {k: gen.get(k) for k in UNIT_ALL}, "hydro": day_sum(extra.get("TotalHydro")), "pump": day_sum(pump)}, ch
+    p = {"gen": {k: gen.get(k) for k in UNIT_ALL}, "hydro": day_sum(extra.get("TotalHydro")), "pump": day_sum(pump)}
+    if all(v is None for v in p["gen"].values()) and p["hydro"] is None:
+        return None, ch
+    return p, ch
 
 
 @contextmanager
@@ -171,46 +194,72 @@ def download(entry, what):
     return r.content if r is not None and r.status_code == 200 and r.content else None
 
 
-def diff_summary(a, b, keys):
-    out = []
-    for k in keys:
-        if a.get(k) != b.get(k):
-            out.append(f"{k}: {a.get(k)} → {b.get(k)}")
-    return out[:6]
+# ---------- ΕΠΙΛΟΓΗ ΕΚΔΟΣΗΣ ----------
+def flat(kind, p):
+    if kind == "reservoir":
+        return {**p["fill"], "TOTAL": p["total"]}
+    return {**p["gen"], "HYDRO": p["hydro"], "PUMP": p["pump"]}
+
+
+def completeness(kind, p):
+    return sum(1 for v in flat(kind, p).values() if v is not None)
+
+
+def diff_versions(kind, a, b):
+    """Διαφορές δύο εκδόσεων: τιμές που διαφέρουν και στις δύο, ή τιμή που υπάρχει μόνο στη μία. Δύο κενές τιμές ΔΕΝ διαφέρουν."""
+    fa, fb = flat(kind, a), flat(kind, b)
+    out, kinds = [], set()
+    for k in sorted(set(fa) | set(fb)):
+        x, y = fa.get(k), fb.get(k)
+        if x is None and y is None:
+            continue
+        if x is None or y is None:
+            out.append(f"{k}: {x} → {y}")
+            kinds.add("completeness")
+        elif abs(x - y) > 1e-6:
+            out.append(f"{k}: {x} → {y}")
+            kinds.add("values")
+    return out, kinds
 
 
 def process_day(kind, d, entries, warn, relab):
-    """-> (αποτέλεσμα | None, κατάσταση 'ok'|'failed', σύγκρουση | None)"""
-    parsed = []
+    """-> (αποτέλεσμα | None, 'ok'|'failed'|'invalid', σύγκρουση | None)
+    failed = καμία λήψη δεν πέτυχε (θα ξαναδοκιμαστεί)· invalid = κατέβηκαν αρχεία αλλά κανένα δεν έχει τιμές."""
+    parsed, downloaded, empties = [], 0, []
     parse = parse_reservoir_day if kind == "reservoir" else parse_scada_day
     for e in entries:
         content = download(e, f"ADMIE {kind} {d}")
         if content is None:
             continue
+        downloaded += 1
         try:
             with collect_logs(warn):
                 p, ch = parse(content)
         except Exception as ex:                          # noqa: BLE001
             warn[f"parser απέτυχε: {type(ex).__name__}"] += 1
             continue
-        if p is None:
-            continue
         for k in ch:
             relab[kind][k] += 1
-        parsed.append((e, p))
+        if p is not None:
+            parsed.append((e, p))
+        else:
+            empties.append(os.path.basename(e["file_path"]))
     if not parsed:
-        return None, "failed", None
-    chosen_e, chosen = parsed[-1]
+        return None, ("invalid" if downloaded else "failed"), None
+    chosen_e, chosen = max(parsed, key=lambda t: (completeness(kind, t[1]), published(t[0]), suffix(t[0]["file_path"])))
     conflict = None
-    if len(parsed) > 1:
-        flat = (lambda p: {**p["fill"], "TOTAL": p["total"]}) if kind == "reservoir" else (lambda p: {**p["gen"], "HYDRO": p["hydro"], "PUMP": p["pump"]})
-        first = flat(parsed[0][1])
-        diffs = []
-        for e, p in parsed[1:]:
-            diffs += diff_summary(first, flat(p), sorted(set(first) | set(flat(p))))
-        if diffs:
-            conflict = {"date": d.isoformat(), "category": kind, "files": [os.path.basename(e["file_path"]) for e, _ in parsed],
-                        "chosen": os.path.basename(chosen_e["file_path"]), "diff": diffs[:6]}
+    diffs, kinds = [], set()
+    for e, p in parsed:
+        if e is chosen_e:
+            continue
+        dd, kk = diff_versions(kind, chosen, p)
+        diffs += dd
+        kinds |= kk
+    if empties:
+        diffs.append("έκδοση χωρίς καμία τιμή: " + ", ".join(empties))
+    if diffs:
+        conflict = {"date": d.isoformat(), "category": kind, "kind": "values" if "values" in kinds else ("completeness" if kinds else "empty_version"),
+                    "files": sorted([os.path.basename(e["file_path"]) for e, _ in parsed] + empties), "chosen": os.path.basename(chosen_e["file_path"]), "diff": diffs[:6]}
     return chosen, "ok", conflict
 
 
@@ -225,26 +274,74 @@ def dst_days(year):
     return out
 
 
+def fresh_quality():
+    return {"Failed": {}, "Conflicts": [], "Relabelled": {"reservoir": Counter(), "scada": Counter()}, "Invalid": {"reservoir": [], "scada": []},
+            "ZeroGlitches": {}}
+
+
 def load_year(path):
     if not os.path.exists(path):
-        return {}, {"Failed": {}, "Conflicts": [], "Relabelled": {"reservoir": {}, "scada": {}}}
+        return {}, fresh_quality()
     with open(path, encoding="utf-8") as f:
-        doc = json.load(f)
+        doc = json.load(f)                                    # παλιά αρχεία μπορεί να έχουν NaN: η Python τα δέχεται, τα καθαρίζουμε παρακάτω
     recs = {}
     for i, d in enumerate(doc["Dates"]):
-        fill = {k: doc["Fill"][k][i] for k in doc["Fill"]}
-        gen = {k: doc["Gen"][k][i] for k in doc["Gen"]}
-        res = {"fill": fill, "total": doc["FillTotal"][i]} if (doc["FillTotal"][i] is not None or any(v is not None for v in fill.values())) else None
-        sc = {"gen": gen, "hydro": doc["TotalHydro"][i], "pump": doc["Pump"][i]} if (doc["TotalHydro"][i] is not None or any(v is not None for v in gen.values())) else None
+        fill = {k: clean(doc["Fill"][k][i]) for k in doc["Fill"]}
+        gen = {k: clean(doc["Gen"][k][i]) for k in doc["Gen"]}
+        tot, th, pu = clean(doc["FillTotal"][i]), clean(doc["TotalHydro"][i]), clean(doc["Pump"][i])
+        res = {"fill": fill, "total": tot} if (tot is not None or any(v is not None for v in fill.values())) else None
+        sc = {"gen": gen, "hydro": th, "pump": pu} if (th is not None or any(v is not None for v in gen.values())) else None
         recs[d] = {"res": res, "sc": sc}
     q = doc.get("Quality", {})
-    return recs, {"Failed": q.get("Failed", {}), "Conflicts": q.get("Conflicts", []), "Relabelled": q.get("Relabelled", {"reservoir": {}, "scada": {}})}
+    qual = fresh_quality()
+    qual["Failed"] = q.get("Failed", {})
+    qual["Conflicts"] = [c for c in q.get("Conflicts", []) if "nan" not in json.dumps(c.get("diff", [])).lower()]        # παλιές «συγκρούσεις» nan≠nan
+    qual["Relabelled"] = {k: Counter(v) for k, v in q.get("Relabelled", {"reservoir": {}, "scada": {}}).items()}
+    qual["Invalid"] = {"reservoir": list(q.get("InvalidFiles", {}).get("reservoir", [])), "scada": list(q.get("InvalidFiles", {}).get("scada", []))}
+    qual["ZeroGlitches"] = {k: list(v) for k, v in q.get("ZeroGlitches", {}).items()}
+    return recs, qual
+
+
+def apply_zero_rules(recs, qual):
+    """Ψευδή μηδενικά: (1) ημέρα γεμάτη μηδενικά -> άκυρη, (2) μεμονωμένο μηδενικό ενός ταμιευτήρα -> null."""
+    for day in sorted(recs):
+        r = recs[day]["res"]
+        if r and (sum(1 for v in r["fill"].values() if v == 0.0) >= ZERO_DAY_MIN or r["total"] == 0.0):
+            recs[day]["res"] = None
+            if day not in qual["Invalid"]["reservoir"]:
+                qual["Invalid"]["reservoir"].append(day)
+    days = sorted(d for d in recs if recs[d]["res"])
+    parsed = {d: date.fromisoformat(d) for d in days}
+    for k in U.RESERVOIRS:
+        for d in days:
+            v = recs[d]["res"]["fill"].get(k)
+            if v != 0.0:
+                continue
+
+            def near(sign):
+                for step in range(1, GLITCH_WINDOW + 1):
+                    dd = (parsed[d] + timedelta(days=sign * step)).isoformat()
+                    x = recs.get(dd, {}).get("res")
+                    if x and x["fill"].get(k) is not None:
+                        return x["fill"][k]
+                return None
+            a, b = near(-1), near(1)
+            if a is not None and b is not None and a > GLITCH_NEIGHBOUR and b > GLITCH_NEIGHBOUR:
+                recs[d]["res"]["fill"][k] = None
+                lst = qual["ZeroGlitches"].setdefault(k, [])
+                if d not in lst:
+                    lst.append(d)
+    for k in qual["ZeroGlitches"]:
+        qual["ZeroGlitches"][k].sort()
+    qual["Invalid"]["reservoir"].sort()
+    qual["Invalid"]["scada"].sort()
 
 
 def write_year(year, recs, qual, warn, today):
+    recs = {k: v for k, v in recs.items() if v["res"] or v["sc"]}
     dates = sorted(recs)
     col = lambda f: [f(recs[d]) for d in dates]
-    fill = {k: col(lambda r, k=k: (r["res"] or {"fill": {}})["fill"].get(k) if r["res"] else None) for k in U.RESERVOIRS}
+    fill = {k: col(lambda r, k=k: r["res"]["fill"].get(k) if r["res"] else None) for k in U.RESERVOIRS}
     gen = {k: col(lambda r, k=k: r["sc"]["gen"].get(k) if r["sc"] else None) for k in UNIT_ALL}
     d0, d1 = date(year, 1, 1), min(date(year, 12, 31), today)
     allday = [(d0 + timedelta(days=i)).isoformat() for i in range((d1 - d0).days + 1)]
@@ -257,7 +354,8 @@ def write_year(year, recs, qual, warn, today):
            "Dates": dates, "FillTotal": col(lambda r: r["res"]["total"] if r["res"] else None), "Fill": fill, "Gen": gen,
            "TotalHydro": col(lambda r: r["sc"]["hydro"] if r["sc"] else None), "Pump": col(lambda r: r["sc"]["pump"] if r["sc"] else None),
            "Quality": {"NoReservoirData": [d for d in allday if d not in has_res], "NoScadaData": [d for d in allday if d not in has_sc],
-                       "Failed": qual["Failed"], "Conflicts": qual["Conflicts"], "Relabelled": qual["Relabelled"],
+                       "Failed": qual["Failed"], "InvalidFiles": qual["Invalid"], "ZeroGlitches": qual["ZeroGlitches"], "Conflicts": qual["Conflicts"],
+                       "Relabelled": {k: dict(v) for k, v in qual["Relabelled"].items()},
                        "ReservoirFirstDay": first, "DstDays": dst_days(year),
                        "WarningsLastRun": dict(warn.most_common(12)),
                        "Note": "Οι ημέρες αλλαγής ώρας έχουν 23 ή 25 ώρες: το άθροισμα 24 ωριαίων τιμών δεν είναι ακριβές εκείνες τις ημέρες."}}
@@ -265,7 +363,7 @@ def write_year(year, recs, qual, warn, today):
     path = os.path.join(OUTDIR, f"admie_{year}.json")
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False)
+        json.dump(doc, f, ensure_ascii=False, allow_nan=False)        # ποτέ NaN: δεν είναι έγκυρο JSON
         f.write("\n")
     os.replace(tmp, path)
     return doc
@@ -274,7 +372,8 @@ def write_year(year, recs, qual, warn, today):
 def run_year(year, a, today, deadline):
     path = os.path.join(OUTDIR, f"admie_{year}.json")
     recs, qual = load_year(path)
-    qual["Relabelled"] = {"reservoir": Counter(qual["Relabelled"].get("reservoir", {})), "scada": Counter(qual["Relabelled"].get("scada", {}))}
+    if a["refresh"] and not a["from"] and not a["to"]:
+        qual = fresh_quality()                                # πλήρης ανανέωση έτους: ξεκινά από καθαρή κατάσταση
     warn = Counter()
     d0, d1 = date(year, 1, 1), min(date(year, 12, 31), today)
     lo, hi = max(d0, a["from"] or d0), min(d1, a["to"] or d1)
@@ -291,7 +390,7 @@ def run_year(year, a, today, deadline):
         nonday += sk
     days = sorted({d for g in groups.values() for d in g if lo <= d <= hi})
     log(f"{year}: {len(days)} ημέρες προς έλεγχο ({lo} → {hi})" + (f" | μη ημερήσιες εγγραφές που αγνοήθηκαν: {nonday}" if nonday else ""))
-    done = fetched = fails = stopped = 0
+    done = fetched = fails = invalid = stopped = 0
     for d in days:
         if time.time() > deadline:
             stopped = 1
@@ -302,7 +401,7 @@ def run_year(year, a, today, deadline):
         for kind, slot in (("reservoir", "res"), ("scada", "sc")):
             if kind not in groups or d not in groups[kind]:
                 continue
-            if rec[slot] is not None and not a["refresh"]:
+            if not a["refresh"] and (rec[slot] is not None or key in qual["Invalid"][kind]):
                 continue
             got, status, conflict = process_day(kind, d, groups[kind][d], warn, qual["Relabelled"])
             fetched += 1
@@ -312,22 +411,33 @@ def run_year(year, a, today, deadline):
                 if kind not in qual["Failed"][key]:
                     qual["Failed"][key].append(kind)
                 continue
-            rec[slot] = got
             if key in qual["Failed"] and kind in qual["Failed"][key]:
                 qual["Failed"][key].remove(kind)
                 if not qual["Failed"][key]:
                     del qual["Failed"][key]
+            qual["Conflicts"] = [c for c in qual["Conflicts"] if not (c["date"] == key and c["category"] == kind)]
+            if status == "invalid":
+                invalid += 1
+                rec[slot] = None
+                if key not in qual["Invalid"][kind]:
+                    qual["Invalid"][kind].append(key)
+                continue
+            if key in qual["Invalid"][kind]:
+                qual["Invalid"][kind].remove(key)
+            rec[slot] = got
             if conflict:
-                qual["Conflicts"] = [c for c in qual["Conflicts"] if not (c["date"] == key and c["category"] == kind)] + [conflict]
+                qual["Conflicts"].append(conflict)
         done += 1
         if done % 60 == 0:
-            write_year(year, {k: v for k, v in recs.items() if v["res"] or v["sc"]}, qual, warn, today)
-    recs = {k: v for k, v in recs.items() if v["res"] or v["sc"]}
-    qual["Relabelled"] = {k: dict(v) for k, v in qual["Relabelled"].items()}
-    if recs:
+            apply_zero_rules(recs, qual)
+            write_year(year, recs, qual, warn, today)
+    apply_zero_rules(recs, qual)
+    if any(v["res"] or v["sc"] for v in recs.values()):
         doc = write_year(year, recs, qual, warn, today)
-        first = {k: v for k, v in doc["Quality"]["ReservoirFirstDay"].items() if v and v > doc["Dates"][0]}   # εμφανίζονται ΜΕΤΑ την πρώτη αποθηκευμένη ημέρα
-        log(f"   → data/history/admie_{year}.json: {len(doc['Dates'])} ημέρες | λήψεις {fetched} | αποτυχίες {fails} | συγκρούσεις εκδόσεων {len(doc['Quality']['Conflicts'])}"
+        first = {k: v for k, v in doc["Quality"]["ReservoirFirstDay"].items() if v and v > doc["Dates"][0]}
+        gl = sum(len(v) for v in doc["Quality"]["ZeroGlitches"].values())
+        log(f"   → data/history/admie_{year}.json: {len(doc['Dates'])} ημέρες | λήψεις {fetched} | αποτυχίες {fails} | άκυρα αρχεία {len(doc['Quality']['InvalidFiles']['reservoir']) + len(doc['Quality']['InvalidFiles']['scada'])}"
+            f" | μηδενικά-σφάλματα {gl} | συγκρούσεις εκδόσεων {len(doc['Quality']['Conflicts'])}"
             + (f" | ταμιευτήρες που εμφανίζονται ΜΕΤΑ την πρώτη αποθηκευμένη ημέρα ({doc['Dates'][0]}): {first}" if first else "")
             + (f" | μετονομασίες: {doc['Quality']['Relabelled']}" if any(doc['Quality']['Relabelled'].values()) else ""))
         for msg, n in warn.most_common(5):

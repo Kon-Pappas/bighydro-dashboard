@@ -96,6 +96,51 @@ e2 = dict(e1, file_path="p/a_02.xls"); e3 = dict(e1, file_path="p/a_03.xls", fil
 g, sk = B.group_days([e1, e2, e3, {"file_path": "p/w.xls", "file_fromdate": "05.03.2018", "file_todate": "11.03.2018"}])
 check("versions are ordered oldest → newest by publication time, then by _NN; multi-day files are skipped and counted", [os.path.basename(x["file_path"]) for x in g[date(2018, 3, 5)]] == ["a_03.xls", "a_01.xls", "a_02.xls"] and sk == 1, g)
 check("a day with an incomplete SCADA row (a missing hour) gives null, never a partial sum", B.day_sum([1.0] * 23 + [None]) is None and B.day_sum([1.0] * 24) == 24.0 and B.day_sum(None) is None)
+print("TEST 6: cleaning rules found in the real data (empty cells, empty versions, false zeros)")
+def res_vals(vals, total):
+    rows = [[None, "2018-01-01", None, "Lake Filling-Rate (as of)", None], [None, None, "Filling Rate (%)", None, None]]
+    for n in OLD_RES: rows.append([None, n, None if n in ("AGRAS", "EDESSAIOS") else vals.get(n, vals.get("*"))])
+    rows.append(["FILLING RATE (%) TOTAL", None, None, total, None]); return xlsx("20180101ReservoirFillingRate", rows)
+def sc_nan_hour():
+    rows = [[None, "ΣΥΝΟΛΙΚΟ ΦΟΡΤΙΟ"] + [100.0] * 24, [None, "ΑΝΤΛΗΣΗ"] + [5.0] * 24]
+    for i, (key, names, _) in enumerate(U.HYDRO_UNITS): rows.append([None, names[0]] + ([100.0] * 23 + [None] if i == 0 else [100.0] * 24))
+    rows += [[None, al[0]] + [10.0] * 24 for key, al in U.OTHER_HYDRO_SCADA]
+    rows += [[None, "ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ"] + [16 * 100.0 + 10.0 * len(U.OTHER_HYDRO_SCADA)] * 24]
+    return xlsx("System_Production", rows)
+G = lambda m, dd: date(2018, m, dd)
+def reg(cat, d, name, path_extra="", pub="01.01.2020 10:00", content=None):
+    e = {"file_path": f"files/x{cat}/{d.isoformat()}_{name}{path_extra}", "file_fromdate": fmt(d), "file_todate": fmt(d), "file_published": pub}
+    CAT[U.CAT_RESERVOIR if cat == "res" else U.CAT_SCADA].append(e); FILES[e["file_path"]] = content; return e
+# 2018-04-24: _01 complete, _02 (published LATER) completely empty  -> the COMPLETE one must be chosen
+# 2018-04-25: every version empty -> invalid file
+# 2018-05-09: two complete versions that differ -> latest chosen, 'values' conflict
+# 2018-06-10: zero-filled day;  2018-06-20/21/22: Kremasta 37 -> 0 -> 38 (isolated zero glitch)
+EMPTY = res_vals({"*": None}, None); GOOD = res_vals({"*": 0.37, "KREMASTA": 0.5}, 0.7)
+reg("res", G(4, 24), "ReservoirFillingRate_01.xls", content=GOOD); reg("res", G(4, 24), "ReservoirFillingRate_02.xls", pub="01.01.2020 11:00", content=EMPTY)
+reg("res", G(4, 25), "ReservoirFillingRate_01.xls", content=EMPTY); reg("res", G(4, 25), "ReservoirFillingRate_02.xls", content=EMPTY)
+reg("res", G(5, 9), "ReservoirFillingRate_01.xls", content=GOOD); reg("res", G(5, 9), "ReservoirFillingRate_02.xls", content=res_vals({"*": 0.37, "KREMASTA": 0.55}, 0.7))
+reg("res", G(6, 10), "ReservoirFillingRate_01.xls", content=res_vals({"*": 0.0}, 0.0))
+for dd, v in ((20, 0.37), (21, 0.0), (22, 0.38)): reg("res", G(6, dd), "ReservoirFillingRate_01.xls", content=res_vals({"*": 0.37, "KREMASTA": v}, 0.7))
+reg("scada", G(6, 20), "SystemRealizationSCADA_01.xls", content=sc_nan_hour()); reg("scada", G(4, 25), "SystemRealizationSCADA_01.xls", content=sc_file())
+os.chdir(tempfile.mkdtemp()); downloads.clear(); sys.argv = ['x', '2018', '--from=2018-04-24', '--to=2018-06-22']; r, out = cap(B.main)
+txt = open('data/history/admie_2018.json', encoding='utf-8').read(); d = json.loads(txt, parse_constant=lambda c: (_ for _ in ()).throw(ValueError("NaN/Infinity in JSON: " + c))); ix = {x: i for i, x in enumerate(d["Dates"])}
+check("the file is STRICT JSON: no NaN token, parseable with NaN forbidden", "NaN" not in txt and r == 0)
+check("2018-04-24: the version published later is EMPTY, so the COMPLETE older one (_01) is kept; the empty one is recorded as a conflict of kind 'empty_version'", d["Fill"]["KREMASTA"][ix["2018-04-24"]] == 50.0 and any(c["date"] == "2018-04-24" and c["kind"] == "empty_version" and c["chosen"].endswith("_01.xls") and any("_02.xls" in z for z in c["diff"]) for c in d["Quality"]["Conflicts"]), d["Quality"]["Conflicts"])
+check("2018-04-25: all versions empty -> not stored as data, listed as invalid file and in NoReservoirData; the SCADA of that day is kept", "2018-04-25" in d["Quality"]["InvalidFiles"]["reservoir"] and "2018-04-25" in d["Quality"]["NoReservoirData"] and d["Fill"]["KREMASTA"][ix["2018-04-25"]] is None and d["TotalHydro"][ix["2018-04-25"]] == 39360.0)
+check("2018-05-09: two complete versions that differ -> the latest is chosen, conflict of kind 'values' with the difference", d["Fill"]["KREMASTA"][ix["2018-05-09"]] == 55.0 and any(c["date"] == "2018-05-09" and c["kind"] == "values" and any("KREMASTA" in x for x in c["diff"]) for c in d["Quality"]["Conflicts"]), d["Quality"]["Conflicts"])
+check("a day filled with zeros (all reservoirs 0.0, total 0) is INVALID, never stored as zeros", "2018-06-10" in d["Quality"]["InvalidFiles"]["reservoir"] and "2018-06-10" in d["Quality"]["NoReservoirData"] and "2018-06-10" not in d["Dates"])
+check("an isolated zero (Kremasta 37 → 0 → 38) becomes null and is listed in ZeroGlitches; the neighbours keep their values", d["Fill"]["KREMASTA"][ix["2018-06-21"]] is None and d["Quality"]["ZeroGlitches"].get("KREMASTA") == ["2018-06-21"] and d["Fill"]["KREMASTA"][ix["2018-06-20"]] == 37.0 and d["Fill"]["KREMASTA"][ix["2018-06-22"]] == 38.0, d["Quality"]["ZeroGlitches"])
+check("a SCADA row with one blank hour: that unit is null (not a partial sum), the others and TOTAL HYDRO are kept", d["Gen"]["Kremasta"][ix["2018-06-20"]] is None and d["Gen"]["Kastraki"][ix["2018-06-20"]] == 2400.0 and d["TotalHydro"][ix["2018-06-20"]] == 39360.0)
+print("TEST 7: a second run does not re-ask files that are known to be invalid; a legacy file with NaN is repaired")
+downloads.clear(); sys.argv = ['x', '2018', '--from=2018-04-24', '--to=2018-06-22']; cap(B.main)
+check("the second run downloads nothing again for the invalid days (04-25 and 06-10)", not any(("2018-04-25_Reservoir" in p) or ("2018-06-10_Reservoir" in p) for p in downloads), [p for p in downloads][:6])
+legacy = {"Schema": 1, "Year": 2018, "Dates": ["2018-04-25"], "FillTotal": [float("nan")], "Fill": {k: [float("nan")] for k in U.RESERVOIRS}, "Gen": {k: [100.0] for k in B.UNIT_ALL},
+          "TotalHydro": [39360.0], "Pump": [120.0], "Quality": {"Failed": {}, "Conflicts": [{"date": "2018-04-25", "category": "reservoir", "files": ["a_01.xls", "a_02.xls"], "chosen": "a_02.xls", "diff": ["ASOMATA: nan → nan"]}], "Relabelled": {"reservoir": {}, "scada": {}}}}
+os.chdir(tempfile.mkdtemp()); os.makedirs('data/history'); json.dump(legacy, open('data/history/admie_2018.json', 'w', encoding='utf-8'))
+check("(the legacy file really contains NaN)", "NaN" in open('data/history/admie_2018.json', encoding='utf-8').read())
+good25 = reg("res", G(4, 25), "ReservoirFillingRate_09.xls", content=GOOD, pub="01.02.2020 10:00")
+sys.argv = ['x', '2018', '--from=2018-04-25', '--to=2018-04-25']; cap(B.main); txt2 = open('data/history/admie_2018.json', encoding='utf-8').read(); d2 = json.loads(txt2, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
+check("the repaired file is strict JSON, the all-NaN day is filled from a complete version, the false 'nan → nan' conflict is gone", "NaN" not in txt2 and d2["Fill"]["KREMASTA"][0] == 50.0 and not any("nan" in json.dumps(c["diff"]).lower() for c in d2["Quality"]["Conflicts"]), d2["Quality"]["Conflicts"])
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)
