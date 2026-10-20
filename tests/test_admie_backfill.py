@@ -141,6 +141,19 @@ check("(the legacy file really contains NaN)", "NaN" in open('data/history/admie
 good25 = reg("res", G(4, 25), "ReservoirFillingRate_09.xls", content=GOOD, pub="01.02.2020 10:00")
 sys.argv = ['x', '2018', '--from=2018-04-25', '--to=2018-04-25']; cap(B.main); txt2 = open('data/history/admie_2018.json', encoding='utf-8').read(); d2 = json.loads(txt2, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
 check("the repaired file is strict JSON, the all-NaN day is filled from a complete version, the false 'nan → nan' conflict is gone", "NaN" not in txt2 and d2["Fill"]["KREMASTA"][0] == 50.0 and not any("nan" in json.dumps(c["diff"]).lower() for c in d2["Quality"]["Conflicts"]), d2["Quality"]["Conflicts"])
+print("TEST 8: a total WITHOUT any reservoir value is not trusted")
+TOTAL_ONLY = res_vals({"*": None}, 0.8313)
+reg("res", G(8, 1), "ReservoirFillingRate_01.xls", content=GOOD); reg("res", G(8, 2), "ReservoirFillingRate_01.xls", content=TOTAL_ONLY); reg("res", G(8, 3), "ReservoirFillingRate_01.xls", content=GOOD)
+os.chdir(tempfile.mkdtemp()); sys.argv = ['x', '2018', '--from=2018-08-01', '--to=2018-08-03']; cap(B.main); d = load2 = json.load(open('data/history/admie_2018.json', encoding='utf-8')); ix = {z: i for i, z in enumerate(d["Dates"])}
+check("a file that has the official total (83.13 %) but no reservoir values is INVALID: the total is not stored and the day is listed as invalid", "2018-08-02" in d["Quality"]["InvalidFiles"]["reservoir"] and "2018-08-02" not in [z for z in d["Dates"] if d["FillTotal"][ix[z]] == 83.13] and (("2018-08-02" not in ix) or d["FillTotal"][ix["2018-08-02"]] is None), d["Quality"]["InvalidFiles"])
+check("the neighbouring good days keep their totals (70 %)", d["FillTotal"][ix["2018-08-01"]] == 70.0 and d["FillTotal"][ix["2018-08-03"]] == 70.0)
+legacy2 = json.loads(json.dumps(d)); legacy2["Dates"] = ["2018-08-02", "2018-08-03"]; legacy2["FillTotal"] = [83.13, 70.0]
+for k in legacy2["Fill"]: legacy2["Fill"][k] = [None, 37.0]
+for k in legacy2["Gen"]: legacy2["Gen"][k] = [100.0, 100.0]
+legacy2["TotalHydro"] = [39360.0, 39360.0]; legacy2["Pump"] = [120.0, 120.0]; legacy2["Quality"]["InvalidFiles"] = {"reservoir": [], "scada": []}
+os.chdir(tempfile.mkdtemp()); os.makedirs('data/history'); json.dump(legacy2, open('data/history/admie_2018.json', 'w', encoding='utf-8'))
+sys.argv = ['x', '2018', '--from=2018-08-02', '--to=2018-08-03']; cap(B.main); d3 = json.load(open('data/history/admie_2018.json', encoding='utf-8')); i3 = {z: i for i, z in enumerate(d3["Dates"])}
+check("a legacy file that stored the total of such a day is repaired by a run WITHOUT refresh: the 83.13 % is gone, the day is marked invalid", 83.13 not in d3["FillTotal"] and "2018-08-02" in d3["Quality"]["InvalidFiles"]["reservoir"], (d3["FillTotal"], d3["Quality"]["InvalidFiles"]))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

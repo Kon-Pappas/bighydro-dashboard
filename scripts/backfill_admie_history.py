@@ -12,7 +12,8 @@
   * κενά κελιά (NaN) -> null· ποτέ NaN στο JSON (δεν είναι έγκυρο JSON)·
   * ΕΠΙΛΟΓΗ ΕΚΔΟΣΗΣ: η πιο ΠΛΗΡΗΣ (περισσότερες τιμές), και σε ισοπαλία η τελευταία (δημοσίευση, μετά _NN) — μια «νεότερη» έκδοση
     μπορεί να είναι κενή (2018-04-24: η _01 έχει τιμές, η _02 είναι κενή)· κάθε διαφορά καταγράφεται στο Quality.Conflicts·
-  * αρχείο χωρίς καμία τιμή = «άκυρο αρχείο»: δεν αποθηκεύεται, καταγράφεται στο Quality.InvalidFiles και δεν ξαναζητείται εκτός --refresh·
+  * αρχείο χωρίς καμία τιμή ταμιευτήρα = «άκυρο αρχείο»: δεν αποθηκεύεται (ούτε το «επίσημο σύνολο» του, που σε τέτοια αρχεία είναι κουβαλημένο από την
+    προηγούμενη ημέρα ή λάθος), καταγράφεται στο Quality.InvalidFiles και δεν ξαναζητείται εκτός --refresh·
   * ημέρα στάθμης με ≥ 10 ταμιευτήρες ακριβώς 0,0 ή επίσημο σύνολο 0 = «γεμάτη μηδενικά» (π.χ. 19–22/3/2020) -> άκυρη·
   * ταμιευτήρας ακριβώς 0,0 ενώ οι γειτονικές ημέρες (≤ 3 ημέρες πριν και μετά) είναι > 5% = μεμονωμένο μηδενικό -> null (Quality.ZeroGlitches).
 
@@ -156,8 +157,8 @@ def parse_reservoir_day(content):
         return None, ch
     reservoirs, official = res
     p = {"fill": {k: clean(reservoirs.get(k)) for k in U.RESERVOIRS}, "total": clean(official)}
-    if all(v is None for v in p["fill"].values()) and p["total"] is None:
-        return None, ch                                  # αρχείο χωρίς καμία τιμή
+    if all(v is None for v in p["fill"].values()):
+        return None, ch                                  # καμία τιμή ταμιευτήρα: άκυρο ΚΑΙ το «σύνολο» (είναι κουβαλημένη/λάθος τιμή: 44,45 δύο μέρες, 83,13 το 2017)
     return p, ch
 
 
@@ -289,7 +290,7 @@ def load_year(path):
         fill = {k: clean(doc["Fill"][k][i]) for k in doc["Fill"]}
         gen = {k: clean(doc["Gen"][k][i]) for k in doc["Gen"]}
         tot, th, pu = clean(doc["FillTotal"][i]), clean(doc["TotalHydro"][i]), clean(doc["Pump"][i])
-        res = {"fill": fill, "total": tot} if (tot is not None or any(v is not None for v in fill.values())) else None
+        res = {"fill": fill, "total": tot} if any(v is not None for v in fill.values()) else None      # σύνολο χωρίς ταμιευτήρες δεν κρατιέται
         sc = {"gen": gen, "hydro": th, "pump": pu} if (th is not None or any(v is not None for v in gen.values())) else None
         recs[d] = {"res": res, "sc": sc}
     q = doc.get("Quality", {})

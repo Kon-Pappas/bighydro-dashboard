@@ -14,6 +14,7 @@ The data we collect and the models we build exist to answer questions, not only 
 | 7 | How much of the generation was **forced by the need to release water** (must-run) and how much was demand-driven? | fill near 100 %, spills, apparent inflow, generation; February 2026 is the test case | **new**; links with the curtailment research thread |
 | 8 | What share of **total supply and of the peak hours** does hydro cover? | system-wide generation or load (ADMIE / ENTSO-E) | **data missing** |
 | 9 | How **reliable** are all of the above? | out-of-sample comparison with ENTSO-E | exists (W41: −0.02 %) |
+| 10 | **Why has system pumping grown** from 29 GWh (2016) to 836 GWh (2025), and has the **time of day** of pumping moved to the solar hours? | daily pumping 2016–2026 (exists); hourly pumping 2026 (exists, 87 % between 10:00 and 16:00); **hourly pumping before 2026: not stored (owner's decision, D88)**; PV and curtailment series | **hypothesis** (owner): PV growth and the need to limit curtailment; not tested; links with the curtailment research thread (DOMAIN_NOTES §8) |
 
 ## "Days of cover": a range with named scenarios, never a single number
 Snapshot of 16 Oct 2026: stock **1,561 GWh** (ENTSO-E, week 41); generation of the 15 large units (SCADA).
