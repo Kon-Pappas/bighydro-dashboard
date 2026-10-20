@@ -27,3 +27,5 @@ Real browser rendering (charts are checked as SVG markup, not pixels), live ADMI
 
 ## Adding a test
 Pipeline: add a function to the closest file and use `check(name, condition, extra)`; keep the final `sys.exit`. Page: add a `ck(name, condition, extra)` line to `tests/dashboard/run.js`.
+
+**Rounding in the page tests.** Some JSON files store a value with one decimal (e.g. `climatology.json`) and the page shows a whole number. A test that recomputes the exact value from the raw files therefore compares with `near`/`nearEq`/`nearRange` (±0.25 GWh around the exact value: the storage precision), never with equality of two separately rounded numbers (D89, K25).
