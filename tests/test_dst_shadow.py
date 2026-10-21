@@ -36,9 +36,9 @@ def scada_bytes(d):                       # REAL structure: label in col 1, 24 c
     ts = inst(d, ATH); n = len(ts); rows = []; tot_h = [0.0] * n
     for k, (key, names, _i) in enumerate(U.HYDRO_UNITS):
         vals = [(k + 1) * v(t) for t in ts]; tot_h = [a + b for a, b in zip(tot_h, vals)]
-        cols = vals[:24] + ([1.0] if n == 23 else []); rows.append([None, names[0]] + cols[:24] + [sum(vals)])
+        cols = vals[:24] + ([1.0] if n == 23 else []); rows.append([None, names[0]] + cols[:24] + [sum(vals) + (1.0 if n == 23 else 0.0)])
     cols = tot_h[:24] + ([1.0] if n == 23 else [])
-    return xlsx("System_Production", [[None, "HOURS"] + [f"H{i}" for i in range(1, 25)] + ["TOTAL"], [None, "TOTAL HYDRO"] + cols[:24] + [sum(tot_h)]] + rows)
+    return xlsx("System_Production", [[None, "HOURS"] + [f"H{i}" for i in range(1, 25)] + ["TOTAL"], [None, "TOTAL HYDRO"] + cols[:24] + [sum(tot_h) + (1.0 if n == 23 else 0.0)]] + rows)
 def isp_bytes(d):                         # market (CET) day: quarter-hours (constant within the hour) + a total column (sum / 4)
     ts = inst(d, BRU); rows = [["ISP"] + list(range(1, len(ts) * 4 + 2))]
     for k, (key, _s, names) in enumerate(U.HYDRO_UNITS):
@@ -61,13 +61,16 @@ check("rc 0 and nothing written (read-only)", r == 0 and os.listdir(tmp) == [], 
 b = block(out, "2026-03-29")
 new_line = [l for l in b.split("\n") if "νέα   (ώρες ρολογιού)" in l][0]
 check("23-hour day: the energy of the new rows equals the file's total, and the missing 03:00 hour (H04) is shown as '·'", "→ ΟΚ (ισούται με το σύνολο του αρχείου)" in b and new_line.split(":")[1].split("|")[0].split()[3] == "·", new_line)
-check("23-hour day: the sum of the 16 units also matches the file totals", b.count("→ ΟΚ") >= 2 and "ΔΕΝ ΤΑΙΡΙΑΖΕΙ" not in b, b)
+check("23-hour day: the empty last column (1 MW, counted in the file's total but not an hour) explains the difference and is named; no false alarm", "η τελευταία στήλη, που δεν είναι ώρα, έχει 1 MW" in b and "ΔΕΝ ΤΑΙΡΙΑΖΕΙ" not in b and b.count("→ ΟΚ") >= 2, b)
 b = block(out, "2025-10-26")
-check("25-hour day: the 25th hour is recovered from the total (energy outside the rows > 0) and the energy equals the file's total", "→ ΟΚ (ισούται με το σύνολο του αρχείου)" in b and "ενέργεια εκτός γραμμών: 0 MWh" not in b, b)
+check("25-hour day: the 25th hour is recovered from the total and the energy equals the file's total, and the output says this check is CIRCULAR and gives the independent evidence (the recovered hour continues the evening decline)", "→ ΟΚ (ισούται με το σύνολο του αρχείου)" in b and "ΚΥΚΛΙΚΟΣ έλεγχος" in b and "ανεξάρτητη ένδειξη για την 25η ώρα" in b and "ενέργεια εκτός γραμμών: 0 MWh" not in b, b)
+check("clock-change days print the SCADA/ISP ratio of the last hours with the new and the old alignment", "λόγος SCADA/ISP στις ώρες H21–H24" in b and "νέα [" in b and "παλιά [" in b, b)
 b = block(out, "2026-03-30")
 check("K04 reproduced on the day after the 23-hour day: the OLD reading has an impossible hour (H1) and the NEW one has none", "παλιά H[1]  <-- ΣΦΑΛΜΑ (K04)" in b and "| νέα καμία" in b, b)
 check("after the fix SCADA and ISP agree hour by hour on the clock-change days and the day after (correlation 1.00)", all("νέα 1.00" in block(out, d) for d in ("2026-03-29", "2026-03-30", "2025-10-26", "2025-10-27")), [l for l in out.split("\n") if "συσχέτιση" in l])
 check("an ordinary day has no problem in either reading", "<-- " not in block(out, "2026-03-28"), block(out, "2026-03-28"))
+sys.argv = ['x', '2025-03-30']; r, out = cap(S.main)
+check("a date before 1 Oct 2025 (the ISP was in half-hours): the ISP comparison is skipped with a clear message, no false alarm", "ISP: μορφή 30 λεπτών" in out and "ΣΦΑΛΜΑ" not in out and "ΑΠΙΘΑΝΗ" not in out and "συσχέτιση" not in out, out)
 print("TEST 2: failures")
 U.http_get = lambda *a, **k: None
 r, out = cap(S.main); check("network down: rc 0, 'δεν κατέβηκε αρχείο', normal end", r == 0 and "δεν κατέβηκε αρχείο" in out and "=== ΤΕΛΟΣ ===" in out, out[-300:])
