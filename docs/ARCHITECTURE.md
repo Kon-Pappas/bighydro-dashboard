@@ -38,6 +38,8 @@ A fifth, **manual** workflow, `.github/workflows/backfill_admie_history.yml` (*B
 
 A sixth, **manual, read-only** workflow, `.github/workflows/diagnose_admie_dst.yml` (*Diagnose ADMIE clock-change days*, `scripts/diagnose_admie_dst.py`), looks at the real SCADA and ISP files of past clock-change days (23 or 25 hours) and of an ordinary day next to each: how many hour columns and quarter-hours the file really has, and how much energy the pipeline would lose by reading only the first 24 columns and 96 quarter-hours (K05, K04).
 
+`scripts/clock_change.py` holds the **fix for K04 and K05 as pure functions** (hours in a day; the 25th SCADA hour from the daily total; ISP intervals without the total column; the last real hour of the previous market day; chronological index → clock hour). **It is not called from `update_hydro.py` yet** (D90). A seventh manual, read-only workflow, `.github/workflows/diagnose_admie_dst_fix.yml` (*Shadow run of the clock-change fix*, `scripts/diagnose_admie_dst_fix.py`), applies it to the real files of past clock changes and prints the old and the new reading side by side.
+
 Inputs: `start_date`, `end_date`, `only`, `diagnose`. Secret: `ENTSOE_TOKEN`. Python 3.12; the job installs `pandas numpy requests openpyxl xlrd`.
 `calibrate_energy.py` needs `scipy` and is **not** part of the daily job.
 

@@ -39,6 +39,8 @@ scripts/diagnose_admie_history.py   read-only check of ADMIE's historical files 
 scripts/diagnose_admie_formats.py   read-only look at the labels of old ADMIE files and duplicate files (manual workflow)
 scripts/backfill_admie_history.py   historical ADMIE fill + generation → data/history/admie_YEAR.json (manual workflow)
 scripts/diagnose_admie_dst.py       read-only look at the real files of clock-change days (23 / 25 hours) (manual workflow)
+scripts/clock_change.py             the fix for K04/K05 as pure functions (not yet called by update_hydro.py, D90)
+scripts/diagnose_admie_dst_fix.py   shadow run of that fix on real past files, old vs new (manual workflow)
 scripts/calibrate_energy.py         MANUAL: stored-energy factors        → data/energy_factors.json  (needs scipy)
 data/days/YYYY-MM-DD.json      one file per day (hourly rows + reservoir levels + status)
 data/*.json                    derived and static files (see docs/DATA_DICTIONARY.md)
@@ -61,7 +63,7 @@ Keep a run to roughly **120 requests or fewer**: about 4 per day for `scada,isp`
 A re-run overwrites old values with new non-null values; a missing value never erases an existing one.
 
 ## Tests
-`python tests/run_all.py` (pipeline, 276 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
+`python tests/run_all.py` (pipeline, 317 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
 (page, ~245 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
