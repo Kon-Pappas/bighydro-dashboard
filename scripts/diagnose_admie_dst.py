@@ -183,8 +183,16 @@ def lag_report(sc_content, isp_content):
     if best is None:
         log("      συσχέτιση SCADA–ISP: σταθερές τιμές, δεν υπολογίζεται")
         return
-    log(f"      συσχέτιση SCADA–ISP όπως τα διαβάζει το pipeline: χωρίς μετατόπιση {res[0]:.2f}· καλύτερη {res[best]:.2f} όταν το ISP μετατοπίζεται κατά {best:+d} ώρες"
-        + ("  <-- ΜΕΤΑΤΟΠΙΣΗ" if best != 0 and res[best] - res[0] > 0.1 else ""))
+    # Το ISP δημοσιεύεται σε ώρα αγοράς (CET) και το pipeline το μετατοπίζει +1 ώρα (CLOCK_NOTE): ΑΝΑΜΕΝΕΤΑΙ καλύτερη μετατόπιση +1.
+    log(f"      συσχέτιση SCADA–ISP όπως τα διαβάζει το pipeline (πριν τη μετατόπιση +1 ώρα CET→Ελλάδα): χωρίς μετατόπιση {res[0]:.2f}· καλύτερη {res[best]:.2f} όταν το ISP μετατοπίζεται κατά {best:+d} ώρες"
+        + ("  (αναμενόμενο: +1)" if best == 1 else "  <-- ΑΝΩΜΑΛΙΑ: αναμενόταν +1"))
+    ks = [k for k, v in isp.items() if v]
+    last = [float(isp[k][23]) for k in ks if isp[k][23] is not None]
+    rest = [float(x) for k in ks for x in isp[k][:23] if x is not None]
+    if last and rest:
+        L, M = float(np.nansum(last)), float(np.max([float(np.nansum([isp[k][h] or 0 for k in ks])) for h in range(23)]))
+        log(f"      ώρα 24 του ISP (άθροισμα όλων των μονάδων) όπως τη διαβάζει το pipeline: {L:.0f} MW, ενώ το μέγιστο των ωρών 1–23 είναι {M:.0f} MW"
+            + ("  <-- ΑΠΙΘΑΝΗ ΤΙΜΗ: η στήλη συνόλου διαβάστηκε ως διάστημα και θα περάσει στην H01 της επόμενης ημέρας (K04)" if L > 3 * M and L > 50 else ""))
 
 
 def main():
