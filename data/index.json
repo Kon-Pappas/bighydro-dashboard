@@ -8,24 +8,24 @@
   {
    "Date": "2026-10-23",
    "Status": {
-    "reservoir": "missing",
-    "scada": "missing",
-    "isp": "partial",
-    "resmv": "missing",
-    "mcp": "ok"
-   },
-   "Updated": "2026-10-23T12:28:32+0300"
-  },
-  {
-   "Date": "2026-10-22",
-   "Status": {
     "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
     "resmv": "missing",
     "mcp": "ok"
    },
-   "Updated": "2026-10-22T09:16:14+0300"
+   "Updated": "2026-10-23T13:31:55+0300"
+  },
+  {
+   "Date": "2026-10-22",
+   "Status": {
+    "reservoir": "ok",
+    "scada": "ok",
+    "isp": "ok",
+    "resmv": "ok",
+    "mcp": "ok"
+   },
+   "Updated": "2026-10-23T13:31:44+0300"
   },
   {
    "Date": "2026-10-21",
