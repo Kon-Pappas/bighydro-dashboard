@@ -2,7 +2,7 @@
  "Schema": 3,
  "Month": "2026-10",
  "Clock": "Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time and are shifted +1 h by the pipeline.",
- "DaysCount": 22,
+ "DaysCount": 23,
  "Totals": {
   "SCADA_MWh": {
    "Kremasta": 46418.0,
@@ -1453,6 +1453,70 @@
     "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
+    "resmv": "missing",
+    "mcp": "ok"
+   }
+  },
+  {
+   "Date": "2026-10-23",
+   "SCADA_MWh": {
+    "Kremasta": null,
+    "Kastraki": null,
+    "Stratos1": null,
+    "Ilarionas": null,
+    "Polyfyto": null,
+    "Sfikia": null,
+    "Asomata": null,
+    "Thesavros": null,
+    "Platanovrysi": null,
+    "PAoou": null,
+    "Pournari1": null,
+    "Pournari2": null,
+    "Agras": null,
+    "Edessaios": null,
+    "Ladonas": null,
+    "Plastiras": null
+   },
+   "ISP_MWh": {
+    "Kremasta": null,
+    "Kastraki": null,
+    "Stratos1": null,
+    "Ilarionas": null,
+    "Polyfyto": null,
+    "Sfikia": null,
+    "Asomata": null,
+    "Thesavros": null,
+    "Platanovrysi": null,
+    "PAoou": null,
+    "Pournari1": null,
+    "Pournari2": null,
+    "Agras": null,
+    "Edessaios": null,
+    "Ladonas": null,
+    "Plastiras": null
+   },
+   "SCADA_OtherHydro_MWh": null,
+   "SCADA_TotalHydro_MWh": null,
+   "SmallHydro_MWh": null,
+   "Pump_MWh": {
+    "SCADA": null,
+    "ISP": null
+   },
+   "MCP": {
+    "mean": 225.89,
+    "min": 90.0,
+    "max": 288.79,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": null,
+    "mean14": null
+   },
+   "Status": {
+    "reservoir": "missing",
+    "scada": "missing",
+    "isp": "missing",
     "resmv": "missing",
     "mcp": "ok"
    }
