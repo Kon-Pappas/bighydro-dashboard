@@ -23,29 +23,29 @@
    "Plastiras": 1727.0
   },
   "ISP_MWh": {
-   "Kremasta": 40865.0,
-   "Kastraki": 41277.7,
-   "Stratos1": 13485.6,
+   "Kremasta": 42214.6,
+   "Kastraki": 42692.0,
+   "Stratos1": 14265.4,
    "Ilarionas": 1132.0,
-   "Polyfyto": 29351.3,
-   "Sfikia": 26041.8,
-   "Asomata": 11455.1,
-   "Thesavros": 22267.4,
-   "Platanovrysi": 7647.2,
-   "PAoou": 3061.3,
-   "Pournari1": 5961.9,
-   "Pournari2": 547.6,
-   "Agras": 676.0,
+   "Polyfyto": 30282.7,
+   "Sfikia": 26966.3,
+   "Asomata": 11912.8,
+   "Thesavros": 22957.4,
+   "Platanovrysi": 7876.8,
+   "PAoou": 3192.5,
+   "Pournari1": 6121.9,
+   "Pournari2": 559.6,
+   "Agras": 728.0,
    "Edessaios": 39.0,
-   "Ladonas": 1031.3,
-   "Plastiras": 1745.5
+   "Ladonas": 1091.3,
+   "Plastiras": 2005.5
   },
   "SCADA_OtherHydro_MWh": 5390.0,
   "SCADA_TotalHydro_MWh": 234273.0,
   "SmallHydro_MWh": 13109.9,
   "Pump_MWh": {
    "SCADA": 38483.0,
-   "ISP": 44989.0
+   "ISP": 46242.8
   }
  },
  "Days": [
@@ -1478,29 +1478,29 @@
     "Plastiras": null
    },
    "ISP_MWh": {
-    "Kremasta": null,
-    "Kastraki": null,
-    "Stratos1": null,
-    "Ilarionas": null,
-    "Polyfyto": null,
-    "Sfikia": null,
-    "Asomata": null,
-    "Thesavros": null,
-    "Platanovrysi": null,
-    "PAoou": null,
-    "Pournari1": null,
-    "Pournari2": null,
-    "Agras": null,
-    "Edessaios": null,
-    "Ladonas": null,
-    "Plastiras": null
+    "Kremasta": 1349.6,
+    "Kastraki": 1414.3,
+    "Stratos1": 779.8,
+    "Ilarionas": 0.0,
+    "Polyfyto": 931.4,
+    "Sfikia": 924.5,
+    "Asomata": 457.7,
+    "Thesavros": 690.0,
+    "Platanovrysi": 229.6,
+    "PAoou": 131.2,
+    "Pournari1": 160.0,
+    "Pournari2": 12.0,
+    "Agras": 52.0,
+    "Edessaios": 0.0,
+    "Ladonas": 60.0,
+    "Plastiras": 260.0
    },
    "SCADA_OtherHydro_MWh": null,
    "SCADA_TotalHydro_MWh": null,
    "SmallHydro_MWh": null,
    "Pump_MWh": {
     "SCADA": null,
-    "ISP": null
+    "ISP": 1253.8
    },
    "MCP": {
     "mean": 225.89,
@@ -1516,7 +1516,7 @@
    "Status": {
     "reservoir": "missing",
     "scada": "missing",
-    "isp": "missing",
+    "isp": "partial",
     "resmv": "missing",
     "mcp": "ok"
    }

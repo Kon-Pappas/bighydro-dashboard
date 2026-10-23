@@ -10,11 +10,11 @@
    "Status": {
     "reservoir": "missing",
     "scada": "missing",
-    "isp": "missing",
+    "isp": "partial",
     "resmv": "missing",
     "mcp": "ok"
    },
-   "Updated": "2026-10-23T07:17:12+0300"
+   "Updated": "2026-10-23T12:28:32+0300"
   },
   {
    "Date": "2026-10-22",
