@@ -1830,11 +1830,11 @@
     "hours": 24
    },
    "Reservoir": {
-    "official": null,
-    "mean14": null
+    "official": 37.52,
+    "mean14": 45.594
    },
    "Status": {
-    "reservoir": "missing",
+    "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
     "resmv": "missing",
