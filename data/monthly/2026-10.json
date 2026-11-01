@@ -5,21 +5,21 @@
  "DaysCount": 31,
  "Totals": {
   "SCADA_MWh": {
-   "Kremasta": 71267.0,
-   "Kastraki": 63456.0,
-   "Stratos1": 27928.0,
+   "Kremasta": 74681.0,
+   "Kastraki": 68060.0,
+   "Stratos1": 30055.0,
    "Ilarionas": 1236.0,
-   "Polyfyto": 46618.0,
-   "Sfikia": 39293.0,
-   "Asomata": 16511.0,
-   "Thesavros": 35025.0,
-   "Platanovrysi": 10707.0,
-   "PAoou": 10903.0,
-   "Pournari1": 7257.0,
-   "Pournari2": 612.0,
-   "Agras": 1372.0,
+   "Polyfyto": 48830.0,
+   "Sfikia": 40757.0,
+   "Asomata": 17274.0,
+   "Thesavros": 35590.0,
+   "Platanovrysi": 11457.0,
+   "PAoou": 11371.0,
+   "Pournari1": 7411.0,
+   "Pournari2": 618.0,
+   "Agras": 1481.0,
    "Edessaios": 0.0,
-   "Ladonas": 5423.0,
+   "Ladonas": 5936.0,
    "Plastiras": 2465.0
   },
   "ISP_MWh": {
@@ -40,11 +40,11 @@
    "Ladonas": 5146.4,
    "Plastiras": 2518.0
   },
-  "SCADA_OtherHydro_MWh": 6940.0,
-  "SCADA_TotalHydro_MWh": 347013.0,
+  "SCADA_OtherHydro_MWh": 7185.0,
+  "SCADA_TotalHydro_MWh": 364407.0,
   "SmallHydro_MWh": 19385.2,
   "Pump_MWh": {
-   "SCADA": 46502.0,
+   "SCADA": 46934.0,
    "ISP": 53272.6
   }
  },
@@ -1972,22 +1972,22 @@
   {
    "Date": "2026-10-31",
    "SCADA_MWh": {
-    "Kremasta": null,
-    "Kastraki": null,
-    "Stratos1": null,
-    "Ilarionas": null,
-    "Polyfyto": null,
-    "Sfikia": null,
-    "Asomata": null,
-    "Thesavros": null,
-    "Platanovrysi": null,
-    "PAoou": null,
-    "Pournari1": null,
-    "Pournari2": null,
-    "Agras": null,
-    "Edessaios": null,
-    "Ladonas": null,
-    "Plastiras": null
+    "Kremasta": 3414.0,
+    "Kastraki": 4604.0,
+    "Stratos1": 2127.0,
+    "Ilarionas": 0.0,
+    "Polyfyto": 2212.0,
+    "Sfikia": 1464.0,
+    "Asomata": 763.0,
+    "Thesavros": 565.0,
+    "Platanovrysi": 750.0,
+    "PAoou": 468.0,
+    "Pournari1": 154.0,
+    "Pournari2": 6.0,
+    "Agras": 109.0,
+    "Edessaios": 0.0,
+    "Ladonas": 513.0,
+    "Plastiras": 0.0
    },
    "ISP_MWh": {
     "Kremasta": 1728.2,
@@ -2007,11 +2007,11 @@
     "Ladonas": 510.0,
     "Plastiras": 0.0
    },
-   "SCADA_OtherHydro_MWh": null,
-   "SCADA_TotalHydro_MWh": null,
+   "SCADA_OtherHydro_MWh": 245.0,
+   "SCADA_TotalHydro_MWh": 17394.0,
    "SmallHydro_MWh": null,
    "Pump_MWh": {
-    "SCADA": null,
+    "SCADA": 432.0,
     "ISP": 556.4
    },
    "MCP": {
@@ -2027,7 +2027,7 @@
    },
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
+    "scada": "ok",
     "isp": "ok",
     "resmv": "missing",
     "mcp": "ok"

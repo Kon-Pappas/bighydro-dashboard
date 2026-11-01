@@ -1,0 +1,117 @@
+{
+ "Schema": 3,
+ "Month": "2026-11",
+ "Clock": "Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time and are shifted +1 h by the pipeline.",
+ "DaysCount": 1,
+ "Totals": {
+  "SCADA_MWh": {
+   "Kremasta": null,
+   "Kastraki": null,
+   "Stratos1": null,
+   "Ilarionas": null,
+   "Polyfyto": null,
+   "Sfikia": null,
+   "Asomata": null,
+   "Thesavros": null,
+   "Platanovrysi": null,
+   "PAoou": null,
+   "Pournari1": null,
+   "Pournari2": null,
+   "Agras": null,
+   "Edessaios": null,
+   "Ladonas": null,
+   "Plastiras": null
+  },
+  "ISP_MWh": {
+   "Kremasta": 1040.0,
+   "Kastraki": 1009.9,
+   "Stratos1": 401.1,
+   "Ilarionas": 0.0,
+   "Polyfyto": 470.8,
+   "Sfikia": 290.0,
+   "Asomata": 178.8,
+   "Thesavros": 382.5,
+   "Platanovrysi": 182.0,
+   "PAoou": 162.5,
+   "Pournari1": 120.0,
+   "Pournari2": 8.0,
+   "Agras": 52.0,
+   "Edessaios": 0.0,
+   "Ladonas": 450.0,
+   "Plastiras": 0.0
+  },
+  "SCADA_OtherHydro_MWh": null,
+  "SCADA_TotalHydro_MWh": null,
+  "SmallHydro_MWh": null,
+  "Pump_MWh": {
+   "SCADA": 0,
+   "ISP": 200.0
+  }
+ },
+ "Days": [
+  {
+   "Date": "2026-11-01",
+   "SCADA_MWh": {
+    "Kremasta": null,
+    "Kastraki": null,
+    "Stratos1": null,
+    "Ilarionas": null,
+    "Polyfyto": null,
+    "Sfikia": null,
+    "Asomata": null,
+    "Thesavros": null,
+    "Platanovrysi": null,
+    "PAoou": null,
+    "Pournari1": null,
+    "Pournari2": null,
+    "Agras": null,
+    "Edessaios": null,
+    "Ladonas": null,
+    "Plastiras": null
+   },
+   "ISP_MWh": {
+    "Kremasta": 1040.0,
+    "Kastraki": 1009.9,
+    "Stratos1": 401.1,
+    "Ilarionas": 0.0,
+    "Polyfyto": 470.8,
+    "Sfikia": 290.0,
+    "Asomata": 178.8,
+    "Thesavros": 382.5,
+    "Platanovrysi": 182.0,
+    "PAoou": 162.5,
+    "Pournari1": 120.0,
+    "Pournari2": 8.0,
+    "Agras": 52.0,
+    "Edessaios": 0.0,
+    "Ladonas": 450.0,
+    "Plastiras": 0.0
+   },
+   "SCADA_OtherHydro_MWh": null,
+   "SCADA_TotalHydro_MWh": null,
+   "SmallHydro_MWh": null,
+   "Pump_MWh": {
+    "SCADA": null,
+    "ISP": 200.0
+   },
+   "MCP": {
+    "mean": 262.4,
+    "min": 243.02,
+    "max": 303.0,
+    "negative_hours": 0,
+    "hours": 24
+   },
+   "Reservoir": {
+    "official": null,
+    "mean14": null
+   },
+   "Status": {
+    "reservoir": "missing",
+    "scada": "missing",
+    "isp": "ok",
+    "resmv": "missing",
+    "mcp": "ok"
+   }
+  }
+ ]
+}
