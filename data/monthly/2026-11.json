@@ -230,11 +230,11 @@
     "hours": 24
    },
    "Reservoir": {
-    "official": null,
-    "mean14": null
+    "official": 35.91,
+    "mean14": 41.881
    },
    "Status": {
-    "reservoir": "missing",
+    "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
     "resmv": "missing",
