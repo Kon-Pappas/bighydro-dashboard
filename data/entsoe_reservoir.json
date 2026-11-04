@@ -3,7 +3,7 @@
  "Source": "ENTSO-E Transparency 16.1.D (documentType A72, processType A16)",
  "Domain": "10YGR-HTSO-----Y",
  "Unit": "MWh",
- "Updated": "2026-11-04T09:16:19+0200",
+ "Updated": "2026-11-04T10:16:31+0200",
  "Note": "Start/End σε UTC. Η αντιστοίχιση εβδομάδας -> ημέρες (μέσος όρος/αρχή/τέλος) δεν υποτίθεται εδώ.",
  "Weeks": [
   {
@@ -299,6 +299,13 @@
    "StartLocal": "2026-10-19",
    "IsoWeek": "2026-W43",
    "MWh": 1449973.0
+  },
+  {
+   "Start": "2026-10-25T22:00Z",
+   "End": "2026-11-01T22:00Z",
+   "StartLocal": "2026-10-26",
+   "IsoWeek": "2026-W44",
+   "MWh": 1380960.0
   }
  ]
 }
