@@ -66,6 +66,16 @@ rng = random.Random(7); ok = True
 for dd in (date(2026, 3, 29), date(2026, 10, 25), date(2026, 5, 5)):
     n = C.hours_in_day(dd); ch = [rng.uniform(0, 1000) for _ in range(n)]; rows, extra = C.chrono_to_clock(ch, dd); ok &= abs(sum(x for x in rows if x is not None) + extra - sum(ch)) < 1e-6 and len(rows) == 24
 check("property: for random series the energy is preserved on 23-, 24- and 25-hour days and there are always 24 rows", ok)
+print("TEST 6: the 28-column layout — the 25th hour is an EXPLICIT column")
+for d in (date(2025, 10, 26), date(2026, 10, 25)):
+    ins = day_instants(d, ATH); vals = [v(t) for t in ins]; cols, tot = vals[:24], sum(vals); rows, extra = C.scada_clock(cols, tot, d, vals[24]); tr = truth_clock(d)
+    check(f"{d}: with the 25th hour read from its own column the clock rows equal the truth, and the energy is preserved against an INDEPENDENT total", all((a is None and b is None) or (a is not None and b is not None and abs(a - b) < 1e-9) for a, b in zip(rows, tr)) and abs(sum(x for x in rows if x is not None) + extra - tot) < 1e-6)
+vals = [v(t) for t in day_instants(date(2026, 10, 25), ATH)]
+ch = C.scada_chrono(vals[:24], sum(vals), date(2026, 10, 25), 0.0)
+check("an explicit column that is 0 while the total shows hidden energy is NOT trusted: the hour is recovered from the total", abs(ch[-1] - vals[24]) < 1e-9, ch[-1])
+check("an explicit 25th hour is used when the total is unknown", C.scada_chrono(vals[:24], None, date(2026, 10, 25), 77.0)[-1] == 77.0)
+check("an explicit column is ignored on 23- and 24-hour days (it is 0 there)", C.scada_chrono([1.0] * 24, 24.0, date(2026, 7, 1), 0.0) == [1.0] * 24 and len(C.scada_chrono([1.0] * 24, 24.0, date(2026, 3, 29), 0.0)) == 23)
+check("without an explicit column the behaviour is unchanged (recovered from the total)", abs(C.scada_chrono(vals[:24], sum(vals), date(2026, 10, 25))[-1] - vals[24]) < 1e-9)
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

@@ -43,6 +43,11 @@ def pv_rows(d):
     else:
         cols = pv[:24] + ([1.0] if n == 23 else [])
     return [[None, "ΥΠΑΤΟ (PV)"] + [0.7 * x for x in cols[:24]] + [0.7 * sum(pv)], [None, "ΣΚΑΛΑ (PV)"] + [0.3 * x for x in cols[:24]] + [0.3 * sum(pv)]]
+LAYOUT = {"cols": 27}                       # 27: 24 hours + total (until March 2026) · 28: 24 hours + a 25th-hour column + total (seen from July 2026)
+def to28(row):
+    if row[1] == "HOURS": return row[:26] + ["H25"] + row[26:]
+    s24 = sum(x for x in row[2:26] if isinstance(x, (int, float))); total = row[26]; h25 = total - s24 if total - s24 > 0.5 else 0.0
+    return row[:26] + [h25, total]
 def scada_file(hours, total_label="TOTAL HYDRO", d=None):
     h = [100.0] * 24
     if hours == 23: h[-1] = 1.0
@@ -53,6 +58,7 @@ def scada_file(hours, total_label="TOTAL HYDRO", d=None):
     for i, (key, names, _isp) in enumerate(UNITS):
         v = [prof(i, k) for k in range(24)]; rows.append([None, names[0]] + v + [sum(v)])
     if d is not None: rows += pv_rows(d)
+    if LAYOUT["cols"] == 28: rows = [to28(r) for r in rows]
     return xlsx("System_Production", rows)
 RESMV_MISSING = set(); RESMV_N = {}
 def resmv_file(d):
@@ -79,7 +85,7 @@ check("26 Oct 2025 and 25 Oct 2026 have 25 hours, 30 Mar 2025 and 29 Mar 2026 ha
 print("TEST 2: an ORDINARY day never reports a loss (the bug of the first version counted the total column as an hour: '50 %')")
 sys.argv = ['x', '2025-10-25']; r, out = cap(X.main)
 check("rc 0, nothing written (read-only)", r == 0 and os.listdir(tmp) == [], os.listdir(tmp))
-check("ordinary day: the daily total equals the sum of the 24 columns; no 'ΥΠΕΡΒΑΙΝΕΙ', no 'χάνει', no percentage loss anywhere", "το ΣΥΝΟΛΟ ημέρας = άθροισμα των 24 στηλών" in out and "ΥΠΕΡΒΑΙΝΕΙ" not in out and "χάνει" not in out and "50%" not in out and "χάνει" not in out, out)
+check("ordinary day: the daily total equals the sum of the 24 columns; no 'ΥΠΕΡΒΑΙΝΕΙ', no 'χάνει', no percentage loss anywhere", "= άθροισμα των 24 στηλών (ΣΥΝΟΛΟ ημέρας)" in out and "ΥΠΕΡΒΑΙΝΕΙ" not in out and "χάνει" not in out and "50%" not in out and "χάνει" not in out, out)
 check("ordinary day, ISP: 96 intervals, the last column recognised as the TOTAL (sum ÷ 4), read by the pipeline as 96 intervals and NOT touching the total", "96 διαστήματα (τεταρτόωρα)" in out and "ΣΥΝΟΛΟ (άθροισμα MW ÷ 4)" in out and "διαβάζει 96 διαστήματα" in out and "(K04)" not in out, out)
 print("TEST 3: a 25-hour day")
 sys.argv = ['x', '2025-10-26']; r, out = cap(X.main)
@@ -88,7 +94,7 @@ check("25 h: the load minimum and the evening peak move one column later (5 and 
 check("25 h, ISP: 100 intervals; the pipeline reads 96 and loses the last 4; the total column is outside its range", "100 διαστήματα (τεταρτόωρα)" in out and "χάνει τα τελευταία 4" in out and "(K04)" not in out, out)
 print("TEST 4: a 23-hour day")
 sys.argv = ['x', '2026-03-29']; r, out = cap(X.main)
-check("23 h: total = sum, and the last hour column is ~0 (1 MW) — the day has no 24th hour", "ΑΛΛΑΓΗ ΩΡΑΣ" in out and "το ΣΥΝΟΛΟ ημέρας = άθροισμα των 24 στηλών" in out and "τελευταία στήλη ώρας = 1 MW" in out, out)
+check("23 h: total = sum, and the last hour column is ~0 (1 MW) — the day has no 24th hour", "ΑΛΛΑΓΗ ΩΡΑΣ" in out and "= άθροισμα των 24 στηλών (ΣΥΝΟΛΟ ημέρας)" in out and "τελευταία στήλη ώρας = 1 MW" in out, out)
 check("23 h: the load minimum and the evening peak move one column earlier (3 and 19)", "στη στήλη 3" in out and "μέγιστο στη στήλη 19" in out, out)
 check("23 h, ISP: 92 intervals, and the pipeline READS THE TOTAL COLUMN AS AN INTERVAL (K04)", "92 διαστήματα (τεταρτόωρα)" in out and "διαβάζει τη ΣΤΗΛΗ ΣΥΝΟΛΟΥ ως διάστημα (K04)" in out, out)
 check("23 h: hour 24 of the ISP (the total, read as a quarter-hour) is shown as an impossible value that will reach H01 of the next day", "ώρα 24 του ISP" in out and "ΑΠΙΘΑΝΗ ΤΙΜΗ" in out and "θα περάσει στην H01 της επόμενης ημέρας (K04)" in out, out)
@@ -116,6 +122,20 @@ check("NEGATIVE CONTROL: the same days packed by CLOCK hour are classified 'ΡΟ
 PACK["mode"] = "chrono"
 sys.argv = ['x', '2026-10-25']; r, out = cap(X.main)
 check("without the neighbouring days the summary says so instead of guessing", "δεν υπάρχουν τρεις διαδοχικές ημέρες" in out, out[-300:])
+print("TEST 4e: the 28-column SCADA layout of the files of 24–26 Oct 2026 (the first version crashed on it with a division by zero)")
+LAYOUT["cols"] = 28
+sys.argv = ['x', '2026-10-24', '2026-10-25', '2026-10-26']; r, out = cap(X.main)
+b0 = out.split("--- 2026-10-24")[1].split("--- 2026-10-25")[0]; b1 = out.split("--- 2026-10-25")[1].split("--- 2026-10-26")[0]
+check("28 columns on an ordinary day (column 26 is 0): no crash, both extra columns are printed, and column 27 is recognised as the daily total", r == 0 and "ΣΦΑΛΜΑ" not in out and "στήλες μετά τις ώρες: 2 [26, 27]" in b0 and "η στήλη 27 = άθροισμα των 24 στηλών (ΣΥΝΟΛΟ ημέρας)" in b0, b0)
+check("28 columns on a 25-hour day: column 27 = sum of the 24 hours + column 26, and column 26 is named the 25TH HOUR, explicit in the file", "= άθροισμα των 24 ωρών + στήλη 26" in b1 and "η στήλη 26 είναι η 25η ΩΡΑ, ΡΗΤΑ στο αρχείο" in b1, b1)
+check("the header of the new column is printed (to read its name)", "στ.26='H25'" in b1, b1)
+LAYOUT["cols"] = 27
+print("TEST 4f: an unexpected failure on one part of one day never stops the run")
+_orig = X.show_isp
+X.show_isp = lambda d, exp: (_ for _ in ()).throw(RuntimeError("boom"))
+sys.argv = ['x', '2025-10-25', '2025-10-26']; r, out = cap(X.main)
+X.show_isp = _orig
+check("the error is printed with its place, the other parts and the next day are still processed, and the run ends normally with rc 0", r == 0 and out.count("ΣΦΑΛΜΑ (ISP): RuntimeError: boom") == 2 and "RESMV" in out and "--- 2025-10-26" in out and "=== ΤΕΛΟΣ ===" in out, out[-400:])
 print("TEST 5: the old half-hour ISP format, the old label, headers, failures")
 sys.argv = ['x', '2025-03-30']; r, out = cap(X.main)
 check("before 1 Oct 2025 the ISP has half-hour intervals (46 on a 23-hour day) and the output says so", "46 διαστήματα (ημίωρα" in out and "ΣΥΝΟΛΟ (άθροισμα MW ÷ 2)" in out, out)

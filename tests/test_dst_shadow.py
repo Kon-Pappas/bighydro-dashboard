@@ -32,13 +32,20 @@ def xlsx(sheet, rows):
     bio = io.BytesIO()
     with pd.ExcelWriter(bio, engine="openpyxl") as w: pd.DataFrame(rows).to_excel(w, sheet_name=sheet, header=False, index=False)
     return bio.getvalue()
+LAYOUT = {"cols": 27}                     # 27: 24 hours + total · 28: 24 hours + an explicit 25th-hour column + total (the files of July–October 2026)
+def to28(row):
+    if row[1] == "HOURS": return row[:26] + ["H25"] + row[26:]
+    s24 = sum(x for x in row[2:26] if isinstance(x, (int, float))); total = row[26]; h25 = total - s24 if total - s24 > 0.5 else 0.0
+    return row[:26] + [h25, total]
 def scada_bytes(d):                       # REAL structure: label in col 1, 24 chronological hour columns, daily total in col 26 (25th hour only in the total)
     ts = inst(d, ATH); n = len(ts); rows = []; tot_h = [0.0] * n
     for k, (key, names, _i) in enumerate(U.HYDRO_UNITS):
         vals = [(k + 1) * v(t) for t in ts]; tot_h = [a + b for a, b in zip(tot_h, vals)]
         cols = vals[:24] + ([1.0] if n == 23 else []); rows.append([None, names[0]] + cols[:24] + [sum(vals) + (1.0 if n == 23 else 0.0)])
     cols = tot_h[:24] + ([1.0] if n == 23 else [])
-    return xlsx("System_Production", [[None, "HOURS"] + [f"H{i}" for i in range(1, 25)] + ["TOTAL"], [None, "TOTAL HYDRO"] + cols[:24] + [sum(tot_h) + (1.0 if n == 23 else 0.0)]] + rows)
+    allrows = [[None, "HOURS"] + [f"H{i}" for i in range(1, 25)] + ["TOTAL"], [None, "TOTAL HYDRO"] + cols[:24] + [sum(tot_h) + (1.0 if n == 23 else 0.0)]] + rows
+    if LAYOUT["cols"] == 28: allrows = [to28(r) for r in allrows]
+    return xlsx("System_Production", allrows)
 def isp_bytes(d):                         # market (CET) day: quarter-hours (constant within the hour) + a total column (sum / 4)
     ts = inst(d, BRU); rows = [["ISP"] + list(range(1, len(ts) * 4 + 2))]
     for k, (key, _s, names) in enumerate(U.HYDRO_UNITS):
@@ -71,6 +78,13 @@ check("after the fix SCADA and ISP agree hour by hour on the clock-change days a
 check("an ordinary day has no problem in either reading", "<-- " not in block(out, "2026-03-28"), block(out, "2026-03-28"))
 sys.argv = ['x', '2025-03-30']; r, out = cap(S.main)
 check("a date before 1 Oct 2025 (the ISP was in half-hours): the ISP comparison is skipped with a clear message, no false alarm", "ISP: μορφή 30 λεπτών" in out and "ΣΦΑΛΜΑ" not in out and "ΑΠΙΘΑΝΗ" not in out and "συσχέτιση" not in out, out)
+print("TEST 1b: the 28-column layout (the real files of July–October 2026): the 25th hour is an explicit column and the total is independent")
+LAYOUT["cols"] = 28
+sys.argv = ['x', '2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27']; r, out = cap(S.main)
+b = block(out, "2026-10-25")
+check("25-hour day: the 25th hour is read from its own column, the energy equals the independent total, and the output says the check is NOT circular", "→ ΟΚ (ισούται με το σύνολο του αρχείου)" in b and "η 25η ώρα είναι ΡΗΤΗ στο αρχείο" in b and "ΔΕΝ είναι κυκλικός" in b and "ΚΥΚΛΙΚΟΣ" not in b, b)
+check("28 columns: no crash, no false alarm on the ordinary days before and after, and SCADA and ISP agree after the fix on the change day and the day after", "ΣΦΑΛΜΑ" not in out and "ΔΕΝ ΤΑΙΡΙΑΖΕΙ" not in out and "νέα 1.00" in block(out, "2026-10-25") and "νέα 1.00" in block(out, "2026-10-26"), out[-600:])
+LAYOUT["cols"] = 27
 print("TEST 2: failures")
 U.http_get = lambda *a, **k: None
 r, out = cap(S.main); check("network down: rc 0, 'δεν κατέβηκε αρχείο', normal end", r == 0 and "δεν κατέβηκε αρχείο" in out and "=== ΤΕΛΟΣ ===" in out, out[-300:])
