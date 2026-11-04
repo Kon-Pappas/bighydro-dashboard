@@ -52,7 +52,12 @@ def scada_rows(content):
             continue
         h = [None if x != x else float(x) for x in U.to_numeric_array(df.iloc[idx, U.SCADA_H0:U.SCADA_H1], U.SCADA_H1 - U.SCADA_H0)]
         t = num_tail(df, idx, U.SCADA_H1)
-        out[key] = (h, float(t[0]) if len(t) and t[0] == t[0] else None)
+        if len(t) >= 2:                                        # διάταξη 28 στηλών (από τον Ιούλιο 2026): στήλη 26 = 25η ώρα (ρητά), στήλη 27 = σύνολο ημέρας
+            h25 = None if t[0] != t[0] else float(t[0])
+            total = None if t[-1] != t[-1] else float(t[-1])
+        else:                                                  # διάταξη 27 στηλών: μία στήλη συνόλου
+            h25, total = None, (float(t[0]) if len(t) and t[0] == t[0] else None)
+        out[key] = (h, total, h25)
     return out
 
 
@@ -114,23 +119,23 @@ def main():
         else:
             try:
                 rows = scada_rows(sc_c)
-                tot_h, tot_total = rows["TOTAL"]
-                new_rows, extra = C.scada_clock(tot_h, tot_total, d)
+                tot_h, tot_total, tot_h25 = rows["TOTAL"]
+                new_rows, extra = C.scada_clock(tot_h, tot_total, d, tot_h25)
                 e_new = sum(x for x in new_rows if x is not None) + extra
                 dropped = abs(tot_h[23]) if n == 23 and tot_h[23] is not None else 0.0     # η τελευταία στήλη μιας 23ωρης ημέρας ΔΕΝ είναι ώρα, αλλά μετράει στο σύνολο του αρχείου
                 ok = tot_total is not None and abs(e_new - tot_total) <= 1.0 + dropped
                 log(f"      SCADA TOTAL HYDRO  παλιά (24 στήλες ως H01–H24): {fmt(tot_h)}")
                 log(f"      SCADA TOTAL HYDRO  νέα   (ώρες ρολογιού):         {fmt(new_rows)}   | ενέργεια εκτός γραμμών: {extra:.0f} MWh")
                 note = (f" (η τελευταία στήλη, που δεν είναι ώρα, έχει {dropped:.0f} MW και μετράει στο σύνολο του αρχείου)" if n == 23 and dropped else "")
-                circ = " — ΚΥΚΛΙΚΟΣ έλεγχος: η 25η ώρα προκύπτει από το σύνολο" if n == 25 else ""
+                circ = (" — ΚΥΚΛΙΚΟΣ έλεγχος: η 25η ώρα προκύπτει από το σύνολο" if tot_h25 is None else f" — η 25η ώρα είναι ΡΗΤΗ στο αρχείο ({tot_h25:.0f} MW) και το σύνολο ανεξάρτητη στήλη: ο έλεγχος ΔΕΝ είναι κυκλικός") if n == 25 else ""
                 log(f"      ενέργεια ημέρας: αρχείο {tot_total} MWh | παλιά Σ24 {sum(x for x in tot_h if x is not None):.0f} | νέα Σ+εκτός {e_new:.0f} → " + ("ΟΚ (ισούται με το σύνολο του αρχείου)" if ok else "<-- ΔΕΝ ΤΑΙΡΙΑΖΕΙ") + note + circ)
                 if n == 25 and new_rows[23] is not None and new_rows[22]:
                     log(f"      ανεξάρτητη ένδειξη για την 25η ώρα: {new_rows[23]:.0f} MW μετά από {new_rows[22]:.0f} MW (×{new_rows[23] / new_rows[22]:.2f}) — αν ήταν η επαναλαμβανόμενη 03:00 θα ήταν νυχτερινή τιμή (λίγα MW)")
                 units = [k for k in rows if k != "TOTAL"]
                 old_sc_sum = sum_rows([rows[k][0] for k in units])
-                new_sc_sum = sum_rows([C.scada_clock(rows[k][0], rows[k][1], d)[0] for k in units])
+                new_sc_sum = sum_rows([C.scada_clock(rows[k][0], rows[k][1], d, rows[k][2])[0] for k in units])
                 tot_units_file = sum(rows[k][1] or 0 for k in units)
-                e_units_new = sum(x for x in new_sc_sum if x is not None) + sum(C.scada_clock(rows[k][0], rows[k][1], d)[1] for k in units)
+                e_units_new = sum(x for x in new_sc_sum if x is not None) + sum(C.scada_clock(rows[k][0], rows[k][1], d, rows[k][2])[1] for k in units)
                 dropped_u = sum(abs(rows[k][0][23]) for k in units if n == 23 and rows[k][0][23] is not None)
                 log(f"      άθροισμα {len(units)} μονάδων: σύνολα αρχείου {tot_units_file:.0f} MWh | νέα Σ+εκτός {e_units_new:.0f} → " + ("ΟΚ" if abs(tot_units_file - e_units_new) <= 1.0 * max(1, len(units)) + dropped_u else "<-- ΔΕΝ ΤΑΙΡΙΑΖΕΙ"))
             except Exception as e:                                  # noqa: BLE001

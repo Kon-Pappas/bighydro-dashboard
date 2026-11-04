@@ -19,6 +19,7 @@ import io
 import os
 import sys
 import time
+import warnings
 from datetime import date, datetime, time as dtime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -119,28 +120,44 @@ def show_scada(d, exp):
         return None
     labels = [U.norm(x) for x in df[U.SCADA_LABEL_COL]] if df.shape[1] > U.SCADA_LABEL_COL else []
     nh = U.SCADA_H1 - U.SCADA_H0
-    log(f"      SCADA: φύλλο {df.shape[0]}×{df.shape[1]}· ώρες στις στήλες {U.SCADA_H0}–{U.SCADA_H1 - 1} ({nh} στήλες)· η στήλη {U.SCADA_H1} (αν υπάρχει) θεωρείται ΣΥΝΟΛΟ ΗΜΕΡΑΣ")
-    for r in range(min(4, len(df))):
-        cells = [str(df.iat[r, c])[:7] for c in range(min(df.shape[1], U.SCADA_H1 + 1)) if str(df.iat[r, c]) not in ("nan", "None")]
-        if len(cells) >= 3:
-            log(f"      κεφαλίδα γραμμή {r}: " + " | ".join(cells[:30]))
+    ncols = df.shape[1]
+    extra_cols = list(range(U.SCADA_H1, ncols))                      # οι στήλες ΜΕΤΑ τις 24 ώρες: 1 (σύνολο) μέχρι τον Μάρτιο 2026, 2 από τον Ιούλιο 2026 (28 στήλες)
+    log(f"      SCADA: φύλλο {df.shape[0]}×{ncols}· ώρες στις στήλες {U.SCADA_H0}–{U.SCADA_H1 - 1} ({nh} στήλες)· στήλες μετά τις ώρες: {len(extra_cols)} {extra_cols}")
+    for r in range(min(8, len(df))):
+        cells = {c: str(df.iat[r, c])[:16] for c in [1, 2, U.SCADA_H1 - 1] + extra_cols if c < ncols and str(df.iat[r, c]) not in ("nan", "None")}
+        if any(c in cells for c in extra_cols) or (r < 4 and len(cells) >= 3):
+            log(f"      κεφαλίδα γραμμή {r}: " + " | ".join(f"στ.{c}='{v}'" for c, v in cells.items()))
     idx = row_by_label(df, labels, ("TOTAL HYDRO", "ΣΥΝΟΛΟ ΥΔΡΟΗΛΕΚΤΡΙΚΩΝ"))
     if idx is None:
         log("      SCADA: δεν βρέθηκε γραμμή συνόλου υδροηλεκτρικών")
     else:
         hourly = U.to_numeric_array(df.iloc[idx, U.SCADA_H0:U.SCADA_H1], nh)
-        tcol = numeric_row(df, idx, U.SCADA_H1)
-        total = float(tcol[0]) if len(tcol) and tcol[0] == tcol[0] else None
         s24 = float(np.nansum(hourly))
+        extras = {}
+        for c in extra_cols:
+            t = numeric_row(df, idx, c)
+            extras[c] = float(t[0]) if len(t) and t[0] == t[0] else None
         log(f"      TOTAL HYDRO, 24 ώρες (MW): {fmt(hourly, 24)}")
-        if total is None:
-            rel = "δεν υπάρχει στήλη συνόλου"
-        elif abs(total - s24) <= 0.5:
-            rel = "το ΣΥΝΟΛΟ ημέρας = άθροισμα των 24 στηλών"
+        log("      στήλες μετά τις 24 ώρες στη γραμμή του: " + (", ".join(f"στ.{c} = {'—' if v is None else f'{v:.0f}'}" for c, v in extras.items()) or "καμία") + f"  (άθροισμα των 24 ωρών = {s24:.0f})")
+        rel = "δεν αναγνωρίστηκε στήλη συνόλου"
+        for c, v in extras.items():                                   # 1) στήλη = άθροισμα των 24 ωρών  2) στήλη = άθροισμα + άλλη στήλη (η 25η ώρα ρητά στο αρχείο)  3) στήλη μεγαλύτερη από το άθροισμα (η 25η ώρα κρυμμένη μέσα της)
+            if v is not None and abs(v - s24) <= 0.5:
+                rel = f"η στήλη {c} = άθροισμα των 24 στηλών (ΣΥΝΟΛΟ ημέρας)"
+                break
         else:
-            rel = f"το ΣΥΝΟΛΟ ({total:.0f} MWh) ΥΠΕΡΒΑΙΝΕΙ το άθροισμα των 24 στηλών ({s24:.0f}) κατά {total - s24:.0f} MWh ({(total - s24) / total * 100:.1f}% της ημέρας): ενέργεια που ΔΕΝ φαίνεται στις 24 στήλες"
+            for c, v in extras.items():
+                others = [(c2, v2) for c2, v2 in extras.items() if c2 != c and v2 is not None and v is not None]
+                hit = [(c2, v2) for c2, v2 in others if abs(v - (s24 + v2)) <= 1.0 + 0.001 * abs(v)]
+                if hit:
+                    rel = f"η στήλη {c} ({v:.0f}) = άθροισμα των 24 ωρών + στήλη {hit[0][0]} ({hit[0][1]:.0f}): η στήλη {hit[0][0]} είναι η 25η ΩΡΑ, ΡΗΤΑ στο αρχείο"
+                    break
+            else:
+                big = [(c, v) for c, v in extras.items() if v is not None and v > s24 + 0.5]
+                if big:
+                    c, v = big[-1]
+                    rel = f"το ΣΥΝΟΛΟ (στ.{c}: {v:.0f} MWh) ΥΠΕΡΒΑΙΝΕΙ το άθροισμα των 24 στηλών ({s24:.0f}) κατά {v - s24:.0f} MWh ({(v - s24) / v * 100 if v else 0:.1f}% της ημέρας): ενέργεια που ΔΕΝ φαίνεται στις 24 στήλες"
         last = float(hourly[-1]) if nh and hourly[-1] == hourly[-1] else float("nan")
-        note = f" | η τελευταία στήλη ώρας = {last:.0f} MW (ανάμεσα σε μέγιστο {np.nanmax(hourly):.0f})" if exp != 24 else ""
+        note = f" | η τελευταία στήλη ώρας = {last:.0f} MW (ανάμεσα σε μέγιστο {np.nanmax(hourly):.0f})" if exp != 24 and np.any(~np.isnan(hourly)) else ""
         log(f"      → η ημέρα έχει {exp} ώρες | {rel}{note}")
     com = pv_centre(df, labels, nh)
     if com is not None:
@@ -263,6 +280,15 @@ def solar_summary(dates):
         log("  (δεν υπάρχουν τρεις διαδοχικές ημέρες με γραμμές PV)")
 
 
+def safe(what, fn, *args):
+    """Καμία ανώμαλη ημέρα δεν πρέπει να ρίχνει το diagnose (η 1η εκδοχή κατέρρευσε σε διαίρεση με το μηδέν στις 24/10/2026): το σφάλμα τυπώνεται και συνεχίζουμε."""
+    try:
+        return fn(*args)
+    except Exception as e:                                          # noqa: BLE001
+        log(f"      ΣΦΑΛΜΑ ({what}): {type(e).__name__}: {e} — συνεχίζω με το επόμενο")
+        return None
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")] or DEFAULT_DATES
     try:
@@ -270,20 +296,21 @@ def main():
     except ValueError:
         log("Χρήση: python scripts/diagnose_admie_dst.py [ΗΜΕΡΟΜΗΝΙΑ ...]")
         return 1
+    warnings.simplefilter("ignore")
     COM.clear()                                                    # καμία κατάσταση από προηγούμενη εκτέλεση
     log("=== ADMIE: ημέρες αλλαγής ώρας (μόνο ανάγνωση· δεν γράφεται τίποτα) ===")
     for d in dates:
         exp = hours_in_day(d)
         log(f"\n  --- {d} ({d.strftime('%a')}): {exp} ώρες {'← ΑΛΛΑΓΗ ΩΡΑΣ' if exp != 24 else '(κανονική)'} ---")
-        sc = show_scada(d, exp)
+        sc = safe("SCADA", show_scada, d, exp)
         time.sleep(0.4)
-        isp, n_int = show_isp(d, exp)
+        isp, n_int = safe("ISP", show_isp, d, exp) or (None, None)
         time.sleep(0.4)
         if sc is not None and isp is not None and n_int in (92, 96, 100):
-            lag_report(sc, isp)
-        show_resmv(d, exp)
+            safe("συσχέτιση", lag_report, sc, isp)
+        safe("RESMV", show_resmv, d, exp)
         time.sleep(0.4)
-    solar_summary(dates)
+    safe("ηλιακό ρολόι", solar_summary, dates)
     log("\n=== ΤΕΛΟΣ ===")
     return 0
 

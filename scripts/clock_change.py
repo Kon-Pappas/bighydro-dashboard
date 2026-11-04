@@ -36,9 +36,11 @@ def _num(v):
     return None if f != f else f
 
 
-def scada_chrono(hourly, total, d):
+def scada_chrono(hourly, total, d, h25=None):
     """Οι ΠΡΑΓΜΑΤΙΚΕΣ ώρες της ημέρας με χρονολογική σειρά, από τις 24 στήλες ώρας και τη στήλη ΣΥΝΟΛΟΥ.
-    23 ώρες: οι πρώτες 23 στήλες· 24 ώρες: όλες· 25 ώρες: οι 24 στήλες + η 25η ώρα = ΣΥΝΟΛΟ − άθροισμα των 24."""
+    23 ώρες: οι πρώτες 23 στήλες· 24 ώρες: όλες· 25 ώρες: οι 24 στήλες + η 25η ώρα. Η 25η ώρα είναι η ΡΗΤΗ στήλη h25 αν το αρχείο έχει τέτοια
+    (διάταξη 28 στηλών, από τον Ιούλιο 2026), εκτός αν το σύνολο δείχνει περισσότερη ενέργεια από άθροισμα + h25 (η στήλη δεν είναι συμπληρωμένη)·
+    αλλιώς 25η ώρα = ΣΥΝΟΛΟ − άθροισμα των 24 (διάταξη 27 στηλών)."""
     n = hours_in_day(d)
     h = [_num(x) for x in list(hourly)[:24]] + [None] * max(0, 24 - len(list(hourly)))
     if n == 23:
@@ -46,10 +48,15 @@ def scada_chrono(hourly, total, d):
     if n == 24:
         return h
     t = _num(total)
-    if t is None or any(x is None for x in h):
+    x25 = _num(h25)
+    if any(x is None for x in h):
+        return h + [x25]
+    recovered = (t - sum(h)) if t is not None else None
+    if x25 is not None and not (recovered is not None and recovered > x25 + 1.0):
+        return h + [x25]                                      # η 25η ώρα ρητά στο αρχείο
+    if recovered is None:
         return h + [None]
-    extra = t - sum(h)
-    return h + [extra if extra > -0.5 else None]          # αρνητικό υπόλοιπο = το σύνολο δεν ταιριάζει: δεν επινοούμε τιμή
+    return h + [recovered if recovered > -0.5 else None]      # αρνητικό υπόλοιπο = το σύνολο δεν ταιριάζει: δεν επινοούμε τιμή
 
 
 def isp_chrono(values, d, per_hour=4):
@@ -101,8 +108,8 @@ def chrono_to_clock(chrono, d):
     return rows, extra
 
 
-def scada_clock(hourly, total, d):
-    return chrono_to_clock(scada_chrono(hourly, total, d), d)
+def scada_clock(hourly, total, d, h25=None):
+    return chrono_to_clock(scada_chrono(hourly, total, d, h25), d)
 
 
 def isp_clock(cur_values, prev_values, d, prev_d=None, per_hour=4):
