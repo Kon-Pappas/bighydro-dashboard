@@ -1,5 +1,6 @@
 import sys, os, io, math, tempfile, contextlib
-from datetime import date
+from datetime import date, datetime, time as dtime, timedelta
+from zoneinfo import ZoneInfo
 import pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE); sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 import update_hydro as U
@@ -30,7 +31,19 @@ KREMASTA_ISP = [k for k in U.HYDRO_UNITS if k[0] == "Kremasta"][0][2][0]
 # On 25-hour days the total includes the hidden 25th hour; on 23-hour days the last hour column is ~0.
 UNITS = [u for u in U.HYDRO_UNITS if u[0] in ("Kremasta", "Kastraki", "Polyfyto", "Plastiras")]
 def prof(u, h): return 100.0 * (u + 1) + 60.0 * (u + 1) * math.sin(h * 0.7 + u)           # a different, varying hourly profile per unit
-def scada_file(hours, total_label="TOTAL HYDRO"):
+ATH_, UTC_ = ZoneInfo("Europe/Athens"), ZoneInfo("UTC")
+PACK = {"mode": "chrono"}                  # how the PV rows of the synthetic SCADA file are packed: chronologically (REAL for 23-hour days) or by clock hour (the alternative hypothesis)
+def pv_rows(d):
+    a = datetime.combine(d, dtime(0, 0), tzinfo=ATH_).astimezone(UTC_); n = X.hours_in_day(d)
+    ts = [a + timedelta(hours=i) for i in range(n)]; pv = [100.0 * math.exp(-(((t.hour + 0.5) - 10.0) / 2.6) ** 2) for t in ts]       # the sun: a function of the UTC instant only
+    if PACK["mode"] == "clock":
+        by = {h: [] for h in range(24)}
+        for t, x in zip(ts, pv): by[t.astimezone(ATH_).hour].append(x)
+        cols = [sum(by[h]) / len(by[h]) if by[h] else 0.0 for h in range(24)]
+    else:
+        cols = pv[:24] + ([1.0] if n == 23 else [])
+    return [[None, "ΥΠΑΤΟ (PV)"] + [0.7 * x for x in cols[:24]] + [0.7 * sum(pv)], [None, "ΣΚΑΛΑ (PV)"] + [0.3 * x for x in cols[:24]] + [0.3 * sum(pv)]]
+def scada_file(hours, total_label="TOTAL HYDRO", d=None):
     h = [100.0] * 24
     if hours == 23: h[-1] = 1.0
     total = sum(h) + (100.0 if hours == 25 else 0.0)
@@ -39,7 +52,11 @@ def scada_file(hours, total_label="TOTAL HYDRO"):
     rows = [[None, "HOURS"] + [f"H{i}" for i in range(1, 25)] + ["TOTAL"], [None, "ΣΥΝΟΛΙΚΟ ΦΟΡΤΙΟ"] + load + [sum(load)], [None, total_label] + h + [total]]
     for i, (key, names, _isp) in enumerate(UNITS):
         v = [prof(i, k) for k in range(24)]; rows.append([None, names[0]] + v + [sum(v)])
+    if d is not None: rows += pv_rows(d)
     return xlsx("System_Production", rows)
+RESMV_MISSING = set(); RESMV_N = {}
+def resmv_file(d):
+    n = RESMV_N.get(d, X.hours_in_day(d)); return xlsx("RESMV", [["ΩΡΑ", "ΜΥΗΣ ΕΝΕΡΓΕΙΑ (kWh)", "Φ/Β ΕΝΕΡΓΕΙΑ (kWh)"]] + [[i + 1, 1000.0 + i, 5000.0 * i] for i in range(n)])
 def isp_file(hours, half, ahead=0):
     per = 2 if half else 4; n = hours * per; vals = [50.0] * n; tot = sum(vals) / per
     rows = [["ISP"] + list(range(1, n + 2)), [KREMASTA_ISP] + vals + [tot]]
@@ -48,11 +65,13 @@ def isp_file(hours, half, ahead=0):
         v = [prof(i, min(k // per + ahead, 23) % 24) for k in range(n)]; rows.append([names[0]] + v + [sum(v) / per])
     return xlsx("20251026_ISP", rows)
 def fake(url, params=None, tries=3, what="", use_session=True):
-    if url == URL:
-        d = date.fromisoformat(params["dateStart"]); cat = "scada" if params["FileCategory"] == U.CAT_SCADA else "isp"; f = d.strftime("%d.%m.%Y")
-        return R(200, [{"file_path": f"files/{cat}_{d.isoformat()}.xls", "file_fromdate": f, "file_todate": f}])
+    if url in (URL, U.API_FILES):
+        d = date.fromisoformat(params["dateStart"]); cat = {U.CAT_SCADA: "scada", U.CAT_ISP: "isp", U.CAT_RESMV: "resmv"}[params["FileCategory"]]; f = d.strftime("%d.%m.%Y")
+        if cat == "resmv" and d in RESMV_MISSING: return R(200, [])
+        return R(200, [{"file_path": f"files/{cat}_{d.isoformat()}.xls", "file_fromdate": f, "file_todate": f, "file_published": f}])
     kind, ds = url.split("/files/", 1)[-1].replace(".xls", "").split("_"); d = date.fromisoformat(ds); h = X.hours_in_day(d)
-    return R(200, content=scada_file(h) if kind == "scada" else isp_file(h, half=d < date(2025, 10, 1), ahead=0 if d == date(2026, 3, 30) else 1))
+    if kind == "resmv": return R(200, content=resmv_file(d))
+    return R(200, content=scada_file(h, d=d) if kind == "scada" else isp_file(h, half=d < date(2025, 10, 1), ahead=0 if d == date(2026, 3, 30) else 1))
 U.http_get = fake
 tmp = tempfile.mkdtemp(); os.chdir(tmp)
 print("TEST 1: the hours of a day (Europe/Athens)")
@@ -79,6 +98,24 @@ check("ordinary day: the ISP (CET) is one hour ahead of SCADA, the EXPECTED +1 (
 sys.argv = ['x', '2026-03-30']; r, out = cap(X.main)
 check("an ISP that is NOT shifted against SCADA (best shift 0 instead of the expected +1) is flagged as an anomaly", "κατά +0 ώρες" in out and "<-- ΑΝΩΜΑΛΙΑ: αναμενόταν +1" in out, out)
 check("the default list now contains the day after every change (K04 is about 30 Mar 2026)", all(x in X.DEFAULT_DATES for x in ("2024-04-01", "2024-10-28", "2025-03-31", "2025-10-27", "2026-03-30")))
+print("TEST 4c: RESMV as the pipeline sees it, on ordinary and on clock-change days (it is missing on 29 Mar and 25 Oct 2026)")
+RESMV_MISSING.add(date(2026, 10, 25)); RESMV_N[date(2026, 3, 29)] = 23
+sys.argv = ['x', '2026-03-28', '2026-03-29', '2026-10-25']; r, out = cap(X.main)
+b0 = out.split("--- 2026-03-28")[1].split("--- 2026-03-29")[0]; b1 = out.split("--- 2026-03-29")[1].split("--- 2026-10-25")[0]; b2 = out.split("--- 2026-10-25")[1].split("ΗΛΙΑΚΟ ΡΟΛΟΪ")[0]
+check("RESMV present on an ordinary day: listed, found by the pipeline, 24 values of the small-hydro column and a PV column named", "RESMV: 1 εγγραφές στη λίστα" in b0 and "ΒΡΕΘΗΚΕ αρχείο" in b0 and "τιμές 'ΜΥΗΣ ΕΝΕΡΓΕΙΑ': 24 (η ημέρα έχει 24 ώρες)" in b0 and "Φ/Β" in b0, b0)
+check("RESMV on a 23-hour day with 23 values: the count is shown next to the hours of the day", "τιμές 'ΜΥΗΣ ΕΝΕΡΓΕΙΑ': 23 (η ημέρα έχει 23 ώρες)" in b1, b1)
+check("RESMV missing from ADMIE's list on the clock-change day: said clearly, and that the pipeline finds no file either", "ΔΕΝ υπάρχει αρχείο στη λίστα" in b2 and "ΔΕΝ βρέθηκε αρχείο" in b2, b2)
+print("TEST 4d: the solar clock — chronological or clock-hour columns?")
+PACK["mode"] = "chrono"
+sys.argv = ['x', '2026-10-24', '2026-10-25', '2026-10-26', '2026-03-28', '2026-03-29', '2026-03-30']; r, out = cap(X.main); tail = out.split("ΗΛΙΑΚΟ ΡΟΛΟΪ")[1]
+check("the sun is found in the SCADA PV rows and its centre of mass is printed for every day", "ΗΛΙΑΚΗ παραγωγή (2 γραμμές PV)" in out and out.count("κέντρο βάρους στη στήλη") == 6, out[:300])
+check("files packed CHRONOLOGICALLY (fall-back and spring-forward): the method says 'ΧΡΟΝΟΛΟΓΙΚΕΣ' for both clock-change days", tail.count("ΧΡΟΝΟΛΟΓΙΚΕΣ στήλες") == 2 and "ΡΟΛΟΓΙΟΥ" not in tail, tail)
+PACK["mode"] = "clock"
+r, out = cap(X.main); tail = out.split("ΗΛΙΑΚΟ ΡΟΛΟΪ")[1]
+check("NEGATIVE CONTROL: the same days packed by CLOCK hour are classified 'ΡΟΛΟΓΙΟΥ' (the method can tell the two hypotheses apart)", tail.count("στήλες ΡΟΛΟΓΙΟΥ") == 2 and "ΧΡΟΝΟΛΟΓΙΚΕΣ" not in tail, tail)
+PACK["mode"] = "chrono"
+sys.argv = ['x', '2026-10-25']; r, out = cap(X.main)
+check("without the neighbouring days the summary says so instead of guessing", "δεν υπάρχουν τρεις διαδοχικές ημέρες" in out, out[-300:])
 print("TEST 5: the old half-hour ISP format, the old label, headers, failures")
 sys.argv = ['x', '2025-03-30']; r, out = cap(X.main)
 check("before 1 Oct 2025 the ISP has half-hour intervals (46 on a 23-hour day) and the output says so", "46 διαστήματα (ημίωρα" in out and "ΣΥΝΟΛΟ (άθροισμα MW ÷ 2)" in out, out)

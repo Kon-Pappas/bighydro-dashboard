@@ -15,6 +15,7 @@
 Κωδικός εξόδου πάντα 0, εκτός από μη έγκυρη ημερομηνία.
 Χρήση:  python scripts/diagnose_admie_dst.py [ΗΜΕΡΟΜΗΝΙΑ ...]
 """
+import io
 import os
 import sys
 import time
@@ -31,7 +32,7 @@ URL = H.ENDPOINTS[1][1]
 ATHENS = ZoneInfo("Europe/Athens")
 DEFAULT_DATES = ["2024-03-30", "2024-03-31", "2024-04-01", "2024-10-26", "2024-10-27", "2024-10-28",
                  "2025-03-29", "2025-03-30", "2025-03-31", "2025-10-25", "2025-10-26", "2025-10-27",
-                 "2026-03-28", "2026-03-29", "2026-03-30", "2026-10-24"]          # μάρτυρας πριν, η αλλαγή, και η ΗΜΕΡΑ ΜΕΤΑ (το K04 αφορά την 30/3/2026)
+                 "2026-03-28", "2026-03-29", "2026-03-30", "2026-10-24", "2026-10-25", "2026-10-26"]          # μάρτυρας πριν, η αλλαγή, και η ΗΜΕΡΑ ΜΕΤΑ (το K04 αφορά την 30/3/2026)
 
 
 def log(m=""):
@@ -60,6 +61,50 @@ def row_by_label(df, labels, names):
         if U.norm(n) in labels:
             return labels.index(U.norm(n))
     return None
+
+
+COM = {}
+
+
+def pv_centre(df, labels, nh):
+    """Κέντρο βάρους (σε στήλες, 0 = πρώτη) του αθροίσματος των γραμμών PV του SCADA. Η ηλιακή παραγωγή ακολουθεί τον ΗΛΙΟ, όχι το ρολόι."""
+    idx = [i for i, l in enumerate(labels) if l and ("(PV)" in l or "PV" in l.replace("TOTAL", "").split() or "Φ/Β" in l or "ΦΩΤΟΒ" in l) and "TOTAL" not in l and "ΣΥΝΟΛΟ" not in l]
+    if not idx:
+        return None
+    arr = np.zeros(nh)
+    for i in idx:
+        v = U.to_numeric_array(df.iloc[i, U.SCADA_H0:U.SCADA_H1], nh)
+        arr += np.nan_to_num(np.array(v, float))
+    tot = float(arr.sum())
+    if tot <= 50:
+        return None
+    return {"rows": len(idx), "com": float((arr * np.arange(nh)).sum() / tot), "peak": int(arr.argmax()), "mwh": tot}
+
+
+def show_resmv(d, exp):
+    """RESMV: λείπει στο pipeline τις ημέρες αλλαγής ώρας (29/3 και 25/10/2026)."""
+    entries, why = H.list_files(URL, U.CAT_RESMV, d, d)
+    if entries is None:
+        log(f"      RESMV: δεν ήρθε λίστα ({why})")
+    elif not entries:
+        log("      RESMV: ΔΕΝ υπάρχει αρχείο στη λίστα του ΑΔΜΗΕ για την ημέρα (κενή λίστα)")
+    else:
+        log(f"      RESMV: {len(entries)} εγγραφές στη λίστα: " + " | ".join(f"{os.path.basename(str(e.get('file_path')))} [{e.get('file_fromdate')}→{e.get('file_todate')}, {str(e.get('file_published'))[:16]}]" for e in entries[:3]))
+    content = U.fetch_admie_file(U.CAT_RESMV, d)                     # ΟΠΩΣ το βρίσκει το pipeline (getOperationMarketFile, μία ημέρα)
+    log("      RESMV όπως το βρίσκει το pipeline: " + ("ΒΡΕΘΗΚΕ αρχείο" if content else "ΔΕΝ βρέθηκε αρχείο"))
+    if not content:
+        return
+    try:
+        import pandas as pd
+        df = pd.read_excel(io.BytesIO(content))
+        cols = [c for c in df.columns if "ΜΥΗΣ ΕΝΕΡΓΕΙΑ" in U.norm(c)]
+        pvc = [c for c in df.columns if "Φ/Β" in U.norm(c) or "ΦΒ" in U.norm(c) or "PV" in U.norm(c)]
+        vals = pd.to_numeric(df[cols[0]], errors="coerce").dropna().to_numpy(dtype=float) if cols else []
+        log(f"      RESMV: φύλλο {df.shape[0]}×{df.shape[1]} | στήλες: {[str(c)[:18] for c in df.columns][:8]} | τιμές 'ΜΥΗΣ ΕΝΕΡΓΕΙΑ': {len(vals)} (η ημέρα έχει {exp} ώρες) | στήλες Φ/Β: {[str(c)[:18] for c in pvc][:3]}")
+        if len(vals):
+            log(f"      RESMV ΜΥΗΣ (kWh ανά γραμμή): {fmt(np.array(vals, float), 26)}")
+    except Exception as e:                                          # noqa: BLE001
+        log(f"      RESMV: δεν διαβάζεται ({type(e).__name__}: {e})")
 
 
 def show_scada(d, exp):
@@ -97,6 +142,10 @@ def show_scada(d, exp):
         last = float(hourly[-1]) if nh and hourly[-1] == hourly[-1] else float("nan")
         note = f" | η τελευταία στήλη ώρας = {last:.0f} MW (ανάμεσα σε μέγιστο {np.nanmax(hourly):.0f})" if exp != 24 else ""
         log(f"      → η ημέρα έχει {exp} ώρες | {rel}{note}")
+    com = pv_centre(df, labels, nh)
+    if com is not None:
+        log(f"      ΗΛΙΑΚΗ παραγωγή ({com['rows']} γραμμές PV): κέντρο βάρους στη στήλη {com['com']:.2f}, κορύφωση στη στήλη {com['peak']}, ενέργεια {com['mwh']:.0f} MWh (αστρονομικό σήμα: δεν εξαρτάται από το ρολόι)")
+        COM[d] = com['com']
     li = row_by_label(df, labels, ("ΣΥΝΟΛΙΚΟ ΦΟΡΤΙΟ",))
     if li is not None:
         load = U.to_numeric_array(df.iloc[li, U.SCADA_H0:U.SCADA_H1], nh)
@@ -195,6 +244,25 @@ def lag_report(sc_content, isp_content):
             + ("  <-- ΑΠΙΘΑΝΗ ΤΙΜΗ: η στήλη συνόλου διαβάστηκε ως διάστημα και θα περάσει στην H01 της επόμενης ημέρας (K04)" if L > 3 * M and L > 50 else ""))
 
 
+def solar_summary(dates):
+    """Για κάθε ημέρα αλλαγής ώρας D με γνωστά D−1 και D+1: το κέντρο βάρους της ηλιακής παραγωγής δείχνει αν οι στήλες είναι ΧΡΟΝΟΛΟΓΙΚΕΣ
+    (το ίδιο με της D−1, αφού το τοπικό μεσονύχτι είναι στην ίδια ώρα UTC) ή ΡΟΛΟΓΙΟΥ (το ίδιο με της D+1)."""
+    log("\n=== ΗΛΙΑΚΟ ΡΟΛΟΪ: κέντρο βάρους ηλιακής παραγωγής (σε στήλες) πριν / ημέρα αλλαγής / μετά ===")
+    shown = False
+    for d in dates:
+        exp = hours_in_day(d)
+        a, b, c = COM.get(d - timedelta(days=1)), COM.get(d), COM.get(d + timedelta(days=1))
+        if exp == 24 or None in (a, b, c):
+            continue
+        shown = True
+        # αναμένονται: φθινόπωρο: D−1 = D (χρον.), D+1 = D−1 − 1 · άνοιξη: D−1 = D (χρον.), D+1 = D−1 + 1
+        near_prev, near_next = abs(b - a), abs(b - c)
+        verdict = "ΧΡΟΝΟΛΟΓΙΚΕΣ στήλες (το ίδιο με την προηγούμενη ημέρα)" if near_prev + 0.25 < near_next else ("στήλες ΡΟΛΟΓΙΟΥ (το ίδιο με την επόμενη ημέρα)" if near_next + 0.25 < near_prev else "ΑΣΑΦΕΣ")
+        log(f"  {d} ({exp} ώρες): πριν {a:.2f} | ημέρα αλλαγής {b:.2f} | μετά {c:.2f}  → |D−(D−1)| = {near_prev:.2f}, |D−(D+1)| = {near_next:.2f}  → {verdict}")
+    if not shown:
+        log("  (δεν υπάρχουν τρεις διαδοχικές ημέρες με γραμμές PV)")
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")] or DEFAULT_DATES
     try:
@@ -202,6 +270,7 @@ def main():
     except ValueError:
         log("Χρήση: python scripts/diagnose_admie_dst.py [ΗΜΕΡΟΜΗΝΙΑ ...]")
         return 1
+    COM.clear()                                                    # καμία κατάσταση από προηγούμενη εκτέλεση
     log("=== ADMIE: ημέρες αλλαγής ώρας (μόνο ανάγνωση· δεν γράφεται τίποτα) ===")
     for d in dates:
         exp = hours_in_day(d)
@@ -212,6 +281,9 @@ def main():
         time.sleep(0.4)
         if sc is not None and isp is not None and n_int in (92, 96, 100):
             lag_report(sc, isp)
+        show_resmv(d, exp)
+        time.sleep(0.4)
+    solar_summary(dates)
     log("\n=== ΤΕΛΟΣ ===")
     return 0
 
