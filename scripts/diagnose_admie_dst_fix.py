@@ -62,14 +62,21 @@ def scada_rows(content):
 
 
 def isp_rows(content):
-    """-> {κλειδί μονάδας: τιμές της γραμμής από τη στήλη ISP_Q0 και μετά (διαστήματα + στήλη συνόλου)}"""
+    """-> {κλειδί μονάδας: ΑΘΡΟΙΣΜΑ των γραμμών της μονάδας από τη στήλη ISP_Q0 και μετά (διαστήματα + στήλη συνόλου), ακριβώς όπως το pipeline}"""
     df, _ = U.read_sheet(content, None)
     labels = [U.norm(x) for x in df[U.ISP_LABEL_COL]]
     out = {}
     for key, _s, names in U.HYDRO_UNITS:
-        idx, _how = U.find_row(labels, list(names), exclude=("PUMP",))
-        if idx is not None:
-            out[key] = num_tail(df, idx, U.ISP_Q0)
+        arrays = []
+        for nm in names:                          # ΟΠΩΣ το _isp_rows_to_hourly του pipeline: κάθε όνομα της μονάδας είναι ΞΕΧΩΡΙΣΤΗ γραμμή και οι γραμμές ΑΘΡΟΙΖΟΝΤΑΙ
+            idx, _how = U.find_row(labels, [nm], exclude=("PUMP",))
+            if idx is not None:
+                arrays.append(num_tail(df, idx, U.ISP_Q0))
+        if arrays:
+            st = np.vstack(arrays)
+            tot = np.nansum(st, axis=0)
+            tot[np.isnan(st).all(axis=0)] = np.nan
+            out[key] = tot
     return out
 
 
@@ -86,6 +93,23 @@ def corr(a, b):
         return float("nan")
     x, y = np.array([q[0] for q in p]), np.array([q[1] for q in p])
     return float(np.corrcoef(x, y)[0, 1]) if np.std(x) > 0 and np.std(y) > 0 else float("nan")
+
+
+def ramp_lag(a, b, lags=(-2, -1, 0, 1, 2)):
+    """Συσχέτιση των ΜΕΤΑΒΟΛΩΝ ώρα-προς-ώρα (ράμπες) δύο σειρών ανά μετατόπιση. Οι ράμπες ευθυγραμμίζονται πολύ πιο καθαρά από τα επίπεδα:
+    στις κανονικές ημέρες του 2026 η καλύτερη μετατόπιση SCADA–ISP είναι 0 σε 299 από 303 ημέρες (συσχέτιση > 0,7 σε 291)."""
+    A = np.array([np.nan if x is None else x for x in a], float)
+    B = np.array([np.nan if x is None else x for x in b], float)
+    dA, dB = np.diff(A), np.diff(B)
+    out = {}
+    for L in lags:
+        idx = [t for t in range(len(dA)) if 0 <= t - L < len(dB) and not np.isnan(dA[t]) and not np.isnan(dB[t - L])]
+        x = np.array([dA[t] for t in idx])
+        y = np.array([dB[t - L] for t in idx])
+        out[L] = float(np.corrcoef(x, y)[0, 1]) if len(x) >= 8 and x.std() > 0 and y.std() > 0 else float("nan")
+    ok = {k: v for k, v in out.items() if v == v}
+    best = max(ok, key=lambda k: ok[k]) if ok else None
+    return out, best
 
 
 def implausible(rows):
@@ -167,9 +191,14 @@ def main():
             log("      απίθανες ώρες ISP: παλιά " + (f"H{bo}  <-- ΣΦΑΛΜΑ (K04)" if bo else "καμία") + " | νέα " + (f"H{bn}  <-- ΑΠΙΘΑΝΗ ΤΙΜΗ ΚΑΙ ΣΤΟ ΝΕΟ" if bn else "καμία"))
             if old_sc_sum is not None and new_sc_sum is not None:
                 log(f"      συσχέτιση SCADA–ISP (άθροισμα μονάδων, ώρες ρολογιού, χωρίς μετατόπιση): παλιά {corr(old_sc_sum, old_rows):.2f} | νέα {corr(new_sc_sum, new_rows):.2f}")
+                po, bo_ = ramp_lag(old_sc_sum, old_rows)
+                pn, bn_ = ramp_lag(new_sc_sum, new_rows)
+                fmtb = lambda p, b: "—" if b is None else f"{b:+d} ({p[b]:.2f})"
+                log(f"      ράμπες SCADA–ISP, καλύτερη μετατόπιση (στις κανονικές ημέρες: 0 σε 299 από 303): παλιά {fmtb(po, bo_)} | νέα {fmtb(pn, bn_)}"
+                    + ("" if bn_ in (0, None) else "  <-- ΑΝΩΜΑΛΙΑ: αναμενόταν 0"))
                 if n != 24:
                     ratio = lambda a, b: [round(a[i] / b[i], 2) if a[i] is not None and b[i] else None for i in (20, 21, 22, 23)]
-                    log(f"      λόγος SCADA/ISP στις ώρες H21–H24 (σταθερός λόγος = σωστή στοίχιση): νέα {ratio(new_sc_sum, new_rows)} | παλιά {ratio(old_sc_sum, old_rows)}")
+                    log(f"      (ενδεικτικό, ΑΞΙΟΠΙΣΤΟ για απόφαση) λόγος SCADA/ISP στις ώρες H21–H24: νέα {ratio(new_sc_sum, new_rows)} | παλιά {ratio(old_sc_sum, old_rows)}")
         except Exception as e:                                      # noqa: BLE001
             log(f"      ISP: σφάλμα ({type(e).__name__}: {e})")
     log("\n=== ΤΕΛΟΣ ===")

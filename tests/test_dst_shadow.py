@@ -46,12 +46,15 @@ def scada_bytes(d):                       # REAL structure: label in col 1, 24 c
     allrows = [[None, "HOURS"] + [f"H{i}" for i in range(1, 25)] + ["TOTAL"], [None, "TOTAL HYDRO"] + cols[:24] + [sum(tot_h) + (1.0 if n == 23 else 0.0)]] + rows
     if LAYOUT["cols"] == 28: allrows = [to28(r) for r in allrows]
     return xlsx("System_Production", allrows)
+SHIFT = {"h": 0}                                 # NEGATIVE CONTROL: the whole ISP file shifted by this many hours against the truth
 def isp_bytes(d):                         # market (CET) day: quarter-hours (constant within the hour) + a total column (sum / 4)
     ts = inst(d, BRU); rows = [["ISP"] + list(range(1, len(ts) * 4 + 2))]
     for k, (key, _s, names) in enumerate(U.HYDRO_UNITS):
         q = []
-        for t in ts: q += [(k + 1) * v(t)] * 4
-        rows.append([names[0]] + q + [sum(q) / 4])
+        for t in ts: q += [(k + 1) * v(t + timedelta(hours=SHIFT["h"]))] * 4
+        for j, nm in enumerate(names):                      # a unit with several names (Thesavros 1–3) is several rows that the pipeline SUMS
+            f = 1.0 if j == 0 else 0.5
+            rows.append([nm] + [f * x for x in q] + [f * sum(q) / 4])
     return xlsx("20260329_ISP", rows)
 def fake(url, params=None, tries=3, what="", use_session=True):
     if url == URL:
@@ -71,7 +74,8 @@ check("23-hour day: the energy of the new rows equals the file's total, and the 
 check("23-hour day: the empty last column (1 MW, counted in the file's total but not an hour) explains the difference and is named; no false alarm", "η τελευταία στήλη, που δεν είναι ώρα, έχει 1 MW" in b and "ΔΕΝ ΤΑΙΡΙΑΖΕΙ" not in b and b.count("→ ΟΚ") >= 2, b)
 b = block(out, "2025-10-26")
 check("25-hour day: the 25th hour is recovered from the total and the energy equals the file's total, and the output says this check is CIRCULAR and gives the independent evidence (the recovered hour continues the evening decline)", "→ ΟΚ (ισούται με το σύνολο του αρχείου)" in b and "ΚΥΚΛΙΚΟΣ έλεγχος" in b and "ανεξάρτητη ένδειξη για την 25η ώρα" in b and "ενέργεια εκτός γραμμών: 0 MWh" not in b, b)
-check("clock-change days print the SCADA/ISP ratio of the last hours with the new and the old alignment", "λόγος SCADA/ISP στις ώρες H21–H24" in b and "νέα [" in b and "παλιά [" in b, b)
+check("clock-change days print the SCADA/ISP ratio of the last hours, labelled as indicative and NOT reliable for a decision", "λόγος SCADA/ISP στις ώρες H21–H24" in b and "ΑΞΙΟΠΙΣΤΟ για απόφαση" in b and "νέα [" in b and "παλιά [" in b, b)
+check("the ramp lag (hour-to-hour changes, the reliable measure) is printed for the old and the new reading, and the new one is at 0", "ράμπες SCADA–ISP, καλύτερη μετατόπιση" in b and "νέα +0 (" in b and "ΑΝΩΜΑΛΙΑ" not in b, b)
 b = block(out, "2026-03-30")
 check("K04 reproduced on the day after the 23-hour day: the OLD reading has an impossible hour (H1) and the NEW one has none", "παλιά H[1]  <-- ΣΦΑΛΜΑ (K04)" in b and "| νέα καμία" in b, b)
 check("after the fix SCADA and ISP agree hour by hour on the clock-change days and the day after (correlation 1.00)", all("νέα 1.00" in block(out, d) for d in ("2026-03-29", "2026-03-30", "2025-10-26", "2025-10-27")), [l for l in out.split("\n") if "συσχέτιση" in l])
@@ -85,6 +89,19 @@ b = block(out, "2026-10-25")
 check("25-hour day: the 25th hour is read from its own column, the energy equals the independent total, and the output says the check is NOT circular", "→ ΟΚ (ισούται με το σύνολο του αρχείου)" in b and "η 25η ώρα είναι ΡΗΤΗ στο αρχείο" in b and "ΔΕΝ είναι κυκλικός" in b and "ΚΥΚΛΙΚΟΣ" not in b, b)
 check("28 columns: no crash, no false alarm on the ordinary days before and after, and SCADA and ISP agree after the fix on the change day and the day after", "ΣΦΑΛΜΑ" not in out and "ΔΕΝ ΤΑΙΡΙΑΖΕΙ" not in out and "νέα 1.00" in block(out, "2026-10-25") and "νέα 1.00" in block(out, "2026-10-26"), out[-600:])
 LAYOUT["cols"] = 27
+print("TEST 1c: the ISP of the shadow run is the SAME sum as the production parser (a unit with several rows)")
+import numpy as np
+raw = S.isp_rows(isp_bytes(date(2026, 10, 24)))
+shadow = np.nansum([np.nanmean(np.array(U.to_numeric_array(raw[k], 96), float).reshape(24, 4), axis=1) for k in raw], axis=0)
+prod, _p, _x = U.parse_isp(isp_bytes(date(2026, 10, 24)))
+prodsum = np.nansum([np.array([np.nan if x is None else x for x in prod[k]]) for k in prod if prod[k]], axis=0)
+check("the hourly sum of the 16 units in the shadow run equals the production parser's, hour by hour", np.allclose(shadow, prodsum), (shadow[:4], prodsum[:4]))
+check("the multi-row unit really has three rows in the fixture (so the check can fail)", sum(1 for k in raw if k == "Thesavros") == 1 and len([1 for _k, _s2, n in U.HYDRO_UNITS if len(n) > 1]) == 1)
+print("TEST 1d: NEGATIVE CONTROL — an ISP shifted by two hours must be flagged by the ramp measure")
+SHIFT["h"] = 2
+sys.argv = ['x', '2026-10-24']; r, out = cap(S.main)
+SHIFT["h"] = 0
+check("a two-hour shift of the ISP is not hidden: the ramp lag is not 0 and the run says so", "<-- ΑΝΩΜΑΛΙΑ: αναμενόταν 0" in out, out[-500:])
 print("TEST 2: failures")
 U.http_get = lambda *a, **k: None
 r, out = cap(S.main); check("network down: rc 0, 'δεν κατέβηκε αρχείο', normal end", r == 0 and "δεν κατέβηκε αρχείο" in out and "=== ΤΕΛΟΣ ===" in out, out[-300:])
