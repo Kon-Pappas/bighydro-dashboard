@@ -35,21 +35,21 @@
       "SCADA_Gkiona": 3.0,
       "MCP_GR": 237.38,
       "SCADA_Kremasta": 112.0,
-      "ISP_Kremasta": 61.25,
+      "ISP_Kremasta": 60.0,
       "SCADA_Kastraki": 97.0,
       "ISP_Kastraki": 46.75,
       "SCADA_Stratos1": 0.0,
-      "ISP_Stratos1": 33.75,
+      "ISP_Stratos1": 11.25,
       "SCADA_Ilarionas": 0.0,
       "ISP_Ilarionas": 0.0,
       "SCADA_Polyfyto": 194.0,
-      "ISP_Polyfyto": 43.75,
+      "ISP_Polyfyto": 25.64,
       "SCADA_Sfikia": 172.0,
-      "ISP_Sfikia": 86.25,
+      "ISP_Sfikia": 0.0,
       "SCADA_Asomata": 97.0,
-      "ISP_Asomata": 20.0,
+      "ISP_Asomata": 0.0,
       "SCADA_Thesavros": 28.0,
-      "ISP_Thesavros": 75.69,
+      "ISP_Thesavros": 60.0,
       "SCADA_Platanovrysi": 10.0,
       "ISP_Platanovrysi": 0.0,
       "SCADA_PAoou": 0.0,
@@ -1181,6 +1181,6 @@
       "resmv": "ok",
       "mcp": "ok"
     },
-    "Updated": "2026-10-27T10:15:57+0200"
+    "Updated": "2026-11-08T12:46:48+0200"
   }
 }
