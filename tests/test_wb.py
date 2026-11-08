@@ -120,6 +120,13 @@ check("the 23-hour day is IN the water balance and its energy is that of the 23 
 D25=cc_days('2026-10-25','2026-10-26',25,{"SCADA_Kremasta":10.0})
 row=[x for x in D25 if x['Date']=='2026-10-25']
 check("the 25-hour day adds the energy outside the 24 rows (second half of the repeated hour) for the right unit only",len(row)==1 and abs(row[0]['E'][0]-(3540+10.0))<0.01 and abs(row[0]['E'][1]-1990)<0.01,row[0]['E'] if row else None)
+print("TEST 10: unchanged inputs -> the file is not rewritten; a real change rewrites it (K16)")
+import time as _t
+wb1=open('data/water_balance.json','rb').read(); _t.sleep(1.1); cap(W.main); wb2=open('data/water_balance.json','rb').read()
+check("same inputs -> same bytes (the timestamp is not refreshed, so the daily job has nothing to commit)", wb1==wb2)
+r=json.load(open('data/days/2026-10-25.json',encoding='utf-8')); r['Hourly'][5]['SCADA_Kremasta']+=10; json.dump(r,open('data/days/2026-10-25.json','w'))
+cap(W.main); wb3=open('data/water_balance.json','rb').read()
+check("a real change in a day file rewrites the file and refreshes Generated", wb3!=wb2 and json.loads(wb3).get('Generated')!=json.loads(wb2).get('Generated'))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

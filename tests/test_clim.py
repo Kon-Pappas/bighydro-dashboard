@@ -60,6 +60,13 @@ open('data/entsoe_history.json', 'w').write('{ broken'); r, lg = cap(C.main); ch
 write('entsoe_history.json', hist); open('data/entsoe_reservoir.json', 'w').write('{ broken'); r, _ = cap(C.main); check("corrupt live file -> rc 1 (nothing half-written)", r == 1 and not os.path.exists('data/climatology.json'))
 os.remove('data/entsoe_reservoir.json'); write('entsoe_history.json', year_weeks(2019, val) + year_weeks(2020, val) + year_weeks(2021, val) + year_weeks(2022, val))
 r, _ = cap(C.main); check("no live file at all: the latest history year is treated as current and the three before it are the baseline", r == 0 and json.load(open('data/climatology.json'))["CurrentYear"] == 2022 and json.load(open('data/climatology.json'))["BaselineYears"] == [2019, 2020, 2021])
+print("TEST 4: unchanged inputs -> the file is not rewritten; a real change rewrites it (K16)")
+import time as _t
+write('entsoe_history.json', hist); write('entsoe_reservoir.json', live); cap(C.main)
+c1=open('data/climatology.json','rb').read(); _t.sleep(1.1); cap(C.main); c2=open('data/climatology.json','rb').read()
+check("same inputs -> same bytes (the timestamp is not refreshed)", c1==c2)
+write('entsoe_reservoir.json', live + year_weeks(2023, lambda y, wk: 1_000_000 * 3 + 10_000 * wk + 5_000, only=[13])); cap(C.main); c3=open('data/climatology.json','rb').read()
+check("a new week rewrites the file and refreshes Generated", c3!=c2 and json.loads(c3).get('Generated')!=json.loads(c2).get('Generated'))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

@@ -28,7 +28,7 @@ Steps run in this order, in one job (`concurrency: bighydro-fetch`, runs never o
 4. `build_psh.py` — pumped-storage data (`continue-on-error`).
 5. `build_unit_status.py` — daily generation per unit (`continue-on-error`).
 6. `build_climatology.py` — stock vs previous years (`continue-on-error`).
-7. Commit and push `data/` if anything changed (`git pull --rebase` first).
+7. Commit and push `data/` if anything changed (`git pull --rebase` first). Derived files are rewritten only when their content changes (`jsonio.py`, D98), so a run with nothing new commits nothing.
 
 A second, **manual** workflow, `.github/workflows/backfill_entsoe.yml` (*Backfill ENTSO-E history*), shares the same concurrency group. It fetches the weekly stored energy for past years (one request per year) into the **separate** file `data/entsoe_history.json`, which the energy calibration does not read. It has a diagnostic mode that writes nothing.
 

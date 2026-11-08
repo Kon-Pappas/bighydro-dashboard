@@ -70,6 +70,13 @@ check("merge: 3 weeks, revised value, new week",rc==0 and len(vals)==3 and vals[
 check("sorted ascending",[w["Start"] for w in d["Weeks"]]==sorted(w["Start"] for w in d["Weeks"]))
 check("default start = last week - 28d",seen["periodStart"].startswith("2026"+"0"))  # sanity only
 
+print("TEST 4b: nothing changed -> the file is not rewritten; a revision rewrites it (K16)")
+import time as _t
+e1=open('data/entsoe_reservoir.json','rb').read(); _t.sleep(1.1); rc,_=cap(F.main); e2=open('data/entsoe_reservoir.json','rb').read()
+check("an identical response leaves the file byte-for-byte unchanged (timestamp included)", rc==0 and e1==e2)
+resp["v"]=doc("2026-09-27T22:00Z","2026-10-18T22:00Z",[(1,1600001),(2,1550000)]); rc,_=cap(F.main); e3=open('data/entsoe_reservoir.json','rb').read()
+check("a revised value rewrites it and refreshes Updated", rc==0 and e3!=e2 and json.loads(e3)["Updated"]!=json.loads(e2)["Updated"])
+
 print("TEST 5: failures never touch the file")
 before=open('data/entsoe_reservoir.json').read()
 F.http_get=lambda p,tries=3:R(401,"<text>Unauthorized</text>"); rc,lg=cap(F.main); check("401 -> rc1, file untouched",rc==1 and open('data/entsoe_reservoir.json').read()==before and "Unauthorized" in lg)

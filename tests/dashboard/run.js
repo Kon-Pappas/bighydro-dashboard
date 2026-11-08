@@ -192,9 +192,15 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('no JS errors in Aliakmonas tests',errors.length===0,errors.slice(0,3));
 
   console.log('TEST 9: shell (header, language, update stamps, badge, banner, footer, overlay)');
+  // Σταθερές ημερομηνίες του ΠΑΡΕΛΘΟΝΤΟΣ με ΥΠΟΧΡΕΩΜΕΝΗ κατάσταση πηγών: οι έλεγχοι του σήματος (badge) δεν πρέπει να εξαρτώνται από τα πραγματικά δεδομένα.
+  // (Ο έλεγχος «μόνο το MCP λείπει» έτρεχε σε μια πραγματική ημέρα και χάθηκε σιωπηλά όταν το backfill του MCP γέμισε την ημέρα εκείνη.)
+  const D_MCP='2026-05-31', D_BAD='2026-02-02';
+  const ST_MCP={reservoir:'ok',scada:'ok',isp:'ok',resmv:'ok',mcp:'missing'}, ST_BAD={reservoir:'ok',scada:'ok',isp:'ok',resmv:'missing',mcp:'ok'};
+  const OVR={'data/index.json':(j)=>{j.Days.forEach(x=>{if(x.Date===D_MCP) x.Status=ST_MCP; if(x.Date===D_BAD) x.Status=ST_BAD}); return j},
+    ['data/days/'+D_MCP+'.json']:(x)=>{x.Meta.Status=ST_MCP; return x}, ['data/days/'+D_BAD+'.json']:(x)=>{x.Meta.Status=ST_BAD; return x}};
   const mkDom=(store,fast=true,block=[])=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
     const dm=new JSDOM(fs.readFileSync(ROOT+'/index.html','utf8'),{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc2,
-      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(JSON.parse(fs.readFileSync(pp,'utf8')))});}; }});
+      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); let jj=JSON.parse(fs.readFileSync(pp,'utf8')); if(OVR[u]) jj=OVR[u](jj); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(jj)});}; }});
     return {dm,e2}; };
   const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
@@ -217,11 +223,12 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('shared key kp_lang wins over the legacy key',wK.document.querySelector('#ttl').textContent==='Greek Hydro & Reservoir Analytics');
   const wE2=wE; const BE=wE2.__bh; await sleep(10);
   // badge + banner use only the sources the page shows (no MCP)
-  const used=['reservoir','scada','isp','resmv']; const dayOK=BE.P.idx.Days.find(x=>x.Status&&used.every(k=>x.Status[k]==='ok')&&x.Status.mcp!=='ok');
-  const dayBad=BE.P.idx.Days.find(x=>x.Status&&used.some(k=>x.Status[k]!=='ok')&&x.Date<BE.P.idx.Days[0].Date);
+  const used=['reservoir','scada','isp','resmv']; const dayOK=BE.P.idx.Days.find(x=>x.Date===D_MCP);
+  const dayBad=BE.P.idx.Days.find(x=>x.Date===D_BAD);
+  ck('the two fixed test days exist in the index with the forced statuses (the badge checks below can no longer be skipped silently)',!!dayOK&&!!dayBad&&dayOK.Status.mcp==='missing'&&dayBad.Status.resmv==='missing',[dayOK,dayBad]);
   setLang(wE2.document,'en'); await sleep(60);   // back to English
-  if(dayOK){ await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete Data", no banner',wE2.document.querySelector('#badge').textContent==='Complete Data' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
-  if(dayBad){ await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial Data" listing '+miss.join(','),wE2.document.querySelector('#badge').textContent==='Partial Data' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
+  { await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete Data", no banner',wE2.document.querySelector('#badge').textContent==='Complete Data' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
+  { await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial Data" listing '+miss.join(','),wE2.document.querySelector('#badge').textContent==='Partial Data' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
   ck('no JS errors in the English/shell tests',errE.length===0,errE.slice(0,3));
 
   console.log('TEST 10: tooltips on every chart');

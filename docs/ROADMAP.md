@@ -28,8 +28,8 @@ The clock change of 25 Oct 2026 and the fix of K04, K05 and K26 are complete and
 ## After 26 Oct 2026
 6. ~~**Daylight-saving handling** (ISP, SCADA, RESMV, MCP)~~ — **done** (batch31, D96–D97; 30 Mar and 25–26 Oct re-run and verified). *Optional:* an **automatic clock-alignment flag** per day (the SCADA–ISP ramp lag, D95), stored in `Meta`.
 7. ~~**Water balance for the remaining rivers**~~ — **done** (Nestos, Arachthos, Plastiras, Ladonas and an all-rivers overview; see D36–D39). Next in line: the pumped-storage view (item 2), which reuses the same pump estimates.
-8. **Less clutter:** stop writing `data/monthly/*.json`; write derived files only when their content changes; update the Actions versions that warn about Node 20.
-9. Optional backfills: **MCP for January–May** (149 days without it: 1 Jan–28 Mar and 31 Mar–31 May; about 14 minutes of the workflow's 30 with `only=mcp`). ~~Retry RESMV for 1–2 Feb~~ — **done on 8 Nov: ADMIE still publishes the same two files** (21 of 24 hours; an empty one), K03.
+8. ~~**Less clutter**~~ — derived files are now written only when their content changes (batch34, D98); `data/monthly/*.json` is **kept** on purpose. *Open:* the Actions versions that warn about Node 20 (no failure: they already run on Node 24; check the newest versions before changing them).
+9. ~~Optional backfills~~ — **done on 8 Nov 2026**: MCP for January–May (149 days) is in and **all 312 days of 2026 have MCP**; the RESMV of 1–2 Feb is still incomplete at ADMIE (K03).
 
 ## Later
 * Recalibrate the energy factors on the rule in METHODS §2.1 (and in December).

@@ -33,6 +33,9 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import jsonio                                      # εγγραφή μόνο όταν αλλάζει το περιεχόμενο (K16)
+
 URL = "https://web-api.tp.entsoe.eu/api"
 EIC_GR = "10YGR-HTSO-----Y"
 OUT = os.path.join("data", "entsoe_reservoir.json")
@@ -191,11 +194,7 @@ def write(weeks, out=None, extra=None):
            "Note": "Start/End σε UTC. Η αντιστοίχιση εβδομάδας -> ημέρες (μέσος όρος/αρχή/τέλος) δεν υποτίθεται εδώ."}
     doc.update(extra or {})
     doc["Weeks"] = sorted(weeks, key=lambda w: w["Start"])
-    tmp = out + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False, indent=1)
-        f.write("\n")
-    os.replace(tmp, out)
+    jsonio.write_json_if_changed(out, doc, indent=1)          # μόνο αν άλλαξε το περιεχόμενο (K16)
 
 
 def load_from(path):

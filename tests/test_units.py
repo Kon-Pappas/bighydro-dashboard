@@ -60,6 +60,13 @@ cc('2026-03-29',23); cc('2026-10-25',25,{"SCADA_Stratos1":5.0})
 r,_=cap(S.main); doc=json.load(open('data/unit_daily.json',encoding='utf-8')); UU=doc['Units']; ix={dt:i for i,dt in enumerate(doc['Dates'])}
 check("both clock-change days are kept", '2026-03-29' in ix and '2026-10-25' in ix, doc['Dates'])
 check("23-hour day: energy of 23 hours (240/24·23 = 230); 25-hour day: 240 + 5 outside the rows", abs(UU['Stratos1']['Mwh'][ix['2026-03-29']]-230.0)<0.06 and abs(UU['Stratos1']['Mwh'][ix['2026-10-25']]-245.0)<0.06, (UU['Stratos1']['Mwh']))
+print("TEST 10: unchanged inputs -> the file is not rewritten; a real change rewrites it (K16)")
+import time as _t
+u1=open('data/unit_daily.json','rb').read(); _t.sleep(1.1); cap(S.main); u2=open('data/unit_daily.json','rb').read()
+check("same inputs -> same bytes (the timestamp is not refreshed)", u1==u2)
+r=json.load(open('data/days/2026-10-25.json',encoding='utf-8')); r['Hourly'][5]['SCADA_Stratos1']+=10; json.dump(r,open('data/days/2026-10-25.json','w'))
+cap(S.main); u3=open('data/unit_daily.json','rb').read()
+check("a real change rewrites the file and refreshes Generated", u3!=u2 and json.loads(u3).get('Generated')!=json.loads(u2).get('Generated'))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

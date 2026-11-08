@@ -28,6 +28,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clock_change as CC                          # ημέρες αλλαγής ώρας: η ώρα που δεν υπάρχει δεν είναι «λείπουσα τιμή», και η ενέργεια εκτός γραμμών προστίθεται
+import jsonio                                      # εγγραφή μόνο όταν αλλάζει το περιεχόμενο (K16)
 
 DATA = "data"
 OUT = os.path.join(DATA, "water_balance.json")
@@ -194,11 +195,7 @@ def main():
                        "Δύο εκδοχές συντελεστών: καθαρή πτώση (n) και μικτή πτώση (g). Η διαφορά τους είναι ένδειξη της αβεβαιότητας."],
            "Rivers": res}
     os.makedirs(DATA, exist_ok=True)
-    tmp = OUT + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, OUT)
+    jsonio.write_json_if_changed(OUT, doc)          # μόνο αν άλλαξε το περιεχόμενο (K16)
     return 0
 
 

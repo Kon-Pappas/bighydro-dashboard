@@ -17,6 +17,9 @@ import sys
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import jsonio                                      # εγγραφή μόνο όταν αλλάζει το περιεχόμενο (K16)
+
 DATA = "data"
 HIST = os.path.join(DATA, "entsoe_history.json")
 LIVE = os.path.join(DATA, "entsoe_reservoir.json")
@@ -123,11 +126,7 @@ def main():
            "Peaks": {"Baseline": peaks, "Current": {"GWh": round(cp[0], 1), "Wk": cp[1], "Rank": 1 + allp.index(round(cp[0], 1)), "Of": len(allp)}},
            "MissingWeeks": missing}
     os.makedirs(DATA, exist_ok=True)
-    tmp = OUT + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, OUT)
+    jsonio.write_json_if_changed(OUT, doc)          # μόνο αν άλλαξε το περιεχόμενο (K16)
     last = current[-1]
     log(f"Τελευταία εβδομάδα {cur}-W{last['Wk']:02d}: {last['GWh']:,.0f} GWh" + (f" | θέση {last['Rank']}/{last['Of']}, {last['DeltaMedian']:+.0f} GWh από τον διάμεσο" if "Rank" in last else "") + (f" | λείπουν: {missing}" if missing else ""))
     return 0

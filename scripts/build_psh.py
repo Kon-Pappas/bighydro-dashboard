@@ -32,6 +32,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clock_change as CC                          # ημέρες αλλαγής ώρας (βλ. build_water_balance)
+import jsonio                                      # εγγραφή μόνο όταν αλλάζει το περιεχόμενο (K16)
 from build_water_balance import k_values        # ίδιοι συντελεστές με το ισοζύγιο νερού (καθαρή/μικτή πτώση)
 
 DATA = "data"
@@ -117,11 +118,7 @@ def main():
                            "Note": "Η πτώση άντλησης (μικτή × 1,02) και ο βαθμός απόδοσης 0,87 είναι υποθέσεις· ±10% στο k άντλησης μετακινεί ανάλογα το ανακυκλωμένο ποσοστό. Η άντληση ανά σταθμό είναι εκτίμηση (SCADA σύνολο μοιρασμένο με ISP)."},
            "Plants": plants}
     os.makedirs(DATA, exist_ok=True)
-    tmp = OUT + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, OUT)
+    jsonio.write_json_if_changed(OUT, doc)          # μόνο αν άλλαξε το περιεχόμενο (K16)
     return 0
 
 

@@ -66,6 +66,13 @@ pumpfile([{"Date":"2026-03-29","EstSfikiaMWh":600.0,"EstThesavrosMWh":900.0,"Isp
 r,_=cap(S.main); sf=json.load(open('data/psh_daily.json',encoding='utf-8'))['Plants']['SFIKIA']['Daily']; byd={x['Date']:x for x in sf}
 check("the 23-hour day is present and its generation is that of the 23 real hours (1500/24·23)", '2026-03-29' in byd and abs(byd['2026-03-29']['Eg']-1437.5)<0.06, list(byd))
 check("the 25-hour day adds the energy outside the 24 rows (1500 + 7), for that unit only", '2026-10-25' in byd and abs(byd['2026-10-25']['Eg']-1507.0)<0.06 and abs(byd['2026-10-25']['Ql']*heads['SFIKIA']['KLowerNet'] - 900.0) < 5 if False else '2026-10-25' in byd and abs(byd['2026-10-25']['Eg']-1507.0)<0.06, byd.get('2026-10-25'))
+print("TEST 10: unchanged inputs -> the file is not rewritten; a real change rewrites it (K16)")
+import time as _t
+p1=open('data/psh_daily.json','rb').read(); _t.sleep(1.1); cap(S.main); p2=open('data/psh_daily.json','rb').read()
+check("same inputs -> same bytes (the timestamp is not refreshed)", p1==p2)
+r=json.load(open('data/days/2026-10-25.json',encoding='utf-8')); r['Hourly'][5]['SCADA_Sfikia']+=10; json.dump(r,open('data/days/2026-10-25.json','w'))
+cap(S.main); p3=open('data/psh_daily.json','rb').read()
+check("a real change rewrites the file and refreshes Generated", p3!=p2 and json.loads(p3).get('Generated')!=json.loads(p2).get('Generated'))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

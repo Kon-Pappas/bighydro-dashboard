@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clock_change as CC                          # ημέρες αλλαγής ώρας: η ώρα που δεν υπάρχει δεν είναι «λείπουσα τιμή», και η ενέργεια εκτός γραμμών προστίθεται
+import jsonio                                      # εγγραφή μόνο όταν αλλάζει το περιεχόμενο (K16)
 
 DATA = "data"
 OUT = os.path.join(DATA, "unit_daily.json")
@@ -76,11 +77,7 @@ def main():
     doc = {"Schema": 1, "Generated": datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z"),
            "Method": "ημερήσια ενέργεια (MWh) ανά μονάδα SCADA, για ημέρες με πλήρες SCADA· null = η μονάδα λείπει εκείνη την ημέρα",
            "Dates": dates, "Units": {u: {"Dam": units[u]["Dam"], "Name": units[u]["Name"], "Mwh": series[u]} for u in units}}
-    tmp = OUT + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(doc, f, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, OUT)
+    jsonio.write_json_if_changed(OUT, doc)          # μόνο αν άλλαξε το περιεχόμενο (K16)
     return 0
 
 
