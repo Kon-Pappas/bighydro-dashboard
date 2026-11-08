@@ -98,6 +98,10 @@ jobs:
         continue-on-error: true
         run: python scripts/build_inflow.py
 
+      - name: Build generation and equivalent-inflow data (non-blocking)
+        continue-on-error: true
+        run: python scripts/build_energy_climatology.py
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
