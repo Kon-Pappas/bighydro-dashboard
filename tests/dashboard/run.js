@@ -67,7 +67,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const order=['Ιλαρίων','Πολύφυτο','Σφηκιά','Ασώματα'].map(n=>m.indexOf(n));
   ck('Aliakmonas order Ilarion→Polyfyto→Sfikia→Asomata',order.every((v,i)=>v>=0&&(i===0||v>order[i-1])),order);
   ck('pump Asomata → Sfikia shown',m.includes('Ασώματα → Σφηκιά') && !m.includes('υπόθεση)') ,m.slice(m.indexOf('άντληση'),m.indexOf('άντληση')+60));
-  ck('modal has hourly chart + energy block',d.querySelectorAll('#rmc svg.ch').length===1 && m.includes('Ισοδύναμο ENTSO-E'));
+  ck('modal has hourly chart + energy block (plus the chart of the inflow panel when that panel is shown)',d.querySelectorAll('#rmc svg.ch').length===1+d.querySelectorAll('#rmc [data-sect="inflow"] svg.ch').length && m.includes('Ισοδύναμο ENTSO-E'));
   m=open('nestos'); ck('Nestos pump direction is shown as confirmed (no "assumption" label)',m.includes('Πλατανόβρυση → Θησαυρός') && !m.includes('υπόθεση'));
   m=open('acheloos'); const o2=['Κρεμαστά','Καστράκι','Στράτος'].map(n=>m.indexOf(n)); ck('Acheloos order',o2.every((v,i)=>v>=0&&(i===0||v>o2[i-1])),o2);
   ck('Stratos shown as 1+2 once per-unit data exists (no "not stored" note)',m.includes('Στράτος (1+2)') && !m.includes('Στράτος ΙΙ περιλαμβάνεται'),m.slice(m.indexOf('Στράτος'),m.indexOf('Στράτος')+30));
@@ -194,13 +194,26 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 9: shell (header, language, update stamps, badge, banner, footer, overlay)');
   // Σταθερές ημερομηνίες του ΠΑΡΕΛΘΟΝΤΟΣ με ΥΠΟΧΡΕΩΜΕΝΗ κατάσταση πηγών: οι έλεγχοι του σήματος (badge) δεν πρέπει να εξαρτώνται από τα πραγματικά δεδομένα.
   // (Ο έλεγχος «μόνο το MCP λείπει» έτρεχε σε μια πραγματική ημέρα και χάθηκε σιωπηλά όταν το backfill του MCP γέμισε την ημέρα εκείνη.)
+  const INFL={};
   const D_MCP='2026-05-31', D_BAD='2026-02-02';
   const ST_MCP={reservoir:'ok',scada:'ok',isp:'ok',resmv:'ok',mcp:'missing'}, ST_BAD={reservoir:'ok',scada:'ok',isp:'ok',resmv:'missing',mcp:'ok'};
   const OVR={'data/index.json':(j)=>{j.Days.forEach(x=>{if(x.Date===D_MCP) x.Status=ST_MCP; if(x.Date===D_BAD) x.Status=ST_BAD}); return j},
-    ['data/days/'+D_MCP+'.json']:(x)=>{x.Meta.Status=ST_MCP; return x}, ['data/days/'+D_BAD+'.json']:(x)=>{x.Meta.Status=ST_BAD; return x}};
+    ['data/days/'+D_MCP+'.json']:(x)=>{x.Meta.Status=ST_MCP; return x}, ['data/days/'+D_BAD+'.json']:(x)=>{x.Meta.Status=ST_BAD; return x},
+    'data/inflow_climatology.json':()=>INFL};
+  // ---- Συνθετικό αρχείο εισροής (D99): τα tests του πάνελ δεν εξαρτώνται από τα πραγματικά δεδομένα ----
+  const mkWeeks=()=>{const a=[];for(let w=1;w<=52;w++){const m=50+30*Math.sin(w/8);a.push({Wk:w,N:8,Min:m*.4,P25:m*.7,Median:m,P75:m*1.4,Max:m*2.5,MinYear:2018,MaxYear:2021})}return a};
+  const mkCur=()=>{const a=[];for(let w=1;w<=44;w++)a.push({Start:'2026-01-05',Wk:w,Mm3:40+w%7,Interp:w===10,Rank:3,Of:9,DeltaMedian:1});return a};
+  const mkReg=(name,rank,ext)=>({Weeks:['2026-10-05','2026-10-12','2026-10-19','2026-10-26'],LastWeek:'2026-10-26',Wk:44,Mm3:85.17,Median:62.28,P25:49.13,P75:139.57,N:8,Rank:rank,Of:9,Regime:name,Interp:false,Extended:ext});
+  const mkRiver=(reg,why,low,sens)=>({Name:'x',ExitUnit:'u',KNet:80,Dams:[],LowConfidence:low,Weeks:mkWeeks(),Extended:[],Current:mkCur(),Regime:reg,RegimeUnavailable:why,Sensitivity:sens,Quality:{BaselineWeeksWithValue:414,BaselineWeeksInterpolated:9,BaselineWeeksPossible:417,CurrentWeeksWithValue:44,CurrentWeeksInterpolated:1}});
+  INFL.Schema=1; INFL.CurrentYear=2026; INFL.LastDate='2026-11-08'; INFL.Baseline={Years:[2018,2025],Extended:[2016,2025],Default:'x'}; INFL.Rule={Weeks:4,Extreme:2,MinYears:6,MaxGapDays:3};
+  INFL.Rivers={acheloos:mkRiver(mkReg('transitional',4,{Rank:5,Of:11,Regime:'transitional',N:10}),null,null,null),
+    aliakmonas:mkRiver(mkReg('wet',2,{Rank:2,Of:11,Regime:'wet',N:10}),null,null,{IlarionasHm3:305,Used:412,Mm3:42.05,Rank:4,Of:9,Regime:'transitional'}),
+    arachthos:mkRiver(mkReg('dry',8,{Rank:9,Of:11,Regime:'transitional',N:10}),null,{El:'ΚΕΙΜΕΝΟ-ΧΒ',En:'TEXT-LC'},null),
+    nestos:mkRiver(null,'stale',null,null)};
+
   const mkDom=(store,fast=true,block=[])=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
     const dm=new JSDOM(fs.readFileSync(ROOT+'/index.html','utf8'),{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc2,
-      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); let jj=JSON.parse(fs.readFileSync(pp,'utf8')); if(OVR[u]) jj=OVR[u](jj); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(jj)});}; }});
+      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||(!fs.existsSync(pp)&&!OVR[u])) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); let jj=fs.existsSync(pp)?JSON.parse(fs.readFileSync(pp,'utf8')):{}; if(OVR[u]) jj=OVR[u](jj); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(jj)});}; }});
     return {dm,e2}; };
   const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
@@ -556,6 +569,38 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('the extra of ANOTHER key is not added, and without ClockChange the sum is unchanged',B.sumKey({Hourly:[{k:1},{k:2}],Meta:{ClockChange:{ExtraHourMWh:{other:5}}}},'k')===3 && B.sumKey({Hourly:[{k:1},{k:2}]},'k')===3);
   ck('no values at all -> null, even when an extra exists (nothing is invented); a record without Hourly -> null',B.sumKey({Hourly:[{k:null}],Meta:{ClockChange:{ExtraHourMWh:{k:3}}}},'k')===null && B.sumKey({},'k')===null && B.sumKey(null,'k')===null);
   ck('a 23-hour day (H04 empty, no extra) sums only the existing hours',B.sumKey({Hourly:[{k:5},{k:5},{k:5},{k:null},{k:5}],Meta:{ClockChange:{Hours:23,Hour:'H04',Kind:'missing',ExtraHourMWh:{}}}},'k')===20);
+
+  console.log('TEST 21: inflow against normal and regime (synthetic file, D99)');
+  const {dm:dmI,e2:errI}=mkDom({}); const wI=await boot2(dmI); const BI=wI.__bh; const dI=wI.document; setLang(dI,'en'); await sleep(80);
+  const rix=(id)=>BI.S.M.rivers.findIndex(r=>r.r.Id===id), card=(id)=>dI.querySelectorAll('#rg .river[data-i]')[rix(id)].textContent;
+  const openI=async(id)=>{BI.openRiver(rix(id)); await sleep(40); const t=dI.querySelector('#rmc').textContent, sec=dI.querySelector('#rmc [data-sect="inflow"]'); return {t,sec,st:sec?sec.textContent:''}};
+  const closeI=()=>{const b=dI.querySelector('#rclose'); if(b) b.click()};
+  ck('river cards show the regime: Acheloos Transitional, Aliakmon Wet, Arachthos Dry with the low-confidence mark',card('acheloos').includes('4-week inflow') && card('acheloos').includes('Transitional') && card('aliakmonas').includes('Wet') && card('arachthos').includes('Dry') && card('arachthos').includes('†'),[card('acheloos').slice(-60),card('arachthos').slice(-60)]);
+  ck('a river whose regime is unavailable shows « — » in the row; a river absent from the file has no row at all',/4-week inflow\s*—/.test(card('nestos')) && !card('plastiras').includes('4-week inflow') && !card('ladonas').includes('4-week inflow'),[card('nestos').slice(-60),card('ladonas').slice(-60)]);
+  let o=await openI('aliakmonas');
+  ck('Aliakmon modal: the inflow panel with a chart, the regime Wet, rank 2 of 9 (1 = highest), the 4-week inflow and the normal',!!o.sec && o.sec.querySelectorAll('svg.ch').length===1 && o.st.includes('Inflow against normal') && o.st.includes('Wet') && o.st.includes('Rank 2 of 9 (1 = highest)') && o.st.includes('85.2 hm³') && o.st.includes('normal 62.3 hm³'),o.st.slice(0,400));
+  ck('the chart draws the current year as a line and the P25–P75 and min–max bands',o.sec.querySelectorAll('svg.ch path.s1').length>=1 && o.sec.querySelectorAll('svg.ch path.bd1').length>=1 && o.sec.querySelectorAll('svg.ch path.bd2').length>=1);
+  ck('Aliakmon names the Ilarionas capacity used (412), the alternative (305) and the regime with 305 (Transitional, rank 4 of 9)',o.st.includes('412 hm³') && o.st.includes('305 hm³') && o.st.includes('Transitional (rank 4 of 9)')===false && o.st.includes('“Transitional” (rank 4 of 9)'),o.st.slice(-500));
+  ck('the period of the regime is shown from the Monday of its first week to the SUNDAY of its last (5 Oct – 1 Nov), with the 4-week rule',o.st.includes('Rule: wet = among the 2 highest') && o.st.includes('Inflow of 4 weeks (05/10/2026 – 01/11/2026)'),o.st.slice(300,700));
+  const bc=(id)=>dI.querySelectorAll('#rg .river[data-i]')[rix(id)].querySelector('.badge').className;
+  ck('badge colours: Wet = ok (green), Dry = warn (amber), Transitional = neutral',bc('aliakmonas')==='badge ok' && bc('arachthos')==='badge warn' && bc('acheloos')==='badge',[bc('aliakmonas'),bc('arachthos'),bc('acheloos')]);
+  ck('no low-confidence note for Aliakmon; the interpolation note counts 9 of 414 baseline weeks',!o.st.includes('Low confidence') && o.st.includes('Of the 414 baseline weeks, 9 rely on interpolation'));
+  closeI();
+  o=await openI('arachthos');
+  ck('Arachthos: Dry, the low-confidence note in English, and the warning that the regime depends on the baseline (2016–2025: Transitional, rank 9 of 11)',o.st.includes('Dry') && o.st.includes('Low confidence (†): TEXT-LC') && o.st.includes('depends on the baseline period') && o.st.includes('“Transitional” (rank 9 of 11)') && !o.st.includes('Ilarionas'),o.st.slice(-500));
+  closeI();
+  o=await openI('acheloos');
+  ck('Acheloos: the 2016–2025 baseline gives the same regime (said so), no Ilarionas note, no low-confidence note',o.st.includes('the regime is the same (Transitional)') && !o.st.includes('Ilarionas') && !o.st.includes('Low confidence'),o.st.slice(-400));
+  closeI();
+  o=await openI('nestos');
+  ck('Nestos (regime unavailable): the reason is stated and the chart is still drawn; no regime badge in the cards',o.st.includes('No regime: the latest data are not sufficient') && o.sec.querySelectorAll('svg.ch').length===1 && !o.sec.querySelector('.cards'),o.st.slice(0,300));
+  closeI();
+  o=await openI('ladonas'); ck('a river absent from the inflow file has no inflow panel in its modal',!o.sec); closeI();
+  setLang(dI,'el'); await sleep(80); o=await openI('arachthos');
+  ck('Greek: titles, regime names and the Greek low-confidence text',o.st.includes('Εισροή έναντι κανονικού και καθεστώς') && o.st.includes('Ξηρό') && o.st.includes('Χαμηλή βεβαιότητα (†): ΚΕΙΜΕΝΟ-ΧΒ') && card('acheloos').includes('Μεταβατικό') && card('aliakmonas').includes('Υγρό'),o.st.slice(0,300)); closeI();
+  const {dm:dmN,e2:errN}=mkDom({},true,['inflow_climatology.json']); const wN=await boot2(dmN); const BN=wN.__bh;
+  BN.openRiver(1); await sleep(40);
+  ck('without the inflow file the page works as before: no row on the cards, no panel in the modal, no errors',!wN.document.querySelector('#rg').textContent.includes('inflow') && !wN.document.querySelector('#rmc [data-sect="inflow"]') && errN.length===0 && errI.length===0,[errN.slice(0,2),errI.slice(0,2)]);
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();
