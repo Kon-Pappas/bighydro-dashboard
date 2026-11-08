@@ -94,6 +94,10 @@ jobs:
         continue-on-error: true
         run: python scripts/build_climatology.py
 
+      - name: Build inflow vs normal and regime data (non-blocking)
+        continue-on-error: true
+        run: python scripts/build_inflow.py
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
