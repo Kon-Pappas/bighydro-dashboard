@@ -94,7 +94,13 @@
     "SCADA": 2643.0,
     "ISP": 1240.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 79.12,
+    "min": 18.11,
+    "max": 120.41,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 53.75,
     "mean14": 57.207
@@ -104,7 +110,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -152,7 +158,13 @@
     "SCADA": 1363.0,
     "ISP": 1085.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 95.18,
+    "min": 60.0,
+    "max": 118.22,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 53.86,
     "mean14": 58.696
@@ -162,7 +174,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -210,7 +222,13 @@
     "SCADA": 535.0,
     "ISP": 440.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 89.31,
+    "min": 76.3,
+    "max": 111.83,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 54.07,
     "mean14": 59.257
@@ -220,7 +238,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -268,7 +286,13 @@
     "SCADA": 1095.0,
     "ISP": 490.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 90.82,
+    "min": 60.0,
+    "max": 121.18,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 54.56,
     "mean14": 58.627
@@ -278,7 +302,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -326,7 +350,13 @@
     "SCADA": 486.0,
     "ISP": 616.2
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 74.08,
+    "min": 16.7,
+    "max": 105.21,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 55.92,
     "mean14": 59.204
@@ -336,7 +366,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -384,7 +414,13 @@
     "SCADA": 2397.0,
     "ISP": 2315.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 85.07,
+    "min": 67.43,
+    "max": 96.97,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 56.7,
     "mean14": 61.961
@@ -394,7 +430,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -442,7 +478,13 @@
     "SCADA": 411.0,
     "ISP": 187.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 90.77,
+    "min": 65.0,
+    "max": 116.56,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 57.57,
     "mean14": 64.301
@@ -452,7 +494,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -500,7 +542,13 @@
     "SCADA": 2176.0,
     "ISP": 1417.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 72.94,
+    "min": 0.0,
+    "max": 144.44,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 59.58,
     "mean14": 66.681
@@ -510,7 +558,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -558,7 +606,13 @@
     "SCADA": 617.0,
     "ISP": 1400.8
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 108.47,
+    "min": 74.21,
+    "max": 144.46,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 62.27,
     "mean14": 66.143
@@ -568,7 +622,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -616,7 +670,13 @@
     "SCADA": 998.0,
     "ISP": 2590.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 87.19,
+    "min": 61.88,
+    "max": 124.77,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 63.28,
     "mean14": 64.116
@@ -626,7 +686,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -674,7 +734,13 @@
     "SCADA": 0.0,
     "ISP": 870.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 88.22,
+    "min": 52.62,
+    "max": 123.56,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 65.47,
     "mean14": 63.044
@@ -684,7 +750,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -732,7 +798,13 @@
     "SCADA": 1834.0,
     "ISP": 1657.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 94.98,
+    "min": 14.86,
+    "max": 161.86,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.46,
     "mean14": 63.894
@@ -742,7 +814,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -790,7 +862,13 @@
     "SCADA": 2108.0,
     "ISP": 1850.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 146.61,
+    "min": 84.94,
+    "max": 378.49,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.82,
     "mean14": 62.726
@@ -800,7 +878,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -848,7 +926,13 @@
     "SCADA": 1381.0,
     "ISP": 1100.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 132.41,
+    "min": 75.59,
+    "max": 283.0,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.99,
     "mean14": 63.508
@@ -858,7 +942,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -906,7 +990,13 @@
     "SCADA": 491.0,
     "ISP": 385.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 133.26,
+    "min": 71.32,
+    "max": 283.57,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.8,
     "mean14": 60.768
@@ -916,7 +1006,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -964,7 +1054,13 @@
     "SCADA": 167.0,
     "ISP": 357.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 127.42,
+    "min": 75.48,
+    "max": 203.4,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.59,
     "mean14": 61.793
@@ -974,7 +1070,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1022,7 +1118,13 @@
     "SCADA": 0.0,
     "ISP": 0.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 97.33,
+    "min": 78.35,
+    "max": 137.25,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.43,
     "mean14": 58.104
@@ -1032,7 +1134,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1080,7 +1182,13 @@
     "SCADA": 217.0,
     "ISP": 412.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 96.87,
+    "min": 77.0,
+    "max": 148.21,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.32,
     "mean14": 57.974
@@ -1090,7 +1198,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1138,7 +1246,13 @@
     "SCADA": 0.0,
     "ISP": 55.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 109.4,
+    "min": 80.52,
+    "max": 162.41,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.25,
     "mean14": 58.173
@@ -1148,7 +1262,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1196,7 +1310,13 @@
     "SCADA": 374.0,
     "ISP": 220.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 111.16,
+    "min": 85.61,
+    "max": 157.41,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.08,
     "mean14": 58.494
@@ -1206,7 +1326,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1254,7 +1374,13 @@
     "SCADA": 0.0,
     "ISP": 0.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 145.33,
+    "min": 114.41,
+    "max": 179.65,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 65.79,
     "mean14": 59.666
@@ -1264,7 +1390,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1312,7 +1438,13 @@
     "SCADA": 429.0,
     "ISP": 467.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 166.26,
+    "min": 126.56,
+    "max": 294.79,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 65.15,
     "mean14": 59.107
@@ -1322,7 +1454,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1370,7 +1502,13 @@
     "SCADA": 504.0,
     "ISP": 1477.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 168.81,
+    "min": 102.77,
+    "max": 278.18,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 64.83,
     "mean14": 58.236
@@ -1380,7 +1518,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1428,7 +1566,13 @@
     "SCADA": 0.0,
     "ISP": 125.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 134.34,
+    "min": 111.17,
+    "max": 151.28,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 64.55,
     "mean14": 57.292
@@ -1438,7 +1582,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1486,7 +1630,13 @@
     "SCADA": 350.0,
     "ISP": 1163.8
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 105.25,
+    "min": 51.87,
+    "max": 138.84,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 64.42,
     "mean14": 57.559
@@ -1496,7 +1646,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1544,7 +1694,13 @@
     "SCADA": 2963.0,
     "ISP": 2246.7
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 105.65,
+    "min": 68.03,
+    "max": 164.1,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 64.41,
     "mean14": 58.326
@@ -1554,7 +1710,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1602,7 +1758,13 @@
     "SCADA": 455.0,
     "ISP": 1210.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 138.03,
+    "min": 83.65,
+    "max": 260.2,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 64.65,
     "mean14": 58.791
@@ -1612,7 +1774,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1660,7 +1822,13 @@
     "SCADA": 718.0,
     "ISP": 797.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 94.86,
+    "min": 62.14,
+    "max": 151.8,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 65.0,
     "mean14": 57.361
@@ -1670,7 +1838,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1718,7 +1886,13 @@
     "SCADA": 0.0,
     "ISP": 220.0
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 98.1,
+    "min": 64.9,
+    "max": 164.86,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 65.16,
     "mean14": 56.361
@@ -1728,7 +1902,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1776,7 +1950,13 @@
     "SCADA": 378.0,
     "ISP": 412.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 95.12,
+    "min": 38.9,
+    "max": 147.62,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 66.94,
     "mean14": 58.81
@@ -1786,7 +1966,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   },
   {
@@ -1834,7 +2014,13 @@
     "SCADA": 1135.0,
     "ISP": 522.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 105.97,
+    "min": 65.9,
+    "max": 150.2,
+    "negative_hours": 0,
+    "hours": 24
+   },
    "Reservoir": {
     "official": 68.33,
     "mean14": 62.074
@@ -1844,7 +2030,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "ok"
    }
   }
  ]
