@@ -157,6 +157,7 @@ TWO_DAY.add(("RESMV", D23)); r10, l10 = run(D23, only={"resmv"}); TWO_DAY.clear(
 check("a two-day entry [28→29 Mar] is taken for 29 Mar (the narrowest range containing the day), and the file — which really holds BOTH days — is read by ΗΜΕΡΑ: only the rows of 29 Mar are used", rows_close([h.get("SCADA_SmallHydro") for h in r10["Hourly"]], truth_clock(f_small, D23)), l10[-300:])
 HIDE_SINGLE.add(("RESMV", D25)); UNKNOWN_NEIGHBOUR.add(("RESMV", D25)); r11, l11 = run(D25, only={"resmv"}); HIDE_SINGLE.clear(); UNKNOWN_NEIGHBOUR.clear()
 check("in the wide window an entry WITHOUT dates is never accepted (it could be any day): the source stays missing", r11.get("Hourly") is None or all(h.get("SCADA_SmallHydro") is None for h in r11["Hourly"]), l11[-200:])
+check("the log of a two-day entry says it is a RANGE that contains the day (not «closest file used», which was misleading)", "έχει εύρος ημερομηνιών που περιέχει" in l10 and "πιο κοντινού" not in l10, l10[-300:])
 r12, l12 = run(DN, only={"resmv"})
 check("an ordinary day needs no wide request (no extra load on the API)", not any(c[0] == "range" for c in CALLS), CALLS)
 print(f"\n{PASS} passed, {FAIL} failed")

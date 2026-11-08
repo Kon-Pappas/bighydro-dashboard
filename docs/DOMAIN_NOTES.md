@@ -119,3 +119,10 @@ The 2020 presentation by Professor Stefanakos: slide 15 (PPC small hydro list), 
 * The folder of a direct address follows the **name** (D+1), not the upload date (the file of 31 Mar 2024, uploaded on 13 May, is under `2024/04/`); the extension was `.xlsx` until spring 2025 and `.xls` since autumn 2025.
 * **Implemented (batch31, D96–D97):** the pipeline reads all of this with the wide-window list and maps the three RESMV conventions (25 separate rows; 24 rows with a summed hour 4; 23 rows) to clock rows; SCADA 25-hour days use the explicit 25th hour; ISP reads exactly the quarter-hours of the day and takes H01 from the last real hour of the previous day; MCP is converted from elapsed hours to clock hours.
 
+*Verification of the integrated fix on the re-run data (8 Nov 2026; workflow *Daily BigHydro Fetcher* for 29–30 Mar and 25–26 Oct, one commit each).*
+* **29 Mar (23 h):** only H04 is empty, in every field; SCADA total hydro `470 187 186 · 233 … 1306 869 295` equals the shadow-run prediction (the old record had the stray 2 MW of the empty last column in H24; the March total went 8,456 → 8,454 MWh and Makrochori 37 → 35 MWh, exactly that value); RESMV `ok` with the 23 rows of the file (2,746.2 MWh); MCP 23 of 24; `Meta.ClockChange` = 23 h / missing; all five sources `ok`.
+* **30 Mar (24 h, day after):** only the ISP H01 changed (11 series with an impossible value → 0); `MCP_GR` was filled (it was empty for the March days); ISP pumping 2,167.5 → 1,067.5 MWh.
+* **25 Oct (25 h):** `661 220 181 88 54 55 … 1086 786`; `ExtraHourMWh` for 9 fields (total hydro 87.5, Kremasta 61.0, RESMV 27.76 …); TOTAL HYDRO 17,822 MWh = the independent sum; RESMV 717.6 MWh = the file; MCP 24 of 24 with H04 the mean of the two hours; unit changes add up to 786.0 MWh; water balance (Acheloos, Aliakmon, Ladonas), pumped storage and the index followed.
+* **26 Oct:** only the ISP H01 changed (427 → 264).
+* **Not changed:** every other day of every file (water balance, unit status, pumped storage, monthly, index): 311 days each, none lost. The tests on this data: 390 and 248.
+

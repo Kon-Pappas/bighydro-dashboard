@@ -302,8 +302,10 @@ def fetch_admie_file(category, d):
         else:
             log(f"   - {category}: υπάρχουν αρχεία αλλά κανένα δεν καλύπτει {ds}")
         return None
-    if kind != "exact":
-        log(f"   ! {category}: δεν βρέθηκε αρχείο με ακριβή ημερομηνία, χρήση του πιο κοντινού")
+    if kind == "ranged":
+        log(f"   ! {category}: το αρχείο έχει εύρος ημερομηνιών που περιέχει την {ds} (επιλέγεται με τη στήλη ΗΜΕΡΑ όπου υπάρχει)")
+    elif kind != "exact":
+        log(f"   ! {category}: δεν βρέθηκε αρχείο με ακριβή ημερομηνία (ούτε εύρος που να την περιέχει), χρήση του πιο κοντινού")
 
     url = urljoin(BASE_URL + "/", pick["file_path"])
     fr = http_get(url, what=f"ADMIE {category} αρχείο")
