@@ -106,3 +106,16 @@ The 2020 presentation by Professor Stefanakos: slide 15 (PPC small hydro list), 
 * **ISP, H01 of 26 Oct:** the old reading takes market hour 24 of the 25-hour day, so the same ISP value (382 in the shadow run's partial sum) is shown as H24 of 25 Oct and again as H01 of 26 Oct; the new reading takes the 25th hour (234). The ratio SCADA/ISP in the last hours (new [1.5, 1.58, 2.04, 2.03], old [1.25, 1.5, 1.58, 2.04]) is **not steady in either reading** and was reclassified as «indicative, not reliable» (in 2025 it had looked supportive: 2.73 · 3.04 · 3.01).
 * **An error of the shadow run itself, found and fixed:** it took **one row per ISP unit**, while the pipeline **sums every name of a unit** (only Thesavros 1–3 has several), so its ISP sums were partial (H01 of 26 Oct: 382 against the stored 427). It now sums like the pipeline, and a test compares it with `parse_isp` hour by hour.
 
+*RESMV on the six clock-change days (diagnose of 4 Nov 2026, evening).* **The file exists on all six days** (31 Mar 2024, 27 Oct 2024, 30 Mar 2025, 26 Oct 2025, 29 Mar 2026, 25 Oct 2026); the API finds it differently:
+| Day | hours | one-day list (pipeline) | one-day range list | wide list D±3 | file |
+|---|---|---|---|---|---|
+| 31 Mar 2024 | 23 | **found** (published 13 May) | found | found | 23 rows, `ΩΡΑ` 1…24 without 3 |
+| 27 Oct 2024 | 25 | empty | empty | **found** | 25 rows, `ΩΡΑ` 1…25 |
+| 30 Mar 2025 | 23 | empty | found as [29→30 Mar] | **found** | 23 rows, `ΩΡΑ` without 3 |
+| 26 Oct 2025 | 25 | empty | empty | **found** | 24 rows, `ΩΡΑ` 4 = sum (×1.99) |
+| 29 Mar 2026 | 23 | empty | found as [28→29 Mar] | **found** | 23 rows, `ΩΡΑ` without **4** |
+| 25 Oct 2026 | 25 | empty | empty | **found** | 24 rows, `ΩΡΑ` 4 = sum (×1.99) |
+* The two-day entries of spring contain **only the clock-change day** (`ΗΜΕΡΑ` = D): the dates in the list are wrong, not the file. The code nevertheless selects the rows by `ΗΜΕΡΑ`.
+* The folder of a direct address follows the **name** (D+1), not the upload date (the file of 31 Mar 2024, uploaded on 13 May, is under `2024/04/`); the extension was `.xlsx` until spring 2025 and `.xls` since autumn 2025.
+* **Implemented (batch31, D96–D97):** the pipeline reads all of this with the wide-window list and maps the three RESMV conventions (25 separate rows; 24 rows with a summed hour 4; 23 rows) to clock rows; SCADA 25-hour days use the explicit 25th hour; ISP reads exactly the quarter-hours of the day and takes H01 from the last real hour of the previous day; MCP is converted from elapsed hours to clock hours.
+

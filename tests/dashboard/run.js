@@ -544,6 +544,11 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('without unit_daily.json the days-of-cover section is absent and the rest of the energy tab works',![...wU2.document.querySelectorAll('#t-energy h2.sect')].some(h=>h.textContent.includes('Ημέρες κάλυψης')) && wU2.document.querySelectorAll('#t-energy svg.ch').length===3 && errU2.length===0,errU2.slice(0,2));
   ck('no JS errors in the days-of-cover tests',errors.length===0,errors.slice(0,3));
   }
+  console.log('TEST 15b: clock-change days — the daily sum includes the energy outside the 24 rows');
+  ck('sumKey adds Meta.ClockChange.ExtraHourMWh of the same key (25-hour day: the second half of the repeated hour)',B.sumKey({Hourly:[{k:1},{k:2},{k:null}],Meta:{ClockChange:{ExtraHourMWh:{k:3}}}},'k')===6);
+  ck('the extra of ANOTHER key is not added, and without ClockChange the sum is unchanged',B.sumKey({Hourly:[{k:1},{k:2}],Meta:{ClockChange:{ExtraHourMWh:{other:5}}}},'k')===3 && B.sumKey({Hourly:[{k:1},{k:2}]},'k')===3);
+  ck('no values at all -> null, even when an extra exists (nothing is invented); a record without Hourly -> null',B.sumKey({Hourly:[{k:null}],Meta:{ClockChange:{ExtraHourMWh:{k:3}}}},'k')===null && B.sumKey({},'k')===null && B.sumKey(null,'k')===null);
+  ck('a 23-hour day (H04 empty, no extra) sums only the existing hours',B.sumKey({Hourly:[{k:5},{k:5},{k:5},{k:null},{k:5}],Meta:{ClockChange:{Hours:23,Hour:'H04',Kind:'missing',ExtraHourMWh:{}}}},'k')===20);
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();

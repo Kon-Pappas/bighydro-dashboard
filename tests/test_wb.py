@@ -100,6 +100,26 @@ check("the file's frozen GrossToNetRatio equals the mean of the four documented 
 check("the Thesavros correction does not move Sfikia: k(Sfikia) with the file's ratio = k with the old four-plant mean",abs(W.k_values(hp,['SFIKIA'],hd['GrossToNetRatio'])[0]['SFIKIA']-2.725*54/1.125424*0.875)<0.05)
 shutil.copy(os.path.join(ROOT,'data','plant_heads.json'),'data/'); open('data/days/2026-07-09.json','w').write('{ broken')
 r,lg=cap(W.main); check("corrupt day file is skipped with a message",r==0 and 'δεν διαβάζεται' in lg)
+print("TEST 9: clock-change days stay in the water balance (the old sum dropped a 23-hour day: its H04 is empty)")
+def cc_edit(d, fn):
+    r=json.load(open(f'data/days/{d}.json',encoding='utf-8')); fn(r); json.dump(r,open(f'data/days/{d}.json','w'))
+def cc_days(d_mid, d_next, hours, extra=None):
+    for f in os.listdir('data/days'): os.remove('data/days/'+f)
+    prev=(__import__('datetime').date.fromisoformat(d_mid)-__import__('datetime').timedelta(days=1)).isoformat()
+    day(prev,{}); day(d_mid,{}); day(d_next,{"KREMASTA":49.0})
+    def mark(r):
+        if hours==23:
+            for k in list(r['Hourly'][3]):
+                if k.startswith('SCADA_'): r['Hourly'][3][k]=None
+        r['Meta']['ClockChange']={"Hours":hours,"Hour":"H04","Kind":"missing" if hours==23 else "repeated","ExtraHourMWh":extra or {}}
+    cc_edit(d_mid,mark)
+    cap(W.main); return json.load(open('data/water_balance.json',encoding='utf-8'))['Rivers']['acheloos']['Daily']
+D23=cc_days('2026-03-29','2026-03-30',23)
+row=[x for x in D23 if x['Date']=='2026-03-29']
+check("the 23-hour day is IN the water balance and its energy is that of the 23 real hours",len(row)==1 and abs(row[0]['E'][0]-3540/24*23)<0.01,[x['Date'] for x in D23])
+D25=cc_days('2026-10-25','2026-10-26',25,{"SCADA_Kremasta":10.0})
+row=[x for x in D25 if x['Date']=='2026-10-25']
+check("the 25-hour day adds the energy outside the 24 rows (second half of the repeated hour) for the right unit only",len(row)==1 and abs(row[0]['E'][0]-(3540+10.0))<0.01 and abs(row[0]['E'][1]-1990)<0.01,row[0]['E'] if row else None)
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

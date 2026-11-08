@@ -18,6 +18,9 @@ import sys
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import clock_change as CC                          # ημέρες αλλαγής ώρας: η ώρα που δεν υπάρχει δεν είναι «λείπουσα τιμή», και η ενέργεια εκτός γραμμών προστίθεται
+
 DATA = "data"
 OUT = os.path.join(DATA, "unit_daily.json")
 ATHENS = ZoneInfo("Europe/Athens")
@@ -64,8 +67,8 @@ def main():
             continue
         dates.append(d)
         for u in units:
-            vals = [h.get("SCADA_" + u) for h in H]
-            series[u].append(None if any(v is None for v in vals) or not any("SCADA_" + u in h for h in H) else round(sum(vals), 1))
+            e = CC.energy(rec, "SCADA_" + u)
+            series[u].append(None if e is None or not any("SCADA_" + u in h for h in H) else round(e, 1))
     if not dates:
         log("Δεν βρέθηκαν ημέρες με πλήρες SCADA")
         return 1

@@ -26,6 +26,9 @@ import sys
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import clock_change as CC                          # ημέρες αλλαγής ώρας: η ώρα που δεν υπάρχει δεν είναι «λείπουσα τιμή», και η ενέργεια εκτός γραμμών προστίθεται
+
 DATA = "data"
 OUT = os.path.join(DATA, "water_balance.json")
 ATHENS = ZoneInfo("Europe/Athens")
@@ -142,9 +145,8 @@ def build_river(river, meta, heads, days, ratio=None):
             continue                                      # 0,00% που δεν μπόρεσε να παρεμβληθεί (άκρο σειράς): παράλειψη
         if (rec.get("Meta") or {}).get("Status", {}).get("scada") != "ok" or not rec.get("Hourly"):
             continue
-        try:
-            E = [sum(h["SCADA_" + unit[k]] for h in rec["Hourly"]) for k in outs]
-        except (KeyError, TypeError):
+        E = [CC.energy(rec, "SCADA_" + unit[k]) for k in outs]          # None αν λείπει ώρα που ΥΠΑΡΧΕΙ· όχι για την ώρα που δεν υπάρχει (23ωρες)
+        if any(e is None for e in E):
             continue
         dV = [sum(vol(nxt, k) - vol(d, k) for k in g) for g, _a, _b in groups]
         row = {"Date": d.isoformat(), "dV": dV, "E": E}

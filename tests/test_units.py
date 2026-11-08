@@ -45,6 +45,21 @@ os.remove('data/days/2026-07-09.json')
 for f in os.listdir('data/days'): os.remove('data/days/' + f)
 r, _ = cap(S.main); check("no usable day -> rc 1", r == 1)
 os.remove('data/reservoirs.json'); r, _ = cap(S.main); check("missing reservoirs.json -> rc 1", r == 1)
+print("TEST 9: clock-change days keep their place in the unit status (energy of the real hours + the energy outside the rows)")
+json.dump(meta, open('data/reservoirs.json', 'w', encoding='utf-8'), ensure_ascii=False)          # the previous section deleted it on purpose
+for f in os.listdir('data/days'): os.remove('data/days/'+f)
+day('2026-03-29', {"Stratos1": 240, "Stratos2": 24, "Ilarionas": 0, "Edessaios": 0, "Makrochori": 48}); day('2026-10-25', {"Stratos1": 240, "Stratos2": 24, "Ilarionas": 0, "Edessaios": 0, "Makrochori": 48})
+def cc(d, hours, extra=None):
+    r=json.load(open(f'data/days/{d}.json',encoding='utf-8'))
+    if hours==23:
+        for k in list(r['Hourly'][3]):
+            if k.startswith('SCADA_'): r['Hourly'][3][k]=None
+    r['Meta']['ClockChange']={"Hours":hours,"Hour":"H04","Kind":"missing" if hours==23 else "repeated","ExtraHourMWh":extra or {}}
+    json.dump(r,open(f'data/days/{d}.json','w'))
+cc('2026-03-29',23); cc('2026-10-25',25,{"SCADA_Stratos1":5.0})
+r,_=cap(S.main); doc=json.load(open('data/unit_daily.json',encoding='utf-8')); UU=doc['Units']; ix={dt:i for i,dt in enumerate(doc['Dates'])}
+check("both clock-change days are kept", '2026-03-29' in ix and '2026-10-25' in ix, doc['Dates'])
+check("23-hour day: energy of 23 hours (240/24·23 = 230); 25-hour day: 240 + 5 outside the rows", abs(UU['Stratos1']['Mwh'][ix['2026-03-29']]-230.0)<0.06 and abs(UU['Stratos1']['Mwh'][ix['2026-10-25']]-245.0)<0.06, (UU['Stratos1']['Mwh']))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

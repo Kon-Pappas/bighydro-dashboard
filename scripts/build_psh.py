@@ -31,6 +31,7 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import clock_change as CC                          # ημέρες αλλαγής ώρας (βλ. build_water_balance)
 from build_water_balance import k_values        # ίδιοι συντελεστές με το ισοζύγιο νερού (καθαρή/μικτή πτώση)
 
 DATA = "data"
@@ -94,11 +95,10 @@ def main():
             ep = pr.get(c["est"])
             if ep is None:
                 continue
-            try:
-                eg = sum(h["SCADA_" + c["unit"]] for h in H)
-                el = sum(h["SCADA_" + c["lower_unit"]] for h in H)
-                eu = sum(h["SCADA_" + c["upper_unit"]] for h in H) if c["upper_unit"] else None
-            except (KeyError, TypeError):
+            eg = CC.energy(rec, "SCADA_" + c["unit"])
+            el = CC.energy(rec, "SCADA_" + c["lower_unit"])
+            eu = CC.energy(rec, "SCADA_" + c["upper_unit"]) if c["upper_unit"] else None
+            if eg is None or el is None or (c["upper_unit"] and eu is None):
                 continue
             p = plants[dam]
             row = {"Date": d, "Eg": round(eg, 1), "Ep": round(ep, 1), "Ei": pr.get(c["isp"]),

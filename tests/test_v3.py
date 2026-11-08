@@ -76,6 +76,14 @@ def make_fake(cats, entsoe=None, missing=(), total_shift=0):
             if c not in cats or (c,ds) in missing: return Resp(js=[])
             dd=date.fromisoformat(ds).strftime("%d.%m.%Y")
             return Resp(js=[{"file_path":f"/files/{c}__{ds}.xlsx","file_fromdate":dd,"file_todate":dd}])
+        if url==U.API_FILES_RANGE:          # λίστα με εύρος (εφεδρική αναζήτηση): εγγραφές για κάθε ημέρα του εύρους που έχει αρχείο
+            c=params["FileCategory"]; d0=date.fromisoformat(params["dateStart"]); d1=date.fromisoformat(params["dateEnd"]); out=[]
+            x=d0
+            while x<=d1:
+                if c in cats and (c,x.isoformat()) not in missing:
+                    dd=x.strftime("%d.%m.%Y"); out.append({"file_path":f"/files/{c}__{x.isoformat()}.xlsx","file_fromdate":dd,"file_todate":dd})
+                x+=timedelta(days=1)
+            return Resp(js=out)
         if url.startswith(U.BASE_URL) and "/files/" in url:
             c,ds=os.path.basename(url)[:-5].split("__"); day=date.fromisoformat(ds)
             data={"SystemRealizationSCADA":lambda:make_scada(total_shift),"ISP2ISPResults":lambda:make_isp(day.day),

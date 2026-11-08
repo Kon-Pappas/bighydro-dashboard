@@ -56,6 +56,8 @@ import numpy as np
 import pandas as pd
 import requests
 
+import clock_change as CC          # χειρισμός ημερών αλλαγής ώρας (23/25 ώρες): docs/DOMAIN_NOTES.md §9, D90–D91
+
 warnings.filterwarnings("ignore", message="Workbook contains no default style")
 
 # ============================================================
@@ -64,6 +66,8 @@ warnings.filterwarnings("ignore", message="Workbook contains no default style")
 
 BASE_URL = "https://www.admie.gr"
 API_FILES = BASE_URL + "/getOperationMarketFile"
+API_FILES_RANGE = BASE_URL + "/getOperationMarketFilewRange"     # λίστα με εύρος· βρίσκει τα αρχεία των ημερών αλλαγής ώρας που η λίστα μίας ημέρας κρύβει (K26)
+WIDE_DAYS = 3                                                      # ευρύ εύρος D−3 … D+3
 DATA_DIR = "data"
 DAYS_DIR = os.path.join(DATA_DIR, "days")
 MONTHLY_DIR = os.path.join(DATA_DIR, "monthly")
@@ -234,8 +238,47 @@ def parse_admie_date(s):
         return None
 
 
+def _pick_entry(data, d, allow_unknown=True):
+    """Διαλέγει την εγγραφή της λίστας που καλύπτει την ημέρα d: ακριβής ημερομηνία > εύρος που την περιέχει (το στενότερο) > άγνωστες ημερομηνίες.
+    -> (εγγραφή|None, είδος)"""
+    exact, ranged, unknown = [], [], []
+    for x in data if isinstance(data, list) else []:
+        if not isinstance(x, dict) or not x.get("file_path"):
+            continue
+        f, t = parse_admie_date(x.get("file_fromdate")), parse_admie_date(x.get("file_todate"))
+        if f == d and t == d:
+            exact.append(x)
+        elif f and t and f <= d <= t:
+            ranged.append(x)
+        elif f is None or t is None:
+            unknown.append(x)
+    ranged.sort(key=lambda x: (parse_admie_date(x.get("file_todate")) - parse_admie_date(x.get("file_fromdate"))).days)
+    if exact:
+        return exact[0], "exact"
+    if ranged:
+        return ranged[0], "ranged"
+    if allow_unknown and unknown:
+        return unknown[0], "unknown"
+    return None, None
+
+
+def _list_entries(url, category, d0, d1):
+    """-> λίστα εγγραφών ή None (αποτυχία)"""
+    r = http_get(url, params={"dateStart": d0.isoformat(), "dateEnd": d1.isoformat(), "FileCategory": category},
+                 what=f"ADMIE {category}")
+    if r is None or r.status_code != 200:
+        return None
+    try:
+        data = r.json()
+    except ValueError:
+        return None
+    return data if isinstance(data, list) else None
+
+
 def fetch_admie_file(category, d):
-    """Επιστρέφει bytes του αρχείου ή None."""
+    """Επιστρέφει bytes του αρχείου ή None.
+    Η λίστα μίας ημέρας (getOperationMarketFile) μπορεί να είναι ΚΕΝΗ για ημέρες αλλαγής ώρας ενώ το αρχείο υπάρχει (25/10/2026 RESMV, K26):
+    τότε ζητάμε ευρύ εύρος D−3 … D+3 (getOperationMarketFilewRange) και διαλέγουμε την εγγραφή που καλύπτει την ημέρα."""
     ds = d.isoformat()
     r = http_get(API_FILES, params={"dateStart": ds, "dateEnd": ds, "FileCategory": category},
                  what=f"ADMIE {category}")
@@ -247,26 +290,19 @@ def fetch_admie_file(category, d):
     except ValueError:
         log(f"   - {category}: μη έγκυρη JSON απάντηση")
         return None
-    if not isinstance(data, list) or not data:
-        log(f"   - {category}: δεν υπάρχει αρχείο για {ds}")
-        return None
-
-    exact, ranged, unknown = [], [], []
-    for x in data:
-        if not isinstance(x, dict) or not x.get("file_path"):
-            continue
-        f, t = parse_admie_date(x.get("file_fromdate")), parse_admie_date(x.get("file_todate"))
-        if f == d and t == d:
-            exact.append(x)
-        elif f and t and f <= d <= t:
-            ranged.append(x)
-        elif f is None or t is None:
-            unknown.append(x)
-    pick = (exact or ranged or unknown or [None])[0]
+    pick, kind = _pick_entry(data, d)
     if pick is None:
-        log(f"   - {category}: υπάρχουν αρχεία αλλά κανένα δεν καλύπτει {ds}")
+        wide = _list_entries(API_FILES_RANGE, category, d - timedelta(days=WIDE_DAYS), d + timedelta(days=WIDE_DAYS))
+        pick, kind = _pick_entry(wide, d, allow_unknown=False)       # σε ευρύ εύρος ΔΕΝ δεχόμαστε εγγραφές με άγνωστες ημερομηνίες
+        if pick is not None:
+            log(f"   ! {category}: η λίστα μίας ημέρας ήταν κενή· βρέθηκε αρχείο με ευρύ εύρος ({os.path.basename(str(pick['file_path']))})")
+    if pick is None:
+        if not isinstance(data, list) or not data:
+            log(f"   - {category}: δεν υπάρχει αρχείο για {ds}")
+        else:
+            log(f"   - {category}: υπάρχουν αρχεία αλλά κανένα δεν καλύπτει {ds}")
         return None
-    if pick not in exact:
+    if kind != "exact":
         log(f"   ! {category}: δεν βρέθηκε αρχείο με ακριβή ημερομηνία, χρήση του πιο κοντινού")
 
     url = urljoin(BASE_URL + "/", pick["file_path"])
@@ -291,11 +327,34 @@ def _sum_series(arrays):
     return tot
 
 
-def parse_scada(content):
-    """-> ({unit_key: [24]|None}, pump[24]|None, {"OtherHydro": [24]|None, "TotalHydro": [24]|None})
-    Ώρες: ώρα Ελλάδας (όπως δημοσιεύονται)."""
+def _scada_hours(df, idx, d, acc=None, field=None):
+    """24 τιμές ΩΡΑΣ ΡΟΛΟΓΙΟΥ μιας γραμμής SCADA (np.array, NaN = καμία τιμή).
+    d=None ή ημέρα 24 ωρών: οι 24 στήλες όπως είναι. Ημέρα 23/25 ωρών: τα αρχεία είναι γραμμένα ΧΡΟΝΟΛΟΓΙΚΑ (docs/DOMAIN_NOTES.md §9)·
+    η 25η ώρα είναι η ΡΗΤΗ στήλη 26 (διάταξη 28 στηλών, από τον Ιούλιο 2026) ή = σύνολο − άθροισμα (διάταξη 27 στηλών)· η μετατροπή σε ώρες
+    ρολογιού γίνεται από το clock_change.scada_clock και η ενέργεια που δεν χωράει στις 24 γραμμές γράφεται στο acc[field]."""
+    base = to_numeric_array(df.iloc[idx, SCADA_H0:SCADA_H1], 24)
+    if d is None or CC.hours_in_day(d) == 24:
+        return base
+    tail = to_numeric_array(df.iloc[idx, SCADA_H1:], df.shape[1] - SCADA_H1) if df.shape[1] > SCADA_H1 else np.array([])
+    fl = lambda x: None if np.isnan(x) else float(x)
+    if len(tail) >= 2:
+        h25, total = fl(tail[0]), fl(tail[-1])       # στήλη 26 = 25η ώρα, στήλη 27 = σύνολο ημέρας
+    elif len(tail) == 1:
+        h25, total = None, fl(tail[0])               # μόνο σύνολο ημέρας
+    else:
+        h25, total = None, None
+    rows, extra = CC.scada_clock([fl(x) for x in base], total, d, h25)
+    if acc is not None and field and extra:
+        acc[field] = acc.get(field, 0.0) + extra
+    return np.array([np.nan if v is None else v for v in rows], float)
+
+
+def parse_scada(content, d=None):
+    """-> ({unit_key: [24]|None}, pump[24]|None, {"OtherHydro": [24]|None, "TotalHydro": [24]|None, "Parts": ..., "ResSmallHydro": ..., "ExtraMWh": {πεδίο: MWh}})
+    Ώρες: ώρα Ελλάδας (όπως δημοσιεύονται). d: η ημέρα· σε ημέρα 23/25 ωρών οι χρονολογικές στήλες γίνονται ώρες ρολογιού (clock_change)."""
     df, _ = read_sheet(content, "System_Production")
     labels = [norm(x) for x in df[SCADA_LABEL_COL]] if df.shape[1] > SCADA_LABEL_COL else []
+    acc = {}
     out, missing = {}, []
     for key, scada_names, _isp in HYDRO_UNITS:
         idx, how = find_row(labels, scada_names, exclude=("PUMP", "ΑΝΤΛ"))
@@ -305,13 +364,13 @@ def parse_scada(content):
             continue
         if how == "contains":
             log(f"   ~ SCADA {key}: ταίριασμα 'περιέχει' -> '{labels[idx]}'")
-        out[key] = nan_to_none_list(to_numeric_array(df.iloc[idx, SCADA_H0:SCADA_H1], 24))
+        out[key] = nan_to_none_list(_scada_hours(df, idx, d, acc, f"SCADA_{key}"))
     if missing:
         log_not_found("SCADA", missing, labels)
     pidx, _ = find_row(labels, ["TOTAL PUMPING"])
     pump = None
     if pidx is not None:
-        pump = nan_to_none_list(to_numeric_array(df.iloc[pidx, SCADA_H0:SCADA_H1], 24))
+        pump = nan_to_none_list(_scada_hours(df, pidx, d, acc, "SCADA_Pump"))
     else:
         log("   ! SCADA: δεν βρέθηκε γραμμή 'TOTAL PUMPING'")
 
@@ -323,9 +382,10 @@ def parse_scada(content):
             miss_o.append(key)
             parts[key] = None
         else:
-            a = to_numeric_array(df.iloc[idx, SCADA_H0:SCADA_H1], 24)
+            a = _scada_hours(df, idx, d, acc, f"SCADA_{key}")
             arrs.append(a)
             parts[key] = nan_to_none_list(a)
+            acc["SCADA_OtherHydro"] = acc.get("SCADA_OtherHydro", 0.0) + acc.get(f"SCADA_{key}", 0.0)
     if miss_o:
         log_not_found("SCADA άλλα υδροηλεκτρικά", miss_o, labels)
     other = _sum_series(arrs)
@@ -335,7 +395,7 @@ def parse_scada(content):
     if tidx is None:
         log("   ! SCADA: δεν βρέθηκε γραμμή 'TOTAL HYDRO'")
     else:
-        total = to_numeric_array(df.iloc[tidx, SCADA_H0:SCADA_H1], 24)
+        total = _scada_hours(df, tidx, d, acc, "SCADA_TotalHydro")
         # συμφωνία: TOTAL HYDRO ~ Σ(16 μονάδες) + άλλα υδροηλεκτρικά
         worst, worst_h = 0.0, None
         for h in range(24):
@@ -355,19 +415,21 @@ def parse_scada(content):
         "Parts": parts,                       # {Stratos2, Makrochori, Louros, Gkiona}: [24]|None
     }
     # Μικρά ΥΗΣ μέσα στο μπλοκ ΑΝΑΝΕΩΣΙΜΑ (ετικέτα που τελειώνει σε "(ΜΥΗΣ)", π.χ. "ΑΥΛΑΚΙ (ΜΥΗΣ)"): δεν είναι στο TOTAL HYDRO
-    res_arrs = [to_numeric_array(df.iloc[i, SCADA_H0:SCADA_H1], 24) for i, lab in enumerate(labels) if lab.endswith("(ΜΥΗΣ)")]
+    res_arrs = [_scada_hours(df, i, d, acc, "SCADA_ResSmallHydro") for i, lab in enumerate(labels) if lab.endswith("(ΜΥΗΣ)")]
     extra["ResSmallHydro"] = nan_to_none_list(_sum_series(res_arrs)) if res_arrs else None
+    extra["ExtraMWh"] = {k: round(v, 3) for k, v in acc.items() if abs(v) > 1e-9}
     return out, pump, extra
 
 
-def _isp_rows_to_hourly(df, labels, names, exact_only=False):
-    """Αθροίζει τεταρτάωρα από πολλές γραμμές και δίνει ωριαίο μέσο όρο (MW)."""
+def _isp_rows_to_hourly(df, labels, names, exact_only=False, n=24):
+    """Αθροίζει τεταρτάωρα από πολλές γραμμές και δίνει ωριαίο μέσο όρο (MW) για τις n ώρες της ημέρας αγοράς (23/24/25).
+    Διαβάζει ΑΚΡΙΒΩΣ τα 4·n τεταρτόωρα της ημέρας και ΠΟΤΕ τη στήλη συνόλου που ακολουθεί (η αιτία του K04)."""
     arrays = []
     for nm in names:
         idx, _ = find_row(labels, [nm], exclude=() if exact_only else ("PUMP",),
                           contains=not exact_only)
         if idx is not None:
-            arrays.append(to_numeric_array(df.iloc[idx, ISP_Q0:ISP_Q1], 96))
+            arrays.append(to_numeric_array(df.iloc[idx, ISP_Q0:ISP_Q0 + 4 * n], 4 * n))
     if not arrays:
         return None
     stack = np.vstack(arrays)
@@ -375,17 +437,18 @@ def _isp_rows_to_hourly(df, labels, names, exact_only=False):
     total[np.isnan(stack).all(axis=0)] = np.nan
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=RuntimeWarning)
-        hourly = np.nanmean(total.reshape(24, 4), axis=1)
+        hourly = np.nanmean(total.reshape(n, 4), axis=1)
     return hourly
 
 
-def parse_isp(content):
-    """-> ({unit_key: [24]|None}, pump[24]|None)  (MW, μέσος όρος τεταρτάωρων)"""
+def parse_isp(content, d=None):
+    """-> ({unit_key: [n]|None}, pump[n]|None, extra)  (MW, μέσος όρος τεταρτάωρων) — n = 23/24/25 ΧΡΟΝΟΛΟΓΙΚΕΣ ώρες της ημέρας αγοράς d (24 αν d=None)"""
+    n = CC.hours_in_day(d) if d is not None else 24
     df, _ = read_sheet(content, None)  # πρώτο φύλλο (όνομα YYYYMMDD_ISP)
     labels = [norm(x) for x in df[ISP_LABEL_COL]] if df.shape[1] > ISP_LABEL_COL else []
     out, missing = {}, []
     for key, _scada, isp_names in HYDRO_UNITS:
-        h = _isp_rows_to_hourly(df, labels, isp_names)
+        h = _isp_rows_to_hourly(df, labels, isp_names, n=n)
         if h is None:
             out[key] = None
             missing.append(key)
@@ -393,7 +456,7 @@ def parse_isp(content):
             out[key] = nan_to_none_list(h)
     if missing:
         log_not_found("ISP", missing, labels)
-    hp = _isp_rows_to_hourly(df, labels, ISP_PUMP_UNITS, exact_only=True)
+    hp = _isp_rows_to_hourly(df, labels, ISP_PUMP_UNITS, exact_only=True, n=n)
     pump = None
     if hp is not None:
         # στο ISP οι αντλήσεις είναι αρνητικές: αντιστροφή ώστε να συμφωνούν με το SCADA
@@ -403,23 +466,61 @@ def parse_isp(content):
     extra = {}
     for name, units in (("PumpSfikia", ["SFIKIA_PUMP"]),
                         ("PumpThesavros", ["THESAVROS1_PUMP", "THESAVROS2_PUMP", "THESAVROS3_PUMP"])):
-        h = _isp_rows_to_hourly(df, labels, units, exact_only=True)
+        h = _isp_rows_to_hourly(df, labels, units, exact_only=True, n=n)
         extra[name] = None if h is None else nan_to_none_list(-h)
     return out, pump, extra
 
 
-def parse_resmv(content):
-    """-> [24] MWh ή None"""
+def _resmv_series(content, d=None):
+    """-> ([24] MWh ή None, ενέργεια εκτός γραμμών MWh). Στήλη 'ΜΥΗΣ ΕΝΕΡΓΕΙΑ' σε kWh.
+    d: οι γραμμές επιλέγονται με τη στήλη ΗΜΕΡΑ (τα αρχεία ημερών αλλαγής ώρας μπορεί να έχουν λάθος εύρος ημερομηνιών στη λίστα). Συμβάσεις (DOMAIN_NOTES §9):
+      25ωρη 2024: 25 ξεχωριστές γραμμές (χρονολογικά) · 25ωρη 2025+: 24 γραμμές ρολογιού με την ΩΡΑ 4 = ΑΘΡΟΙΣΜΑ των δύο ωρών 03:00–04:00 ·
+      23ωρη: 23 γραμμές (χρονολογικά, η ετικέτα που λείπει διαφέρει ανά έτος) · κανονική: 24 γραμμές."""
     df = pd.read_excel(io.BytesIO(content))
     cols = [c for c in df.columns if "ΜΥΗΣ ΕΝΕΡΓΕΙΑ" in norm(c)]
     if not cols:
         log(f"   ! RESMV: δεν βρέθηκε στήλη 'ΜΥΗΣ ΕΝΕΡΓΕΙΑ' (στήλες: {list(df.columns)[:12]})")
-        return None
-    vals = pd.to_numeric(df[cols[0]], errors="coerce").dropna().to_numpy(dtype=float)[:24]
-    if len(vals) < 24:
-        log(f"   ! RESMV: μόνο {len(vals)} τιμές (αναμένονται 24)")
-    arr = np.concatenate([vals, np.full(24 - len(vals), np.nan)])
-    return nan_to_none_list(arr / 1000.0)      # kWh -> MWh
+        return None, 0.0
+    sub = df
+    hcols = [c for c in df.columns if norm(c) == "ΗΜΕΡΑ"]
+    if d is not None and hcols:
+        days = df[hcols[0]].astype(str).str.replace(r"\.0$", "", regex=True)
+        sub = df[days == d.strftime("%Y%m%d")]
+        if sub.empty:
+            log(f"   ! RESMV: το αρχείο δεν περιέχει την ημέρα {d} (ΗΜΕΡΑ στο αρχείο: {sorted(set(days.dropna()))[:4]})")
+            return None, 0.0
+    kwh = [float(x) for x in pd.to_numeric(sub[cols[0]], errors="coerce").dropna().to_numpy(dtype=float)]
+    n = CC.hours_in_day(d) if d is not None else 24
+    extra = 0.0
+    if n == 25 and len(kwh) == 25:
+        rows, extra = CC.chrono_to_clock(kwh, d)
+    elif n == 25 and len(kwh) == 24:
+        nb = (kwh[2] + kwh[4]) / 2
+        if nb > 0 and kwh[3] / nb > 1.7:                       # η ώρα 4 είναι το ΑΘΡΟΙΣΜΑ δύο ωρών
+            rows = list(kwh)
+            rows[3], extra = kwh[3] / 2, kwh[3] / 2
+        else:
+            log("   ! RESMV: ημέρα 25 ωρών με 24 γραμμές χωρίς αθροισμένη ώρα 4· διαβάζονται ως έχουν")
+            rows = list(kwh)
+    elif n == 23 and len(kwh) == 23:
+        rows, extra = CC.chrono_to_clock(kwh, d)
+    else:
+        rows = list(kwh[:24])
+        if len(rows) < 24:
+            log(f"   ! RESMV: μόνο {len(rows)} τιμές (αναμένονται 24)")
+    rows = rows + [None] * (24 - len(rows))
+    arr = np.array([np.nan if v is None else v for v in rows], float)
+    return nan_to_none_list(arr / 1000.0), extra / 1000.0       # kWh -> MWh
+
+
+def parse_resmv(content, d=None):
+    """-> [24] MWh ή None"""
+    return _resmv_series(content, d)[0]
+
+
+def parse_resmv_ex(content, d):
+    """-> ([24] MWh ή None, ενέργεια εκτός γραμμών MWh)"""
+    return _resmv_series(content, d)
 
 
 def normalize_reservoir_name(v):
@@ -492,8 +593,8 @@ def entsoe_window(d, tz=BRUSSELS):
     return start, end
 
 
-def parse_entsoe_xml(text, start_utc):
-    """-> [24] ωριαίες τιμές (€/MWh) ή None. Μέσος όρος όταν η ανάλυση είναι <60'."""
+def parse_entsoe_xml(text, start_utc, hours=24):
+    """-> [hours] ωριαίες τιμές (€/MWh) ΧΡΟΝΟΛΟΓΙΚΑ από το start_utc, ή None. Μέσος όρος όταν η ανάλυση είναι <60'."""
     root = ET.fromstring(text)
     ns = {"ns": root.tag.split("}")[0].strip("{")} if root.tag.startswith("{") else {}
     q = (lambda t: f"ns:{t}") if ns else (lambda t: t)
@@ -522,7 +623,7 @@ def parse_entsoe_xml(text, start_utc):
     if not prices:
         return None
     hourly = []
-    for h in range(24):
+    for h in range(hours):
         a = start_utc + timedelta(hours=h)
         b = a + timedelta(hours=1)
         vals = [v for t, v in prices.items() if a <= t < b]
@@ -550,16 +651,17 @@ def fetch_mcp(d):
             reason = f" ({m.group(1).strip()[:120]})" if m else ""
         log(f"   - MCP: καμία απάντηση / HTTP {getattr(r, 'status_code', None)}{reason}")
         return None
+    n = CC.hours_in_day(d)
     try:
-        hourly = parse_entsoe_xml(r.text, start)
+        hourly = parse_entsoe_xml(r.text, start, n)
     except Exception as e:
         log(f"   ! MCP parse: {type(e).__name__}: {e}")
         return None
     if hourly is None:
         log("   - MCP: η απάντηση δεν περιείχε τιμές")
-    else:
-        log(f"   + MCP: {sum(v is not None for v in hourly)}/24 ώρες")
-    return hourly
+        return None
+    log(f"   + MCP: {sum(v is not None for v in hourly)}/{n} ώρες")
+    return hourly if n == 24 else CC.chrono_to_clock(hourly, d)[0]       # ημέρα 23/25 ωρών: ώρες ρολογιού
 
 
 # ============================================================
@@ -627,23 +729,34 @@ def build_rows(existing_hourly):
     return rows
 
 
-def apply_series(rows, key, series):
-    """Γράφει τη σειρά. Μια νέα τιμή null ΔΕΝ σβήνει υπάρχουσα τιμή."""
+def apply_series(rows, key, series, replace=False):
+    """Γράφει τη σειρά. Μια νέα τιμή null ΔΕΝ σβήνει υπάρχουσα τιμή — εκτός αν replace=True (ημέρες αλλαγής ώρας: οι παλιές τιμές
+    είχαν διαβαστεί με τις ώρες μετατοπισμένες και η ώρα που δεν υπάρχει πρέπει να μείνει κενή)."""
     if series is None:
         return False
     for h in range(24):
-        if series[h] is not None or rows[h].get(key) is None:
+        if replace or series[h] is not None or rows[h].get(key) is None:
             rows[h][key] = series[h]
     return True
 
 
-def isp_to_local(cur, prev):
-    """cur/prev: [24] ώρες αγοράς (CET) των ημερών D και D-1 (ή None).
-    -> [24] ώρα Ελλάδας της D:  H01 = τελευταία ώρα αγοράς της D-1,  H02.. = ώρες αγοράς 1..23 της D."""
+def isp_to_local_ex(cur, prev, d):
+    """cur/prev: ώρες αγοράς (CET) ΧΡΟΝΟΛΟΓΙΚΑ των ημερών D και D−1 (n και n_prev τιμές, ή None).
+    -> ([24] ώρες ρολογιού Ελλάδας της D, ενέργεια εκτός γραμμών): H01 = η ΤΕΛΕΥΤΑΙΑ ΠΡΑΓΜΑΤΙΚΗ ώρα αγοράς της D−1, οι υπόλοιπες οι πρώτες n−1 της D·
+    στις ημέρες 23/25 ωρών η χρονολογική σειρά γίνεται ώρες ρολογιού (clock_change)."""
+    if cur is None:
+        return None, 0.0
+    return CC.chrono_to_clock(CC.local_from_market(cur, prev, d), d)
+
+
+def isp_to_local(cur, prev, d=None):
+    """Όπως πριν (d=None: 24 ώρες, H01 = prev[23])· με d: isp_to_local_ex."""
     if cur is None:
         return None
-    first = prev[23] if prev is not None else None
-    return [first] + list(cur[:23])
+    if d is None:
+        first = prev[23] if prev is not None else None
+        return [first] + list(cur[:23])
+    return isp_to_local_ex(cur, prev, d)[0]
 
 
 def get_isp(d, cache):
@@ -652,7 +765,7 @@ def get_isp(d, cache):
         content = fetch_admie_file(CAT_ISP, d)
         if content:
             try:
-                cache[d] = parse_isp(content)
+                cache[d] = parse_isp(content, d)
             except Exception as e:
                 log(f"   ! ISP parse ({d}): {type(e).__name__}: {e}")
     return cache[d]
@@ -667,7 +780,7 @@ def _share(values):
 
 
 def source_status(rec):
-    rows = rec.get("Hourly") or []
+    rows = CC.day_rows(rec)            # χωρίς την ώρα που δεν υπάρχει (H04 στις 23ωρες): δεν είναι «μερικά δεδομένα»
 
     def col(keys):
         return [r.get(k) for r in rows for k in keys]
@@ -734,21 +847,27 @@ def process_day(d, existing, isp_cache=None, only=None):
             log(f"   ! Reservoir parse: {type(e).__name__}: {e}")
 
     # --- Hourly sources (όλα σε ώρα Ελλάδας) ---
+    n_hours = CC.hours_in_day(d)
+    replace = n_hours != 24            # ημέρα αλλαγής ώρας: οι νέες γραμμές ΑΝΤΙΚΑΘΙΣΤΟΥΝ τις παλιές (clock_change, D90–D91)
+    extras = dict(((rec.get("Meta") or {}).get("ClockChange") or {}).get("ExtraHourMWh") or {}) if replace else {}
     rows = build_rows(rec.get("Hourly"))
     touched = False
 
     content = fetch_admie_file(CAT_SCADA, d) if want("scada") else None
     if content:
         try:
-            units, pump, extra = parse_scada(content)
+            units, pump, extra = parse_scada(content, d)
+            for k in [k for k in extras if k.startswith("SCADA_") and k != "SCADA_SmallHydro"]:
+                del extras[k]
+            extras.update(extra.get("ExtraMWh") or {})
             for k, series in units.items():
-                touched |= apply_series(rows, f"SCADA_{k}", series)
-            touched |= apply_series(rows, "SCADA_Pump", pump)
-            touched |= apply_series(rows, "SCADA_OtherHydro", extra["OtherHydro"])
-            touched |= apply_series(rows, "SCADA_TotalHydro", extra["TotalHydro"])
-            touched |= apply_series(rows, "SCADA_ResSmallHydro", extra.get("ResSmallHydro"))
+                touched |= apply_series(rows, f"SCADA_{k}", series, replace)
+            touched |= apply_series(rows, "SCADA_Pump", pump, replace)
+            touched |= apply_series(rows, "SCADA_OtherHydro", extra["OtherHydro"], replace)
+            touched |= apply_series(rows, "SCADA_TotalHydro", extra["TotalHydro"], replace)
+            touched |= apply_series(rows, "SCADA_ResSmallHydro", extra.get("ResSmallHydro"), replace)
             for k, series in extra["Parts"].items():
-                touched |= apply_series(rows, f"SCADA_{k}", series)
+                touched |= apply_series(rows, f"SCADA_{k}", series, replace)
         except Exception as e:
             log(f"   ! SCADA parse: {type(e).__name__}: {e}")
 
@@ -757,21 +876,30 @@ def process_day(d, existing, isp_cache=None, only=None):
         prev = get_isp(d - timedelta(days=1), isp_cache)
         if prev is None:
             log("   ! ISP: λείπει το αρχείο της προηγούμενης ημέρας -> H01 (00:00-01:00) = null")
-        for k, series in cur[0].items():
-            touched |= apply_series(rows, f"ISP_{k}", isp_to_local(series, prev[0].get(k) if prev else None))
-        touched |= apply_series(rows, "ISP_Pump", isp_to_local(cur[1], prev[1] if prev else None))
-        for k, series in cur[2].items():
-            touched |= apply_series(rows, f"ISP_{k}", isp_to_local(series, prev[2].get(k) if prev else None))
+        for k in [k for k in extras if k.startswith("ISP_")]:
+            del extras[k]
+        jobs = [(f"ISP_{k}", series, prev[0].get(k) if prev else None) for k, series in cur[0].items()]
+        jobs.append(("ISP_Pump", cur[1], prev[1] if prev else None))
+        jobs += [(f"ISP_{k}", series, prev[2].get(k) if prev else None) for k, series in cur[2].items()]
+        for key, series, pser in jobs:
+            local, ex = isp_to_local_ex(series, pser, d)
+            touched |= apply_series(rows, key, local, replace)
+            if ex:
+                extras[key] = round(ex, 3)
 
     content = fetch_admie_file(CAT_RESMV, d) if want("resmv") else None
     if content:
         try:
-            touched |= apply_series(rows, "SCADA_SmallHydro", parse_resmv(content))
+            series, ex = parse_resmv_ex(content, d)
+            touched |= apply_series(rows, "SCADA_SmallHydro", series, replace)
+            extras.pop("SCADA_SmallHydro", None)
+            if ex:
+                extras["SCADA_SmallHydro"] = round(ex, 3)
         except Exception as e:
             log(f"   ! RESMV parse: {type(e).__name__}: {e}")
 
     if want("mcp"):
-        touched |= apply_series(rows, "MCP_GR", fetch_mcp(d))
+        touched |= apply_series(rows, "MCP_GR", fetch_mcp(d), replace)
 
     if touched or rec.get("Hourly"):
         rec["Hourly"] = rows
@@ -783,6 +911,9 @@ def process_day(d, existing, isp_cache=None, only=None):
     status = source_status(rec)
     old_meta = rec.get("Meta") or {}
     meta = {"Schema": SCHEMA_VERSION, "Status": status, "Updated": old_meta.get("Updated")}
+    if n_hours != 24:                  # ημέρα αλλαγής ώρας: ποια ώρα, και η ενέργεια που δεν χωράει στις 24 γραμμές (docs/DATA_DICTIONARY.md)
+        meta["ClockChange"] = {"Hours": n_hours, "Hour": "H04", "Kind": "repeated" if n_hours == 25 else "missing",
+                               "ExtraHourMWh": {k: round(v, 3) for k, v in sorted(extras.items()) if abs(v) > 1e-9}}
     if changed or not meta["Updated"]:
         meta["Updated"] = datetime.now(ATHENS).strftime("%Y-%m-%dT%H:%M:%S%z")
     rec["Meta"] = meta
@@ -792,22 +923,23 @@ def process_day(d, existing, isp_cache=None, only=None):
 
 # ---------- παράγωγα: index / reservoir history / monthly ----------
 
-def _tot(H, key):
+def _tot(H, key, extra=0.0):
     v = [h.get(key) for h in H if h.get(key) is not None]
-    return round(sum(v), 1) if v else None
+    return round(sum(v) + extra, 1) if v else None
 
 
 def day_summary(rec):
     H = rec.get("Hourly") or []
     mcp = [h["MCP_GR"] for h in H if h.get("MCP_GR") is not None]
+    ex = lambda key: CC.extra_mwh(rec, key)          # ενέργεια εκτός γραμμών (25ωρες)
     return {
         "Date": rec["Date"],
-        "SCADA_MWh": {k: _tot(H, f"SCADA_{k}") for k in UNIT_KEYS},
-        "ISP_MWh": {k: _tot(H, f"ISP_{k}") for k in UNIT_KEYS},
-        "SCADA_OtherHydro_MWh": _tot(H, "SCADA_OtherHydro"),
-        "SCADA_TotalHydro_MWh": _tot(H, "SCADA_TotalHydro"),
-        "SmallHydro_MWh": _tot(H, "SCADA_SmallHydro"),
-        "Pump_MWh": {"SCADA": _tot(H, "SCADA_Pump"), "ISP": _tot(H, "ISP_Pump")},
+        "SCADA_MWh": {k: _tot(H, f"SCADA_{k}", ex(f"SCADA_{k}")) for k in UNIT_KEYS},
+        "ISP_MWh": {k: _tot(H, f"ISP_{k}", ex(f"ISP_{k}")) for k in UNIT_KEYS},
+        "SCADA_OtherHydro_MWh": _tot(H, "SCADA_OtherHydro", ex("SCADA_OtherHydro")),
+        "SCADA_TotalHydro_MWh": _tot(H, "SCADA_TotalHydro", ex("SCADA_TotalHydro")),
+        "SmallHydro_MWh": _tot(H, "SCADA_SmallHydro", ex("SCADA_SmallHydro")),
+        "Pump_MWh": {"SCADA": _tot(H, "SCADA_Pump", ex("SCADA_Pump")), "ISP": _tot(H, "ISP_Pump", ex("ISP_Pump"))},
         "MCP": ({"mean": round(sum(mcp) / len(mcp), 2), "min": min(mcp), "max": max(mcp),
                  "negative_hours": sum(m < 0 for m in mcp), "hours": len(mcp)} if mcp else None),
         "Reservoir": {"official": rec.get("ReservoirTotalRate"), "mean14": rec.get("ReservoirTotal")},
@@ -843,20 +975,23 @@ def month_summary(month, recs):
     }
 
 
-def pump_split(rows):
+def pump_split(rows, extra=None):
     """Μοίρασμα της ΩΡΙΑΙΑΣ άντλησης SCADA (υπάρχει μόνο το σύνολο) σε Σφηκιά/Θησαυρό, με βάση το πρόγραμμα ISP ανά μονάδα.
     Ώρα με πρόγραμμα -> ωριαίο μερίδιο ISP. Ώρα χωρίς πρόγραμμα -> μερίδιο της ημέρας. Ημέρα χωρίς κανένα πρόγραμμα -> δεν μοιράζεται.
     ΕΚΤΙΜΗΣΗ: το SCADA δεν δίνει άντληση ανά μονάδα (ούτε το ENTSO-E)."""
     rows = rows or []
     if not rows:
         return None
+    ex = extra or {}                                     # ενέργεια εκτός γραμμών στις 25ωρες (η δεύτερη μισή της επαναλαμβανόμενης ώρας)
+    ex_s, ex_a, ex_b = (float(ex.get(k) or 0.0) for k in ("SCADA_Pump", "ISP_PumpSfikia", "ISP_PumpThesavros"))
     g = lambda h, k: float(h.get(k) or 0.0)
-    a_day = sum(g(h, "ISP_PumpSfikia") for h in rows)
-    b_day = sum(g(h, "ISP_PumpThesavros") for h in rows)
+    a_day = sum(g(h, "ISP_PumpSfikia") for h in rows) + ex_a
+    b_day = sum(g(h, "ISP_PumpThesavros") for h in rows) + ex_b
     dshare = a_day / (a_day + b_day) if (a_day + b_day) > 0 else None
     o = {"ScadaMWh": 0.0, "IspMWh": 0.0, "IspSfikiaMWh": a_day, "IspThesavrosMWh": b_day,
          "EstSfikiaMWh": 0.0, "EstThesavrosMWh": 0.0, "ByHourlyShareMWh": 0.0, "ByDayShareMWh": 0.0,
          "UnallocatedMWh": 0.0, "UnscheduledMWh": 0.0, "NotRealizedMWh": 0.0}
+    o["IspMWh"] += ex_a + ex_b
     n_scada = 0
     for h in rows:
         sv = h.get("SCADA_Pump")
@@ -884,6 +1019,14 @@ def pump_split(rows):
             continue
         o["EstSfikiaMWh"] += sv * sh
         o["EstThesavrosMWh"] += sv * (1 - sh)
+    if n_scada and ex_s > 0:                              # η ενέργεια εκτός γραμμών μοιράζεται με το μερίδιο της ημέρας
+        o["ScadaMWh"] += ex_s
+        if dshare is not None:
+            o["ByDayShareMWh"] += ex_s
+            o["EstSfikiaMWh"] += ex_s * dshare
+            o["EstThesavrosMWh"] += ex_s * (1 - dshare)
+        else:
+            o["UnallocatedMWh"] += ex_s
     if n_scada == 0:
         o["ScadaMWh"] = o["EstSfikiaMWh"] = o["EstThesavrosMWh"] = o["UnscheduledMWh"] = o["NotRealizedMWh"] = None
         o["ByHourlyShareMWh"] = o["ByDayShareMWh"] = o["UnallocatedMWh"] = None
@@ -908,7 +1051,7 @@ def rebuild_derived(touched_months):
     atomic_write_json(RES_HISTORY_FILE, history, indent=1)
     pump = []
     for r in by_date:
-        ps = pump_split(r.get("Hourly"))
+        ps = pump_split(r.get("Hourly"), ((r.get("Meta") or {}).get("ClockChange") or {}).get("ExtraHourMWh"))
         if ps is not None:
             pump.append({"Date": r["Date"], **ps})
     atomic_write_json(PUMP_DAILY_FILE, pump, indent=None)

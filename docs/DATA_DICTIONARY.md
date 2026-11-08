@@ -12,7 +12,14 @@ All hourly data are on Greek local time (see ARCHITECTURE.md). JSON is UTF-8.
 | `ReservoirTotal` | simple mean of the 14 levels (kept for legacy comparisons) |
 | `Meta.Status` | `reservoir, scada, isp, resmv, mcp` ∈ `ok / partial / missing` |
 | `Meta.Updated`, `Meta.Schema` | time of last content change (Athens), schema version (3) |
+| `Meta.ClockChange` | **only on days of 23 or 25 hours**: `{Hours, Hour: "H04", Kind: "missing"\|"repeated", ExtraHourMWh: {field: MWh}}` — see "Days of 23 and 25 hours" below |
 | `Hourly` | 24 rows, see below. Absent for days with no hourly source |
+
+**Days of 23 and 25 hours** (the last Sunday of March and of October; `Meta.ClockChange`). The rows are always the 24 **clock hours** `H01…H24`:
+* **23-hour day:** the clock hour 03:00–04:00 does not exist, so **`H04` is `null` in every field — that is not a missing value**. `Meta.Status` ignores it (a complete day stays `ok`) and every sum of a day (`clock_change.energy`, the page, the water balance, the pumped-storage and unit-status files) ignores it and requires the other 23 rows.
+* **25-hour day:** the clock hour 03:00–04:00 occurs twice; **`H04` is the mean of the two physical hours** (MW), and the rest of the day follows in clock hours (`H24` is 23:00–24:00). The energy that the 24 rows cannot hold — the second half of the repeated hour — is in `Meta.ClockChange.ExtraHourMWh[field]`; **the energy of the day is Σ rows + that value**, and `day_summary`, `pump_split`, the page and the consumers add it.
+* On these days the new rows **replace** the old ones (on ordinary days a new `null` does not erase an existing value).
+* The source files use three different packings (SCADA: chronological, 25th hour explicit in column 26 since July 2026; ISP: chronological quarter-hours in market time; RESMV: clock rows with the repeated hour summed since 2025) — DOMAIN_NOTES §9.
 
 **Hourly row** (`Hour` = `H01…H24`)
 | Field | Source | Notes |

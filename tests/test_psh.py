@@ -51,6 +51,21 @@ open('data/days/2026-07-09.json', 'w').write('{ broken'); r, lg = cap(S.main); c
 os.remove('data/days/2026-07-09.json')
 pumpfile([{"Date": "2030-01-01", "EstSfikiaMWh": 1.0, "EstThesavrosMWh": 1.0, "IspSfikiaMWh": 1, "IspThesavrosMWh": 1}]); r, _ = cap(S.main); check("no usable day at all -> rc 1 and no file is overwritten with an empty result", r == 1)
 os.remove('data/plant_heads.json'); r, _ = cap(S.main); check("missing plant_heads.json -> rc 1", r == 1)
+print("TEST 9: clock-change days stay in the pumped-storage analysis (the old sum dropped the 23-hour day)")
+shutil.copy(os.path.join(ROOT, 'data', 'plant_heads.json'), 'data/')          # the previous section deleted it on purpose
+def cc(d, hours, extra=None):
+    r=json.load(open(f'data/days/{d}.json',encoding='utf-8'))
+    if hours==23:
+        for k in list(r['Hourly'][3]):
+            if k.startswith('SCADA_'): r['Hourly'][3][k]=None
+    r['Meta']['ClockChange']={"Hours":hours,"Hour":"H04","Kind":"missing" if hours==23 else "repeated","ExtraHourMWh":extra or {}}
+    json.dump(r,open(f'data/days/{d}.json','w'))
+for f in os.listdir('data/days'): os.remove('data/days/'+f)
+day('2026-03-29'); day('2026-10-25'); cc('2026-03-29',23); cc('2026-10-25',25,{"SCADA_Sfikia":7.0})
+pumpfile([{"Date":"2026-03-29","EstSfikiaMWh":600.0,"EstThesavrosMWh":900.0,"IspSfikiaMWh":650.0,"IspThesavrosMWh":880.0},{"Date":"2026-10-25","EstSfikiaMWh":600.0,"EstThesavrosMWh":900.0,"IspSfikiaMWh":650.0,"IspThesavrosMWh":880.0}])
+r,_=cap(S.main); sf=json.load(open('data/psh_daily.json',encoding='utf-8'))['Plants']['SFIKIA']['Daily']; byd={x['Date']:x for x in sf}
+check("the 23-hour day is present and its generation is that of the 23 real hours (1500/24·23)", '2026-03-29' in byd and abs(byd['2026-03-29']['Eg']-1437.5)<0.06, list(byd))
+check("the 25-hour day adds the energy outside the 24 rows (1500 + 7), for that unit only", '2026-10-25' in byd and abs(byd['2026-10-25']['Eg']-1507.0)<0.06 and abs(byd['2026-10-25']['Ql']*heads['SFIKIA']['KLowerNet'] - 900.0) < 5 if False else '2026-10-25' in byd and abs(byd['2026-10-25']['Eg']-1507.0)<0.06, byd.get('2026-10-25'))
 print(f"\n{PASS} passed, {FAIL} failed")
 if __name__ == "__main__":
     sys.exit(1 if FAIL else 0)

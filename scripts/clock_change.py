@@ -117,3 +117,36 @@ def isp_clock(cur_values, prev_values, d, prev_d=None, per_hour=4):
     cur = isp_chrono(cur_values, d, per_hour)
     prev = isp_chrono(prev_values, prev_d or (d - timedelta(days=1)), per_hour) if prev_values is not None else None
     return chrono_to_clock(local_from_market(cur, prev, d), d)
+
+
+# ---------- καταναλωτές των ΗΜΕΡΗΣΙΩΝ αρχείων (Hourly: 24 γραμμές ρολογιού H01–H24) ----------
+def nonexistent_index(d):
+    """Δείκτης (0–23) της γραμμής που ΔΕΝ υπάρχει φυσικά εκείνη την ημέρα: H04 στις ημέρες 23 ωρών, αλλιώς None."""
+    return 3 if hours_in_day(d) == 23 else None
+
+
+def day_rows(rec):
+    """Οι ωριαίες γραμμές μιας ημέρας ΕΚΤΟΣ από την ώρα που δεν υπάρχει (H04 στις 23ωρες): οι υπόλοιπες πρέπει να έχουν τιμή."""
+    rows = list(rec.get("Hourly") or [])
+    try:
+        skip = nonexistent_index(date.fromisoformat(rec["Date"]))
+    except (KeyError, ValueError, TypeError):
+        skip = None
+    return [r for i, r in enumerate(rows) if i != skip]
+
+
+def extra_mwh(rec, key):
+    """Ενέργεια (MWh) της σειράς που ΔΕΝ χωράει στις 24 γραμμές (η δεύτερη μισή της επαναλαμβανόμενης ώρας στις 25ωρες)."""
+    cc = (rec.get("Meta") or {}).get("ClockChange") or {}
+    return float((cc.get("ExtraHourMWh") or {}).get(key) or 0.0)
+
+
+def energy(rec, key):
+    """Ημερήσια ενέργεια (MWh) σειράς ωριαίων τιμών ή None αν λείπει ΟΠΟΙΑΔΗΠΟΤΕ ώρα που υπάρχει (ίδια σημασία με το παλιό
+    `sum(h[key] for h in Hourly)` που πετούσε TypeError/KeyError και η ημέρα παραλειπόταν) — αλλά δεν απαιτεί την ώρα που δεν υπάρχει."""
+    rows = day_rows(rec)
+    vals = [r.get(key) for r in rows]
+    if not vals or any(v is None for v in vals):
+        return None
+    return float(sum(vals)) + extra_mwh(rec, key)
+
