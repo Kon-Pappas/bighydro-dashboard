@@ -15,8 +15,8 @@ visible-hydro summary · tests and documentation in the repository.
 5. ~~**Capacity check**~~ — **done as an analysis** (K09, D58): ADMIE's total implies Ilarionas ≈ 305 hm³ (RMSE 0.79 → 0.15 pp). Recorded as a hypothesis; the switch is decided at the **December recalibration**.
 
 ## Next phase — what the data can tell us (see `QUESTIONS.md`)
-9. ~~**Multi-year baseline**~~ — **done**: history fetched (432 weeks, 2017–2025), `climatology.json` and the panel *Stored energy compared with previous years* (D61–D66). The same for **inflow** is done (batch35, D100, METHODS §10); next: **hydro generation**.
-10. ~~**Days-of-cover panel**~~ — **done** (scenarios, usual-stock column, trend line; D67–D71). Next: an **inflow scenario** (zero / recent / typical) — the baseline now exists (`inflow_climatology.json`).
+9. ~~**Multi-year baseline**~~ — **done**: history fetched (432 weeks, 2017–2025), `climatology.json` and the panel *Stored energy compared with previous years* (D61–D66). The same for **inflow** (batch35, D100, METHODS §10) and for **hydro generation** (batch36, D103, METHODS §11) is done.
+10. ~~**Days-of-cover panel**~~ — **done** (scenarios, usual-stock column, trend line; D67–D71). ~~Next: an **inflow scenario** (zero / recent / typical)~~ — **done** (batch36, D102, METHODS §11: a table and a week-by-week projection).
 11. ~~**Inflow regime indicator**~~ (dry / transitional / wet) — **done** (batch35, D100, METHODS §10; rank rule, baseline 2018–2025, gaps up to 3 days). *Still open:* the date a chosen level would be reached at the current trend (question 4). The "rising or falling" line already exists in *Days of cover*.
 12. **Forced vs demand-driven hydro generation** (question 7), with February 2026 as the test case; this is the bridge to the curtailment research thread.
 

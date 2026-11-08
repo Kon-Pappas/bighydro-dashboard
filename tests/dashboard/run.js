@@ -22,6 +22,8 @@ const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'dangerously',prete
   beforeParse(w){ w.__BH_FAST=true; w.localStorage.setItem('kp_lang','el'); w.fetch=synFetch; }});
 const w=dom.window,d=w.document;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  // «own»: τα στοιχεία ΕΚΤΟΣ των νεότερων τμημάτων (παραγωγή, σενάρια εισροής) ώστε τα παλιά tests να μένουν ίδια όσο αυστηρά ήταν· τα νέα τμήματα ελέγχονται στο TEST 22
+  const own=(root,sel)=>[...root.querySelectorAll(sel)].filter(e=>!e.closest('[data-sect="gen"],[data-sect="ci"]'));
 const wbPick=(doc,id)=>{const b=[...doc.querySelectorAll('#t-wb .seg button')].find(x=>x.getAttribute('data-r')===id); if(!b) throw new Error('no river button '+id); b.click(); return b};
 const setLang=(doc,l)=>doc.querySelector('#lang button[data-l="'+l+'"]').click();
 let pass=0,fail=0; const ck=(n,c,e)=>{ if(c){pass++;console.log('  PASS',n)} else {fail++;console.log('  FAIL',n,e===undefined?'':e)} };
@@ -67,7 +69,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const order=['Ιλαρίων','Πολύφυτο','Σφηκιά','Ασώματα'].map(n=>m.indexOf(n));
   ck('Aliakmonas order Ilarion→Polyfyto→Sfikia→Asomata',order.every((v,i)=>v>=0&&(i===0||v>order[i-1])),order);
   ck('pump Asomata → Sfikia shown',m.includes('Ασώματα → Σφηκιά') && !m.includes('υπόθεση)') ,m.slice(m.indexOf('άντληση'),m.indexOf('άντληση')+60));
-  ck('modal has hourly chart + energy block (plus the chart of the inflow panel when that panel is shown)',d.querySelectorAll('#rmc svg.ch').length===1+d.querySelectorAll('#rmc [data-sect="inflow"] svg.ch').length && m.includes('Ισοδύναμο ENTSO-E'));
+  ck('modal has hourly chart + energy block (plus the chart of the inflow panel when that panel is shown)',d.querySelectorAll('#rmc svg.ch').length===1+d.querySelectorAll('#rmc [data-sect="inflow"] svg.ch, #rmc [data-sect="gen"] svg.ch').length && m.includes('Ισοδύναμο ENTSO-E'));
   m=open('nestos'); ck('Nestos pump direction is shown as confirmed (no "assumption" label)',m.includes('Πλατανόβρυση → Θησαυρός') && !m.includes('υπόθεση'));
   m=open('acheloos'); const o2=['Κρεμαστά','Καστράκι','Στράτος'].map(n=>m.indexOf(n)); ck('Acheloos order',o2.every((v,i)=>v>=0&&(i===0||v>o2[i-1])),o2);
   ck('Stratos shown as 1+2 once per-unit data exists (no "not stored" note)',m.includes('Στράτος (1+2)') && !m.includes('Στράτος ΙΙ περιλαμβάνεται'),m.slice(m.indexOf('Στράτος'),m.indexOf('Στράτος')+30));
@@ -79,12 +81,12 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 4: energy + Kastraki tabs');
   d.querySelector('#tabs button[data-t="energy"]').click(); 
   ck('energy tab visible, rivers tab hidden',!d.querySelector('#t-energy').hidden && d.querySelector('#t-rivers').hidden);
-  ck('energy tab: 3 charts (vs previous years, weekly, daily) + 3 tables (days of cover, weekly, rivers)',d.querySelectorAll('#t-energy svg.ch').length===3 && d.querySelectorAll('#t-energy table').length===3);
+  ck('energy tab: 3 charts (vs previous years, weekly, daily) + 3 tables (days of cover, weekly, rivers)',own(d,'#t-energy svg.ch').length===3 && own(d,'#t-energy table').length===3);
   const addD=(x,n)=>new Date(Date.parse(x+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
   let lastW=null; ((B.P.ent&&B.P.ent.Weeks)||[]).forEach(w=>{ let ok=true; for(let t=1;t<=7;t++){ if(B.P.fi[addD(w.StartLocal,t)]==null) ok=false } if(ok) lastW=w });
   ck('there is at least one ENTSO-E week with full daily data',lastW!=null);
   if(lastW){ let sm=0; for(let t=1;t<=7;t++) sm+=B.eqE(B.P.fi[addD(lastW.StartLocal,t)]); const modelGWh=Math.round(sm/7).toLocaleString('el-GR'), enGWh=Math.round(lastW.MWh/1000).toLocaleString('el-GR');
-    const rowTxt=[...d.querySelectorAll('#t-energy table')[1].querySelectorAll('tr')].map(r=>r.textContent).find(t=>t.includes(lastW.IsoWeek))||'';
+    const rowTxt=[...own(d,'#t-energy table')[1].querySelectorAll('tr')].map(r=>r.textContent).find(t=>t.includes(lastW.IsoWeek))||'';
     ck('weekly table row '+lastW.IsoWeek+' shows ENTSO-E '+enGWh+' and model '+modelGWh+' GWh',rowTxt.includes(enGWh)&&rowTxt.includes(modelGWh),rowTxt);
     const oosW=Date.parse(lastW.StartLocal)>Date.parse(B.P.fac.Weeks.To); ck('weeks after the calibration period are labelled out-of-sample',!oosW||rowTxt.includes('εκτός δείγματος'),rowTxt); }
   d.querySelector('#tabs button[data-t="kast"]').click();
@@ -194,12 +196,24 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 9: shell (header, language, update stamps, badge, banner, footer, overlay)');
   // Σταθερές ημερομηνίες του ΠΑΡΕΛΘΟΝΤΟΣ με ΥΠΟΧΡΕΩΜΕΝΗ κατάσταση πηγών: οι έλεγχοι του σήματος (badge) δεν πρέπει να εξαρτώνται από τα πραγματικά δεδομένα.
   // (Ο έλεγχος «μόνο το MCP λείπει» έτρεχε σε μια πραγματική ημέρα και χάθηκε σιωπηλά όταν το backfill του MCP γέμισε την ημέρα εκείνη.)
-  const INFL={};
+  const INFL={}, ECL={};
   const D_MCP='2026-05-31', D_BAD='2026-02-02';
   const ST_MCP={reservoir:'ok',scada:'ok',isp:'ok',resmv:'ok',mcp:'missing'}, ST_BAD={reservoir:'ok',scada:'ok',isp:'ok',resmv:'missing',mcp:'ok'};
   const OVR={'data/index.json':(j)=>{j.Days.forEach(x=>{if(x.Date===D_MCP) x.Status=ST_MCP; if(x.Date===D_BAD) x.Status=ST_BAD}); return j},
     ['data/days/'+D_MCP+'.json']:(x)=>{x.Meta.Status=ST_MCP; return x}, ['data/days/'+D_BAD+'.json']:(x)=>{x.Meta.Status=ST_BAD; return x},
-    'data/inflow_climatology.json':()=>INFL};
+    'data/inflow_climatology.json':()=>INFL, 'data/energy_climatology.json':()=>ECL};
+  // ---- Συνθετικό energy_climatology.json (D99): παραγωγή και ισοδύναμη εισροή ----
+  const gWeeks=(m)=>{const a=[];for(let w=1;w<=52;w++)a.push({Wk:w,N:8,Min:m*.5,P25:m*.8,Median:m,P75:m*1.3,Max:m*2,MinYear:2018,MaxYear:2021});return a};
+  const gCur=(v,last)=>{const a=[];for(let w=1;w<=44;w++)a.push({Start:new Date(Date.UTC(2025,11,29)+(w-1)*7*864e5).toISOString().slice(0,10),Wk:w,GWh:w===44?last:v,Interp:false,Rank:w===44?1:2,Of:9,DeltaMedian:(w===44?last:v)-50});return a};
+  const gRiver=(l4)=>({Name:'x',Units:[],Weeks:gWeeks(20),Current:gCur(25,30),Last4:l4});
+  const L4=(rank,gwh,med)=>({Weeks:['2026-10-05','2026-10-12','2026-10-19','2026-10-26'],LastWeek:'2026-10-26',Wk:44,GWh:gwh,Median:med,P25:med*.8,P75:med*1.2,N:8,Rank:rank,Of:9,Interp:false});
+  const eqWeeks=()=>{const a=[];for(let w=1;w<=52;w++)a.push({Wk:w,N:8,P25:1,Median:5,P75:12,GenMedian:9});return a};
+  const eqCur=()=>{const a=[];let d=Date.UTC(2025,11,29);for(let w=1;w<=43;w++){const dd=new Date(d+(w-1)*7*864e5).toISOString().slice(0,10);a.push({Start:dd,Wk:w,GWhPerDay:3,GenGWhPerDay:9,Interp:false})}return a};
+  const buildECL=()=>{ECL.Schema=1;ECL.CurrentYear=2026;ECL.LastDate='2026-11-07';ECL.Baseline={Years:[2018,2025],Extended:[2016,2025]};ECL.Rule={MaxGapDays:3};
+    ECL.Generation={Total:{Weeks:gWeeks(50),Current:gCur(70,91),YearToDate:{Through:'11-07',Years:{'2026':{GWh:5284,MissingDays:2}},CurrentGWh:5284,N:8,Rank:1,Of:9,Median:3070,P25:2900,P75:3400,DeltaMedian:2214,DeltaMedianPct:72.1}},
+      Rivers:{acheloos:gRiver(L4(2,159.09,89.95)),aliakmonas:gRiver(L4(1,100.26,39.23)),arachthos:gRiver(L4(4,18.46,17.37)),nestos:gRiver(null)}};
+    ECL.EquivalentInflow={Weeks:eqWeeks(),Current:eqCur(),Note:'x'}};
+
   // ---- Συνθετικό αρχείο εισροής (D99): τα tests του πάνελ δεν εξαρτώνται από τα πραγματικά δεδομένα ----
   const mkWeeks=()=>{const a=[];for(let w=1;w<=52;w++){const m=50+30*Math.sin(w/8);a.push({Wk:w,N:8,Min:m*.4,P25:m*.7,Median:m,P75:m*1.4,Max:m*2.5,MinYear:2018,MaxYear:2021})}return a};
   const mkCur=()=>{const a=[];for(let w=1;w<=44;w++)a.push({Start:'2026-01-05',Wk:w,Mm3:40+w%7,Interp:w===10,Rank:3,Of:9,DeltaMedian:1});return a};
@@ -258,7 +272,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('tooltip shows the right x label and value (and series name) on '+nCharts+' charts across all tabs and the river modal',nCharts>=11 && badTip.length===0,[nCharts,badTip]);
   const svg0=wE2.document.querySelector('#t-kast svg.ch'); fireAt(wE2,svg0,svg0 && BE.CH[svg0.getAttribute('data-cid')].L+50);
   ck('moving the pointer outside a chart hides the tooltip and the crosshair',(()=>{wE2.document.body.dispatchEvent(new wE2.MouseEvent('pointermove',{bubbles:true,clientX:5,clientY:5})); return tipOf(wE2).style.display==='none' && svg0.querySelector('.tipline').style.display==='none'})());
-  ck('weekly chart tooltip shows both series (ENTSO-E and model) at the same week',(()=>{ wE2.document.querySelector('#tabs button[data-t="energy"]').click(); const sv=wE2.document.querySelectorAll('#t-energy svg.ch')[1]; const sp=BE.CH[sv.getAttribute('data-cid')]; const pt=sp.series[0].pts[Math.floor(sp.series[0].pts.length/2)]; fireAt(wE2,sv,sp.L+(pt[0]-sp.x0)/(sp.x1-sp.x0)*sp.pw); const tx=tipOf(wE2).textContent; return tx.includes('ENTSO-E')&&tx.includes('model')&&tx.includes('TWh')})());
+  ck('weekly chart tooltip shows both series (ENTSO-E and model) at the same week',(()=>{ wE2.document.querySelector('#tabs button[data-t="energy"]').click(); const sv=own(wE2.document,'#t-energy svg.ch')[1]; const sp=BE.CH[sv.getAttribute('data-cid')]; const pt=sp.series[0].pts[Math.floor(sp.series[0].pts.length/2)]; fireAt(wE2,sv,sp.L+(pt[0]-sp.x0)/(sp.x1-sp.x0)*sp.pw); const tx=tipOf(wE2).textContent; return tx.includes('ENTSO-E')&&tx.includes('model')&&tx.includes('TWh')})());
   ck('no JS errors in the tooltip tests',errE.length===0 && errors.length===0,[errE.slice(0,2),errors.slice(0,2)]);
 
   console.log('TEST 11: loading overlay shows the steps one by one (real pauses, no fast mode)');
@@ -561,7 +575,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English: title, scenario names, "not a forecast"; no placeholders',/Days of cover: how long the stock lasts if no water arrives at all/.test(d.querySelector('#t-energy').textContent) && /Current rate \(last 30 days\)/.test(d.querySelector('#t-energy').textContent) && /upper bound, not a forecast/.test(d.querySelector('#t-energy').textContent) && !/\{[a-z0-9]+\}|undefined|NaN/.test(d.querySelector('#t-energy').textContent));
   setLang(d,'el'); await sleep(60);
   const {dm:dmU2,e2:errU2}=mkDom({},true,['unit_daily.json']); const wU2=await boot2(dmU2); wU2.document.querySelector('#tabs button[data-t="energy"]').click();
-  ck('without unit_daily.json the days-of-cover section is absent and the rest of the energy tab works',![...wU2.document.querySelectorAll('#t-energy h2.sect')].some(h=>h.textContent.includes('Ημέρες κάλυψης')) && wU2.document.querySelectorAll('#t-energy svg.ch').length===3 && errU2.length===0,errU2.slice(0,2));
+  ck('without unit_daily.json the days-of-cover section is absent and the rest of the energy tab works',![...wU2.document.querySelectorAll('#t-energy h2.sect')].some(h=>h.textContent.includes('Ημέρες κάλυψης')) && own(wU2.document,'#t-energy svg.ch').length===3 && errU2.length===0,errU2.slice(0,2));
   ck('no JS errors in the days-of-cover tests',errors.length===0,errors.slice(0,3));
   }
   console.log('TEST 15b: clock-change days — the daily sum includes the energy outside the 24 rows');
@@ -601,6 +615,71 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const {dm:dmN,e2:errN}=mkDom({},true,['inflow_climatology.json']); const wN=await boot2(dmN); const BN=wN.__bh;
   BN.openRiver(1); await sleep(40);
   ck('without the inflow file the page works as before: no row on the cards, no panel in the modal, no errors',!wN.document.querySelector('#rg').textContent.includes('inflow') && !wN.document.querySelector('#rmc [data-sect="inflow"]') && errN.length===0 && errI.length===0,[errN.slice(0,2),errI.slice(0,2)]);
+
+  {  // TEST 22 σε δικό του μπλοκ: οι μεταβλητές του δεν συγκρούονται με τα παλαιότερα τμήματα
+  console.log('TEST 22: generation against previous years (total and per river) and the inflow scenarios in « Days of cover » (synthetic file, D99)');
+  buildECL();
+  const {dm:dmG,e2:errG}=mkDom({}); const wG=await boot2(dmG); const BG=wG.__bh, dG=wG.document; setLang(dG,'en'); await sleep(80); await BG.load('2026-10-15'); await sleep(120);
+  const gsec=dG.querySelector('#t-energy [data-sect="gen"]'), gt=gsec?gsec.textContent:'';
+  ck('energy tab: the generation section has three cards — last complete week (W44, 91 GWh, rank 1 of 9), against the median (+41 GWh, +82 %, median 50) and the year to date',!!gsec && gt.includes('Last complete week (W44, from 26/10/2026)') && gt.includes('91 GWh') && gt.includes('Rank 1 of 9') && gt.includes('+41 GWh') && gt.includes('+82%') && gt.includes('median 50 GWh') && gt.includes('1 January to 07/11/2026') && gt.includes('5.28 TWh') && gt.includes('+72%') && gt.includes('3.07 TWh'),gt.slice(0,700));
+  ck('…with the weekly chart (current year, P25–P75 and min–max bands) and the notes: gross generation, and the 2 filled days of the year',gsec.querySelectorAll('svg.ch').length===1 && gsec.querySelectorAll('svg.ch path.s1').length>=1 && gsec.querySelectorAll('svg.ch path.bd1').length>=1 && gsec.querySelectorAll('svg.ch path.bd2').length>=1 && gt.includes('Generation is gross: pumping is not subtracted') && gt.includes('2 days in 2026'),gt.slice(-400));
+  ck('the rank of the YEAR TO DATE does not say « for this week » (that wording belongs only to the weekly card)',[...gsec.querySelectorAll('.card')][0].textContent.includes('1 = highest for this week') && ![...gsec.querySelectorAll('.card')][2].textContent.includes('for this week') && [...gsec.querySelectorAll('.card')][2].textContent.includes('Rank 1 of 9 (1 = highest)'),[...gsec.querySelectorAll('.card')].map(c=>c.textContent.slice(-90)));
+  const openG=async(id)=>{BG.openRiver(BG.S.M.rivers.findIndex(r=>r.r.Id===id)); await sleep(50); const s=dG.querySelector('#rmc [data-sect="gen"]'); return {s,t:s?s.textContent:''}};
+  const clG=()=>{const b=dG.querySelector('#rclose'); if(b) b.click()};
+  let og=await openG('aliakmonas');
+  ck('Aliakmon modal: the 4 weeks (05/10 – 01/11), 100 GWh, rank 1 of 9, +156 % from the median 39 GWh, a chart, and the pumped-storage note',!!og.s && og.t.includes('Generation of 4 weeks (05/10/2026 – 01/11/2026)') && og.t.includes('100 GWh') && og.t.includes('Rank 1 of 9') && og.t.includes('+156%') && og.t.includes('39 GWh') && og.s.querySelectorAll('svg.ch').length===1 && og.t.includes('Sfikia–Asomata'),og.t.slice(0,500)); clG();
+  ck('the rank of the 4 weeks of a river does not say « for this week » either',og.t.includes('Rank 1 of 9 (1 = highest)') && !og.t.includes('for this week'),og.t.slice(0,300));
+  og=await openG('arachthos'); ck('Arachthos modal: the note that it includes Pigai Aoou (which is not in the ENTSO-E stock), and no pumped-storage note',og.t.includes('includes Pigai Aoou') && !og.t.includes('recycled water'),og.t.slice(-300)); clG();
+  og=await openG('acheloos'); ck('Acheloos modal: only the gross-generation note (no pumped-storage, no Pigai Aoou note)',og.t.includes('Gross generation: pumping is not subtracted.') && !og.t.includes('Pigai Aoou') && !og.t.includes('recycled'),og.t.slice(-250)); clG();
+  og=await openG('nestos'); ck('Nestos (no 4-week figure): the reason is stated, the chart is still drawn, and the Thesavros note is there',og.t.includes('No 4-week comparison') && og.s.querySelectorAll('svg.ch').length===1 && !og.s.querySelector('.cards') && og.t.includes('Thesavros–Platanovrysi'),og.t.slice(0,300)); clG();
+  og=await openG('ladonas'); ck('a river absent from the file has no generation panel',!og.s); clG();
+  // --- σενάρια εισροής: αναμενόμενα υπολογισμένα ανεξάρτητα από τα ίδια αρχεία ---
+  const U=BG.P.units, ei=U.Dates.indexOf('2026-10-15'), us=[]; Object.keys(BG.P.meta.Reservoirs).filter(k=>k!=='P_AOOU').forEach(k=>BG.P.meta.Reservoirs[k].Units.forEach(u=>{if(U.Units[u])us.push(u)}));
+  const tot=[]; for(let i=0;i<=ei;i++){let s0=0,okk=false; us.forEach(u=>{const v=U.Units[u].Mwh[i]; if(v!=null){s0+=v;okk=true}}); tot.push(okk?s0/1000:null)}
+  const mean=(a)=>a.reduce((x,y)=>x+y,0)/a.length, okv=(a)=>a.filter(v=>v!=null), rate=mean(okv(tot.slice(Math.max(0,ei-29)))), avg=mean(okv(tot)), stock=BG.S.M.eqTotal;
+  const ci=dG.querySelector('#t-energy [data-sect="ci"]'), ct=ci?ci.textContent:'', rows=ci?[...ci.querySelectorAll('table.cvt tr')].slice(1).map(r=>[...r.children].map(c=>c.textContent)):[];
+  const dn=(r,inf)=>{const net=r-inf; return net>0?String(Math.round(stock/net)):'does not run out (inflow ≥ generation)'};
+  ck('Days of cover: the inflow-scenario table has the five assumptions — zero, recent (3), dry (1), typical (5), wet (12) — and a column per rate (current, average so far)',!!ci && rows.length===5 && rows[0][0]==='Zero' && rows[1][0].startsWith('Recent (mean of the last 4 weeks)') && rows[2][0].startsWith('Dry year') && rows[3][0].startsWith('Typical') && rows[4][0].startsWith('Wet year') && [0,3,1,5,12].every((v,i)=>rows[i][1]===(v===0?'0.0':v.toFixed(1))),rows);
+  ck('…the days are stock ÷ (rate − inflow) for BOTH rates, recomputed here from unit_daily and the model stock',rows.length===5 && [0,3,1,5,12].every((v,i)=>rows[i][2]===dn(rate,v) && rows[i][3]===dn(avg,v)),{rows,stock,rate,avg});
+  ck('…and when the inflow is at least the generation the cell says that the stock does not run out (wet = 12 against a rate of ≈ 10)',rate<12 && rows[4][2].startsWith('does not run out'),[rate,rows[4]]);
+  const sv=ci.querySelector('svg.ch'), sp=sv?BG.CH[sv.getAttribute('data-cid')]:null, sn=(nm)=>sp&&sp.series.find(s=>s.name===nm), endv=(nm)=>{const s=sn(nm); return s?s.pts[s.pts.length-1]:null};
+  const mk=(inf)=>Math.max(0,stock+8*7*(inf-rate));
+  ck('the projection chart: one chart with the five scenario lines, whose last point (8 weeks on) equals stock + 56·(inflow − rate), floored at zero',!!sv && ci.querySelectorAll('svg.ch').length===1 && [['Zero inflow',0],['Recent inflow (3.0 GWh a day, constant)',3],['Dry year (25th of the week)',1],['Typical inflow (median of the week)',5],['Wet year (75th of the week)',12]].every(([nm,v])=>{const e=endv(nm); return e&&e[0]===8&&Math.abs(e[1]-mk(v))<0.5}),sp&&sp.series.map(s=>[s.name,s.pts&&s.pts[s.pts.length-1]]));
+  ck('…the chart starts at the stock of the selected date, and the usual-stock band (25th–75th, from the stored-energy history) and its median are drawn',!!sp && sn('Zero inflow').pts[0][1]===stock && ci.querySelectorAll('svg.ch path.bd1').length>=1 && ci.querySelectorAll('svg.ch path.smed').length>=1 && ['sc1','sc2','sc3','sc4','sc5'].every(c=>ci.querySelectorAll('svg.ch path.'+c).length===1));
+  ck('the legend names the scenarios and the usual stock; the notes say it is a lower bound and not a forecast, and that the typical line need not follow the usual band',ct.includes('Typical inflow (median of the week)') && ct.includes('Usual stock (25th–75th)') && ct.includes('lower bound of the natural inflow') && ct.includes('not a forecast') && ct.includes('need not follow the band of the usual stock'),ct.slice(-700));
+  const clim=BG.P.clim.Weeks.filter(x=>x.Wk===BG.isoWk?0:0); const isoW=(ds)=>{const d=new Date(Date.UTC(+ds.slice(0,4),+ds.slice(5,7)-1,+ds.slice(8,10))),dow=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-dow);const y0=new Date(Date.UTC(d.getUTCFullYear(),0,1));return Math.ceil(((d-y0)/864e5+1)/7)};
+  const u0=BG.P.clim.Weeks.filter(x=>x.Wk===isoW('2026-10-15')&&x.N>=3)[0], gapv=stock-u0.Median;
+  ck('the note compares THIS year with the usual one with the right sign and wording (stock '+(gapv<0?'below':'above')+' the usual median of week 42; the current rate above the typical generation of 9 GWh a day)',ct.includes('this year the stock is '+Math.round(Math.abs(gapv)).toLocaleString('en-US')+' GWh '+(gapv<0?'below':'above')+' the usual of the week') && ct.includes('is above the typical generation of these weeks (9.0 GWh a day)'),ct.slice(-600));
+  const variant=async(mut,restore)=>{ mut(); const {dm:dv,e2:ev}=mkDom({}); const wv=await boot2(dv); const bv=wv.__bh; setLang(wv.document,'en'); await sleep(80); await bv.load('2026-10-15'); await sleep(120);
+    const c=wv.document.querySelector('#t-energy [data-sect="ci"]'); const res={c,B:bv,errs:ev,rows:c?[...c.querySelectorAll('table.cvt tr')].slice(1).map(r=>[...r.children].map(x=>x.textContent)):[]}; restore(); return res};
+  const saveE=ECL.EquivalentInflow.Weeks.map(w=>[w.P25,w.Median,w.P75]);
+  const rV=await variant(()=>ECL.EquivalentInflow.Weeks.forEach(w=>{w.P25=-30;w.Median=-30;w.P75=-30}),()=>ECL.EquivalentInflow.Weeks.forEach((w,i)=>{w.P25=saveE[i][0];w.Median=saveE[i][1];w.P75=saveE[i][2]}));
+  const spV=rV.c?rV.B.CH[rV.c.querySelector('svg.ch').getAttribute('data-cid')]:null, typV=spV&&spV.series.find(x=>x.name==='Typical inflow (median of the week)');
+  ck('a strongly negative inflow (−30 GWh a day, as a dry summer week can give) cannot take the projected stock below zero: the typical line ends at 0, and the days are stock ÷ (rate + 30)',!!typV && typV.pts[typV.pts.length-1][1]===0 && typV.pts.every(q=>q[1]>=0) && rV.rows[3][2]===String(Math.round(stock/(rate+30))),[typV&&typV.pts,rV.rows[3]]);
+  const saveC=ECL.EquivalentInflow.Current;
+  const rS=await variant(()=>{ECL.EquivalentInflow.Current=saveC.slice(0,9)},()=>{ECL.EquivalentInflow.Current=saveC});
+  ck('weekly values that are too OLD (only January–March for a selected day in October) are not used as « recent »: no recent row, no recent line',rS.rows.length===4 && !rS.rows.some(x=>x[0].startsWith('Recent')) && rS.c.querySelectorAll('svg.ch path.sc2').length===0,rS.rows.map(x=>x[0]));
+  const rF=await variant(()=>{ECL.EquivalentInflow.Current=saveC.filter(r=>r.Wk===39||r.Wk===40)},()=>{ECL.EquivalentInflow.Current=saveC});
+  ck('only 2 recent weeks are not enough for a « recent » inflow (3 are needed): no recent row',rF.rows.length===4 && !rF.rows.some(x=>x[0].startsWith('Recent')),rF.rows.map(x=>x[0]));
+  const bandS=sp.series.find(x=>x.cls==='bd1'), cw50=BG.P.clim.Weeks.filter(x=>x.Wk===isoW(addD('2026-10-15',56))&&x.N>=3)[0];
+  ck('the usual-stock band follows the calendar: its first point is the band of the selected week, and the point of week 8 is the band of the week 8 weeks later',!!bandS && bandS.pts[0][0]===0 && Math.abs(bandS.pts[0][1]-u0.P25)<1e-6 && Math.abs(bandS.pts[0][2]-u0.P75)<1e-6 && bandS.pts[bandS.pts.length-1][0]===8 && Math.abs(bandS.pts[bandS.pts.length-1][1]-cw50.P25)<1e-6 && Math.abs(bandS.pts[bandS.pts.length-1][2]-cw50.P75)<1e-6,bandS&&[bandS.pts[0],bandS.pts[bandS.pts.length-1],u0.P25,cw50.P25]);
+  // μεταβολές του αρχείου: χωρίς πρόσφατη εισροή, και κατώφλι «> 1.000 ημέρες»
+  const eqSave=ECL.EquivalentInflow.Current; ECL.EquivalentInflow.Current=[];
+  const {dm:dmG2,e2:errG2}=mkDom({}); const wG2=await boot2(dmG2); const BG2=wG2.__bh; setLang(wG2.document,'en'); await sleep(80); await BG2.load('2026-10-15'); await sleep(120);
+  const ci2=wG2.document.querySelector('#t-energy [data-sect="ci"]'), rows2=ci2?[...ci2.querySelectorAll('table.cvt tr')].slice(1).map(r=>r.children[0].textContent):[];
+  ck('without weekly values for the recent weeks the « recent » row and line are left out (4 rows, no « Recent »), the other scenarios stay',rows2.length===4 && !rows2.some(x=>x.startsWith('Recent')) && ci2.querySelectorAll('svg.ch path.sc2').length===0 && ci2.querySelectorAll('svg.ch path.sc4').length===1,rows2);
+  ECL.EquivalentInflow.Current=eqSave; const saveMed=ECL.EquivalentInflow.Weeks.map(w=>w.Median); ECL.EquivalentInflow.Weeks.forEach(w=>{w.Median=rate-0.004});
+  const {dm:dmG3,e2:errG3}=mkDom({}); const wG3=await boot2(dmG3); const BG3=wG3.__bh; setLang(wG3.document,'en'); await sleep(80); await BG3.load('2026-10-15'); await sleep(120);
+  const rows3=[...wG3.document.querySelectorAll('#t-energy [data-sect="ci"] table.cvt tr')].slice(1).map(r=>[...r.children].map(c=>c.textContent));
+  ck('an inflow within 0.01 GWh a day of the generation does not print a meaningless number of days: « > 1,000 days »',rows3.length===5 && rows3[3][2]==='> 1,000 days',rows3[3]);
+  ECL.EquivalentInflow.Weeks.forEach((w,i)=>{w.Median=saveMed[i]});
+  setLang(dG,'el'); await sleep(100); await BG.load('2026-10-15'); await sleep(120);
+  const ciE=dG.querySelector('#t-energy [data-sect="ci"]'), geE=dG.querySelector('#t-energy [data-sect="gen"]');
+  ck('Greek: the section titles, the scenario names and « δεν εξαντλείται »',!!ciE && !!geE && ciE.textContent.includes('Σενάρια εισροής') && ciE.textContent.includes('Μηδενική') && ciE.textContent.includes('δεν εξαντλείται') && geE.textContent.includes('Παραγωγή σε σχέση με προηγούμενα έτη'),ciE&&ciE.textContent.slice(0,300));
+  const {dm:dmN2}=mkDom({},true,['energy_climatology.json']); const wN2=await boot2(dmN2); const BN2=wN2.__bh; await BN2.load('2026-10-15'); await sleep(100); BN2.openRiver(1); await sleep(50);
+  ck('without energy_climatology.json the page works as before: no generation section, no inflow scenarios, no generation panel in the modal',!wN2.document.querySelector('[data-sect="gen"]') && !wN2.document.querySelector('[data-sect="ci"]') && wN2.document.querySelector('#t-energy h2.sect'),0);
+  ck('no JS errors in the TEST 22 windows',errG.length===0 && errG2.length===0 && errG3.length===0 && rV.errs.length===0 && rS.errs.length===0 && rF.errs.length===0,[errG.slice(0,2),errG2.slice(0,2),errG3.slice(0,2)]);
+  }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();
