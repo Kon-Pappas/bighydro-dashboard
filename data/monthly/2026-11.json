@@ -42,7 +42,7 @@
   },
   "SCADA_OtherHydro_MWh": 675.0,
   "SCADA_TotalHydro_MWh": 59994.0,
-  "SmallHydro_MWh": 10572.8,
+  "SmallHydro_MWh": 11741.1,
   "Pump_MWh": {
    "SCADA": 10850.0,
    "ISP": 12933.7
@@ -537,7 +537,7 @@
    },
    "SCADA_OtherHydro_MWh": 60.0,
    "SCADA_TotalHydro_MWh": 9656.0,
-   "SmallHydro_MWh": null,
+   "SmallHydro_MWh": 1168.3,
    "Pump_MWh": {
     "SCADA": 1844.0,
     "ISP": 1860.2
@@ -557,7 +557,7 @@
     "reservoir": "ok",
     "scada": "ok",
     "isp": "ok",
-    "resmv": "missing",
+    "resmv": "ok",
     "mcp": "ok"
    }
   },
