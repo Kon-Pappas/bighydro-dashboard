@@ -37,8 +37,8 @@ The other hub dashboards are aligned; this is the last one (decided 9 Nov 2026, 
 | # | Phase | What | Status |
 |---|---|---|---|
 | 1 | Basics | cron-job.org only, no `schedule:`; actions v5 / v6; `meta.json` from the Python; `no-cache`; the H / C lists; first browser check | **done** (batch37, D104–D107) |
-| 2 | Data colours | no data colour equal to the accent, to yellow / red or to the « complete » green; the new scenario lines included (sample palette first) | next |
-| 3 | Mobile (H06, H02) | secondary box, tabs 3 + 2 at 48 px, the ↑ button, 12 px gaps, short header labels; before / after measures at 360 and 320 px | |
+| 2 | Data colours | no data colour equal to the accent, to yellow / red or to the « complete » green; the new scenario lines included (sample palette first) | **done** (batch39, D108, `tests/test_colors.py`) |
+| 3 | Mobile (H06, H02) | secondary box, tabs 3 + 2 at 48 px, the ↑ button, 12 px gaps, short header labels; before / after measures at 360 and 320 px next |
 | 4 | Labels and tables (C02, K30) | no all-caps captions; tables that do not fit become cards, no sideways scroll, « – » instead of 0 | |
 | 5 | Loading and Methodology | the remaining overlay details, the Methodology window (Short / Detailed switch, section of the tab, title) | |
 | 6 | Data size | `scripts/data_size.py` (raw, gzip, growth, days to the 250 KB limit); on 9 Nov 2026 the first visit loads about 174 KB gzip of data, growing about 130 KB a year, so **the limit is reached around mid-2027** (linear estimate) and files per month become due | |
