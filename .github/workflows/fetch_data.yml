@@ -1,9 +1,9 @@
 name: Daily BigHydro Fetcher
 
+# Εκκίνηση ΜΟΝΟ από το εξωτερικό cron-job.org, τέσσερις φορές την ημέρα στις 07:15, 09:15, 10:15 και 13:30 ώρα Ελλάδος (D104).
+# Δεν υπάρχει block `schedule:`: το cron του GitHub καθυστερεί και δουλεύει σε UTC, άρα μετά την αλλαγή ώρας θα ξεκινούσε μία ώρα νωρίτερα στην Ελλάδα·
+# δίπλα στο εξωτερικό θα ήταν και περιττό. Οι ώρες υπάρχουν σε ΕΝΑ σημείο του κώδικα, στο scripts/write_meta.py (UPDATE_TIMES_ATHENS): αν αλλάξεις job εκεί, άλλαξε και εδώ.
 on:
-  schedule:
-    # 04:17 UTC = 07:17 ώρα Ελλάδας (μακριά από το μποτιλιάρισμα του API)
-    - cron: '17 4 * * *'
   workflow_dispatch:
     inputs:
       start_date:
@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -101,6 +101,12 @@ jobs:
       - name: Build generation and equivalent-inflow data (non-blocking)
         continue-on-error: true
         run: python scripts/build_energy_climatology.py
+
+      - name: Write meta.json, last and next update (non-blocking)
+        continue-on-error: true
+        env:
+          DIAGNOSE: ${{ inputs.diagnose }}
+        run: python scripts/write_meta.py
 
       - name: Commit and push changes
         run: |
