@@ -12,7 +12,8 @@ const SYN_TODAY=addDS(LAST_HIST,1), SYN_NORES=addDS(LAST_HIST,2), LASTDAY=jf('da
 const synDay=(date,withRes)=>{const x=JSON.parse(JSON.stringify(LASTDAY)); x.Date=date; if(!withRes){delete x.Reservoir;delete x.ReservoirTotalRate;delete x.ReservoirTotal} x.Hourly.forEach(h=>Object.keys(h).forEach(k=>{if(/^SCADA_/.test(k)) h[k]=null})); x.Meta=Object.assign({},x.Meta,{Status:{reservoir:withRes?'ok':'missing',scada:'missing',isp:'ok',resmv:'missing',mcp:'missing'}}); return x};
 const SYN={'data/index.json':(j)=>{const days=j.Days.filter(x=>x.Date<=LAST_HIST), up=j.Days[0].Updated; days.push({Date:SYN_NORES,Status:{reservoir:'missing',scada:'missing',isp:'ok',resmv:'missing',mcp:'missing'},Updated:up},{Date:SYN_TODAY,Status:{reservoir:'ok',scada:'missing',isp:'ok',resmv:'missing',mcp:'missing'},Updated:up}); days.sort((a,b)=>a.Date<b.Date?1:-1); return Object.assign({},j,{Days:days})},
   'data/reservoir_history.json':(j)=>j.filter(x=>x.Date<=LAST_HIST).concat([Object.assign({},HIST0[HIST0.length-1],{Date:SYN_TODAY})])};
-const synFetch=(u)=>{ if(u==='data/days/'+SYN_TODAY+'.json') return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(synDay(SYN_TODAY,true))});
+const FETCHES=[];
+const synFetch=(u,init)=>{ FETCHES.push([u,init]); if(u==='data/days/'+SYN_TODAY+'.json') return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(synDay(SYN_TODAY,true))});
   if(u==='data/days/'+SYN_NORES+'.json') return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(synDay(SYN_NORES,false))});
   const pp=path.join(ROOT,u); if(!fs.existsSync(pp)) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))});
   let j=JSON.parse(fs.readFileSync(pp,'utf8')); if(SYN[u]) j=SYN[u](j); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(j)}); };
@@ -197,11 +198,12 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   // Σταθερές ημερομηνίες του ΠΑΡΕΛΘΟΝΤΟΣ με ΥΠΟΧΡΕΩΜΕΝΗ κατάσταση πηγών: οι έλεγχοι του σήματος (badge) δεν πρέπει να εξαρτώνται από τα πραγματικά δεδομένα.
   // (Ο έλεγχος «μόνο το MCP λείπει» έτρεχε σε μια πραγματική ημέρα και χάθηκε σιωπηλά όταν το backfill του MCP γέμισε την ημέρα εκείνη.)
   const INFL={}, ECL={};
+  const META={fetched:'2026-11-09T11:15:20Z',next_update:'2099-01-01T05:15:00Z'};      // συνθετικό meta.json (D99): χειμερινή ώρα run (+02:00)· η επόμενη μακρινή ώστε το test να μη εξαρτάται από το πότε τρέχει
   const D_MCP='2026-05-31', D_BAD='2026-02-02';
   const ST_MCP={reservoir:'ok',scada:'ok',isp:'ok',resmv:'ok',mcp:'missing'}, ST_BAD={reservoir:'ok',scada:'ok',isp:'ok',resmv:'missing',mcp:'ok'};
   const OVR={'data/index.json':(j)=>{j.Days.forEach(x=>{if(x.Date===D_MCP) x.Status=ST_MCP; if(x.Date===D_BAD) x.Status=ST_BAD}); return j},
     ['data/days/'+D_MCP+'.json']:(x)=>{x.Meta.Status=ST_MCP; return x}, ['data/days/'+D_BAD+'.json']:(x)=>{x.Meta.Status=ST_BAD; return x},
-    'data/inflow_climatology.json':()=>INFL, 'data/energy_climatology.json':()=>ECL};
+    'data/inflow_climatology.json':()=>INFL, 'data/energy_climatology.json':()=>ECL, 'data/meta.json':()=>META};
   // ---- Συνθετικό energy_climatology.json (D99): παραγωγή και ισοδύναμη εισροή ----
   const gWeeks=(m)=>{const a=[];for(let w=1;w<=52;w++)a.push({Wk:w,N:8,Min:m*.5,P25:m*.8,Median:m,P75:m*1.3,Max:m*2,MinYear:2018,MaxYear:2021});return a};
   const gCur=(v,last)=>{const a=[];for(let w=1;w<=44;w++)a.push({Start:new Date(Date.UTC(2025,11,29)+(w-1)*7*864e5).toISOString().slice(0,10),Wk:w,GWh:w===44?last:v,Interp:false,Rank:w===44?1:2,Of:9,DeltaMedian:(w===44?last:v)-50});return a};
@@ -227,17 +229,39 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
 
   const mkDom=(store,fast=true,block=[])=>{ const e2=[]; const vc2=new VirtualConsole(); vc2.on('jsdomError',e=>e2.push(String(e.detail||e.message)));
     const dm=new JSDOM(fs.readFileSync(ROOT+'/index.html','utf8'),{url:'http://localhost/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc2,
-      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u)=>{const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||(!fs.existsSync(pp)&&!OVR[u])) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); let jj=fs.existsSync(pp)?JSON.parse(fs.readFileSync(pp,'utf8')):{}; if(OVR[u]) jj=OVR[u](jj); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(jj)});}; }});
+      beforeParse(win){ if(fast) win.__BH_FAST=true; Object.keys(store).forEach(k=>win.localStorage.setItem(k,store[k])); win.fetch=(u,init)=>{(win.__fetches=win.__fetches||[]).push([u,init]);const pp=path.join(ROOT,u); if(block.some(b=>u.endsWith(b))||(!fs.existsSync(pp)&&!OVR[u])) return Promise.resolve({ok:false,status:404,json:()=>Promise.reject(new Error('404'))}); let jj=fs.existsSync(pp)?JSON.parse(fs.readFileSync(pp,'utf8')):{}; if(OVR[u]) jj=OVR[u](jj); return Promise.resolve({ok:true,status:200,json:()=>Promise.resolve(jj)});}; }});
     return {dm,e2}; };
   const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
   ck('default language is English (no stored preference)',dE.querySelector('#ttl').textContent==='Greek Hydro & Reservoir Analytics' && dE.documentElement.lang==='en' && dE.title==='Greek Hydro & Reservoir Analytics',dE.querySelector('#ttl').textContent);
   ck('breadcrumb links back to the hub',(()=>{const a=dE.querySelector('a.crumb');return a && a.getAttribute('href')==='https://kon-pappas.github.io/' && a.textContent.includes('Konstantinos Pappas Hub')})());
-  ck('Last Update shows dd/mm/yyyy hh:mm',/^\d\d\/\d\d\/\d{4} \d\d:\d\d$/.test(dE.querySelector('#lu-v').textContent) && dE.querySelector('#lu-l').textContent==='Last Update:',dE.querySelector('#lu-v').textContent);
-  ck('Next Update is one of the configured run times',/^(07:15|09:15|10:15)( \(tomorrow\))?$/.test(dE.querySelector('#nu-v').textContent),dE.querySelector('#nu-v').textContent);
+  ck('Last Update is the run time written by the Python in meta.json, in Athens time (2026-11-09T11:15:20Z -> 09/11/2026 13:15)',dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#lu-l').textContent==='Last Update:',dE.querySelector('#lu-v').textContent);
+  ck('Next Update comes from meta.json too (a date far in the future is shown with its date: 01/01/2099 07:15)',dE.querySelector('#nu-v').textContent==='01/01/2099 07:15' && dE.querySelector('#nu-l').textContent==='Next Update:',dE.querySelector('#nu-v').textContent);
   const BB=wE.__bh;
-  ck('nextRun: 00:00→07:15 today, 08:00→09:15, 10:15→tomorrow 07:15, 23:00→tomorrow',JSON.stringify([BB.nextRun(0),BB.nextRun(480),BB.nextRun(615),BB.nextRun(1380)])===JSON.stringify([{t:'07:15',tomorrow:false},{t:'09:15',tomorrow:false},{t:'07:15',tomorrow:true},{t:'07:15',tomorrow:true}]));
+  ck('the page no longer carries its own list of run times (they live in one place, scripts/write_meta.py)',typeof BB.nextRun==='undefined' && typeof BB.nextUpdate==='function' && !fs.readFileSync(ROOT+'/index.html','utf8').includes('RUN_TIMES'));
   ck('fmtStamp handles summer (+0300) and winter (+0200) offsets',BB.fmtStamp('2026-10-16T20:25:02+0300')==='16/10/2026 20:25' && BB.fmtStamp('2026-01-15T10:00:00+0200')==='15/01/2026 10:00',[BB.fmtStamp('2026-10-16T20:25:02+0300'),BB.fmtStamp('2026-01-15T10:00:00+0200')]);
+  {  // TEST 23: «Τελευταία / Επόμενη ενημέρωση» από το meta.json και cache:'no-cache' (D105, D106)
+  console.log('TEST 23: last and next update from meta.json; every data file requested with cache: no-cache');
+  const run0=BB.P.run, NU=(now,next)=>{BB.P.run={fetched:'2026-11-09T05:04:53Z',next_update:next}; return JSON.stringify(BB.nextUpdate(Date.parse(now)))};
+  ck('next update later today (07:04 Athens -> 07:15): the time only, no « tomorrow »',NU('2026-11-09T05:04:53Z','2026-11-09T05:15:00Z')===JSON.stringify({t:'07:15',tomorrow:false}),NU('2026-11-09T05:04:53Z','2026-11-09T05:15:00Z'));
+  ck('after the last run of the day (13:40 Athens) the next is tomorrow 07:15 -> « (tomorrow) »',NU('2026-11-09T11:40:00Z','2026-11-10T05:15:00Z')===JSON.stringify({t:'07:15',tomorrow:true}));
+  ck('a run three days ahead is shown with its date, not as « tomorrow »',NU('2026-11-09T11:40:00Z','2026-11-12T05:15:00Z')===JSON.stringify({t:'12/11/2026 07:15',tomorrow:false}));
+  ck('a next run that is already in the past (a late or failed run) is shown with its date and flagged, never as if it were still to come',NU('2026-11-09T12:00:00Z','2026-11-09T08:15:00Z')===JSON.stringify({t:'09/11/2026 10:15',tomorrow:false,past:true}) && JSON.parse(NU('2026-11-09T08:15:00Z','2026-11-09T08:15:00Z')).past===true);
+  ck('summer time (+03:00): 06:00 Athens -> 07:15 Athens is 04:15Z and is shown as 07:15',NU('2026-07-09T03:00:00Z','2026-07-09T04:15:00Z')===JSON.stringify({t:'07:15',tomorrow:false}));
+  ck('the night before the autumn change (23:30 Athens, +03:00): the next run, 07:15 Athens (+02:00 = 05:15Z), is « tomorrow »',NU('2026-10-24T20:30:00Z','2026-10-25T05:15:00Z')===JSON.stringify({t:'07:15',tomorrow:true}));
+  ck('« tomorrow » uses the Athens CALENDAR date, not +24 hours: at 00:30 on the 25-hour day (25 Oct 2026) the run of 26 Oct is tomorrow, although now+24h is still 25 Oct',NU('2026-10-24T21:30:00Z','2026-10-26T05:15:00Z')===JSON.stringify({t:'07:15',tomorrow:true}),NU('2026-10-24T21:30:00Z','2026-10-26T05:15:00Z'));
+  ck('no meta.json, or a next_update that is not a date -> « - » (never a made-up time)',(()=>{BB.P.run=null;const a=JSON.stringify(BB.nextUpdate(Date.now()));BB.P.run={fetched:'x',next_update:'garbage'};const b=JSON.stringify(BB.nextUpdate(Date.now()));return a===JSON.stringify({t:'-',tomorrow:false}) && b===a})());
+  ck('Last Update follows the Athens offset of the day: 11:15:20Z is 13:15 in winter and 14:15 in summer',(()=>{BB.P.run={fetched:'2026-11-09T11:15:20Z',next_update:null};const a=BB.lastUpdate();BB.P.run={fetched:'2026-07-09T11:15:20Z',next_update:null};const b=BB.lastUpdate();return a==='09/11/2026 13:15' && b==='09/07/2026 14:15'})());
+  BB.P.run=run0;
+  const fe=(wE.__fetches||[]).filter(x=>String(x[0]).startsWith('data/'));
+  ck('EVERY data file the page requests carries cache: no-cache (the browser asks the server whether it changed, instead of serving a copy up to 10 minutes old), and meta.json is among them',fe.length>=14 && fe.every(x=>x[1]&&x[1].cache==='no-cache') && fe.some(x=>x[0]==='data/meta.json'),fe.filter(x=>!(x[1]&&x[1].cache==='no-cache')).map(x=>x[0]));
+  ck('the same in the main test window (day files included)',FETCHES.filter(x=>String(x[0]).startsWith('data/')).length>=14 && FETCHES.filter(x=>String(x[0]).startsWith('data/')).every(x=>x[1]&&x[1].cache==='no-cache'),FETCHES.filter(x=>!(x[1]&&x[1].cache==='no-cache')).map(x=>x[0]).slice(0,5));
+  const {dm:dmM,e2:errM}=mkDom({},true,['meta.json']); const wM=await boot2(dmM), dM=wM.document;
+  ck('without meta.json the page still works: Last Update falls back to the day files, Next Update is « - », no errors',/^\d\d\/\d\d\/\d{4} \d\d:\d\d$/.test(dM.querySelector('#lu-v').textContent) && dM.querySelector('#nu-v').textContent==='-' && errM.length===0 && !!dM.querySelector('#rg .river'),[dM.querySelector('#lu-v').textContent,dM.querySelector('#nu-v').textContent,errM.slice(0,2)]);
+  setLang(dE,'el'); await sleep(60);
+  ck('Greek labels and values: « Τελευταία ενημέρωση: » and « Επόμενη ενημέρωση: » with the same times',dE.querySelector('#lu-l').textContent==='Τελευταία ενημέρωση:' && dE.querySelector('#nu-l').textContent==='Επόμενη ενημέρωση:' && dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#nu-v').textContent==='01/01/2099 07:15');
+  setLang(dE,'en'); await sleep(60);
+  }
   ck('footer: signature, disclaimer and GitHub link',(()=>{const f=dE.querySelector('footer').textContent;return f.includes('Energy Market Analyst') && f.includes('Independent analysis') && f.includes('Greek local time') && !!dE.querySelector('footer a[href*="github.com/Kon-Pappas/bighydro-dashboard"]')})());
   ck('loading overlay is gone after start-up',!dE.querySelector('#loading-overlay'));
   ck('language switch shows BOTH options "GR | EN", exactly one is on (EN by default) and aria-pressed follows',(()=>{const bs=[...dE.querySelectorAll('#lang button')];return bs.length===2&&bs.map(x=>x.textContent).join('|')==='GR|EN'&&bs.filter(x=>x.className==='on').length===1&&bs[1].className==='on'&&bs[1].getAttribute('aria-pressed')==='true'&&bs[0].getAttribute('aria-pressed')==='false'})());
