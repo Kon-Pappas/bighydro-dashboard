@@ -19,7 +19,7 @@ Agras and Edessaios have no reservoir in the ADMIE reservoir file (run-of-river)
 * **Large hydro (16 units, SCADA + ISP):** Kremasta, Kastraki, Stratos I, Ilarionas, Polyfyto, Sfikia, Asomata, Thesavros, Platanovrysi, Pigai Aoou, Pournari I, Pournari II, Agras, Edessaios, Ladonas, Plastiras. Hydro block of the SCADA sheet = 20 unit rows + `TOTAL HYDRO`.
 * **Small PPC plants in the same SCADA block (not in ISP):** Stratos II, Makrochori, Louros, Gkiona.
 * **Small hydro in the renewables block (`ΑΝΑΝΕΩΣΙΜΑ`, 163 rows):** exactly one row ending in `(ΜΥΗΣ)` — `ΑΥΛΑΚΙ (ΜΥΗΣ)` [data], ≈ 20 MW run-of-river, 43 GWh in Jan–Oct. The block's other rows are PV (66, all zero at night), CG (4), BM (1) and 91 unlabelled rows assumed to be wind [owner/data: only one looks solar, `ΜΑΚΡΥΧΩΡΙ_2`].
-* **MV small hydro:** only an aggregate, in the RESMV file column `ΜΥΗΣ ΕΝΕΡΓΕΙΑ KWh` (the file states ≈ 270 MW installed on 4 Oct) [data]. Uncertified.
+* **MV small hydro:** only an aggregate, in the RESMV file column `ΜΥΗΣ ΕΝΕΡΓΕΙΑ KWh` (the file states ≈ 270 MW installed on 4 Oct) [data]. Uncertified. **Its files can be incomplete or collapse after the first hours** (the file itself says the data « may not be complete or accurate »): 11 Nov 2026 has only hours 1–19 and values about 100 times smaller from hour 9 (K31).
 * **Not visible anywhere in SCADA** [data]: the other seven PPC small plants named in Professor Stefanakos's PDF (Glafkos, Vermio, Agia and Almyros in Crete, Ag. Ioannis Serron, Ag. Varvara, Smokovo). Unknown whether RESMV includes them.
 
 ## 3. Plants that matter for interpretation

@@ -198,12 +198,15 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   // Σταθερές ημερομηνίες του ΠΑΡΕΛΘΟΝΤΟΣ με ΥΠΟΧΡΕΩΜΕΝΗ κατάσταση πηγών: οι έλεγχοι του σήματος (badge) δεν πρέπει να εξαρτώνται από τα πραγματικά δεδομένα.
   // (Ο έλεγχος «μόνο το MCP λείπει» έτρεχε σε μια πραγματική ημέρα και χάθηκε σιωπηλά όταν το backfill του MCP γέμισε την ημέρα εκείνη.)
   const INFL={}, ECL={};
+  const D_PART='2026-03-10', D_FULL='2026-03-11', D_MISS='2026-03-12';      // TEST 24: τρεις σταθερές παρελθοντικές ημέρες, η κατάσταση RESMV επιβάλλεται από το test (D99)
   const META={fetched:'2026-11-09T11:15:20Z',next_update:'2099-01-01T05:15:00Z'};      // συνθετικό meta.json (D99): χειμερινή ώρα run (+02:00)· η επόμενη μακρινή ώστε το test να μη εξαρτάται από το πότε τρέχει
   const D_MCP='2026-05-31', D_BAD='2026-02-02';
   const ST_MCP={reservoir:'ok',scada:'ok',isp:'ok',resmv:'ok',mcp:'missing'}, ST_BAD={reservoir:'ok',scada:'ok',isp:'ok',resmv:'missing',mcp:'ok'};
   const OVR={'data/index.json':(j)=>{j.Days.forEach(x=>{if(x.Date===D_MCP) x.Status=ST_MCP; if(x.Date===D_BAD) x.Status=ST_BAD}); return j},
     ['data/days/'+D_MCP+'.json']:(x)=>{x.Meta.Status=ST_MCP; return x}, ['data/days/'+D_BAD+'.json']:(x)=>{x.Meta.Status=ST_BAD; return x},
-    'data/inflow_climatology.json':()=>INFL, 'data/energy_climatology.json':()=>ECL, 'data/meta.json':()=>META};
+    'data/inflow_climatology.json':()=>INFL, 'data/energy_climatology.json':()=>ECL, 'data/meta.json':()=>META,
+    ['data/days/'+D_PART+'.json']:(x)=>{x.Meta.Status.resmv='partial'; x.Hourly.forEach((h,i)=>{if(i>=19)h.SCADA_SmallHydro=null}); return x},
+    ['data/days/'+D_MISS+'.json']:(x)=>{x.Meta.Status.resmv='missing'; x.Hourly.forEach(h=>{h.SCADA_SmallHydro=null}); return x}};
   // ---- Συνθετικό energy_climatology.json (D99): παραγωγή και ισοδύναμη εισροή ----
   const gWeeks=(m)=>{const a=[];for(let w=1;w<=52;w++)a.push({Wk:w,N:8,Min:m*.5,P25:m*.8,Median:m,P75:m*1.3,Max:m*2,MinYear:2018,MaxYear:2021});return a};
   const gCur=(v,last)=>{const a=[];for(let w=1;w<=44;w++)a.push({Start:new Date(Date.UTC(2025,11,29)+(w-1)*7*864e5).toISOString().slice(0,10),Wk:w,GWh:w===44?last:v,Interp:false,Rank:w===44?1:2,Of:9,DeltaMedian:(w===44?last:v)-50});return a};
@@ -703,6 +706,28 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const {dm:dmN2}=mkDom({},true,['energy_climatology.json']); const wN2=await boot2(dmN2); const BN2=wN2.__bh; await BN2.load('2026-10-15'); await sleep(100); BN2.openRiver(1); await sleep(50);
   ck('without energy_climatology.json the page works as before: no generation section, no inflow scenarios, no generation panel in the modal',!wN2.document.querySelector('[data-sect="gen"]') && !wN2.document.querySelector('[data-sect="ci"]') && wN2.document.querySelector('#t-energy h2.sect'),0);
   ck('no JS errors in the TEST 22 windows',errG.length===0 && errG2.length===0 && errG3.length===0 && rV.errs.length===0 && rS.errs.length===0 && rF.errs.length===0,[errG.slice(0,2),errG2.slice(0,2),errG3.slice(0,2)]);
+  }
+  {  // TEST 24: το σύνολο «Hydro generation (visible)» είναι ΚΑΤΩ ΟΡΙΟ όταν το RESMV είναι μερικό ή λείπει (D109)
+  console.log('TEST 24: the visible-hydro card says « ≥ » and how many RESMV hours exist when RESMV is partial or missing');
+  const {dm:dmR,e2:errR}=mkDom({}); const wR=await boot2(dmR), BR=wR.__bh, dR=wR.document; setLang(dR,'en'); await sleep(80);
+  const real=(dd)=>JSON.parse(fs.readFileSync(ROOT+'/data/days/'+dd+'.json','utf8')), sumK=(rec,k)=>{const v=rec.Hourly.map(h=>h[k]).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0):null};
+  const fmt=(x)=>Math.round(x).toLocaleString('en-US');
+  const idx=JSON.parse(fs.readFileSync(ROOT+'/data/index.json','utf8')).Days.map(x=>x.Date), ctl=real(D_FULL);
+  ck('the three fixed days exist, and the control day has a complete RESMV (24 hours, status ok) in the real data',idx.includes(D_PART) && idx.includes(D_FULL) && idx.includes(D_MISS) && ctl.Meta.Status.resmv==='ok' && ctl.Hourly.filter(h=>h.SCADA_SmallHydro!=null).length===24);
+  const card=async(dd)=>{await BR.load(dd); await sleep(120); const c=dR.querySelector('#sum .card'); return {val:c.querySelector('.val').textContent.trim(), sm:c.querySelector('.sm').textContent.trim()}};
+  const rp=real(D_PART); rp.Hourly.forEach((h,i)=>{if(i>=19)h.SCADA_SmallHydro=null});
+  const expP=sumK(rp,'SCADA_TotalHydro')+sumK(rp,'SCADA_SmallHydro')+(sumK(rp,'SCADA_ResSmallHydro')||0);
+  let c=await card(D_PART);
+  ck('partial RESMV (19 of 24 hours): the value starts with « ≥ » and equals SCADA total + the RESMV hours present + Aulaki, recomputed from the day file',c.val==='≥ '+fmt(expP)+' MWh',[c.val,'≥ '+fmt(expP)+' MWh']);
+  ck('…and the note says RESMV is incomplete with the count (19 of 24 hours) and that the total is a lower bound; the components are still listed',c.sm.includes('RESMV is incomplete (19 of 24 hours): the total is a lower bound') && c.sm.includes('small MV (RESMV, estimate)'),c.sm);
+  c=await card(D_FULL); const expF=sumK(ctl,'SCADA_TotalHydro')+sumK(ctl,'SCADA_SmallHydro')+(sumK(ctl,'SCADA_ResSmallHydro')||0);
+  ck('a day with a complete RESMV is unchanged: no « ≥ », no « incomplete »',c.val===fmt(expF)+' MWh' && !c.val.includes('≥') && !c.sm.includes('incomplete'),c);
+  const rm=real(D_MISS); const expM=sumK(rm,'SCADA_TotalHydro')+(sumK(rm,'SCADA_ResSmallHydro')||0);
+  c=await card(D_MISS);
+  ck('a day WITHOUT RESMV: « ≥ » too (the total lacks the small hydro), the existing « no RESMV for this day » is kept, and there is no « incomplete » (nothing to count)',c.val==='≥ '+fmt(expM)+' MWh' && c.sm.includes('no RESMV for this day') && !c.sm.includes('incomplete'),c);
+  setLang(dR,'el'); await sleep(80); c=await card(D_PART);
+  ck('Greek: « ≥ » and « το RESMV είναι ελλιπές (19 από 24 ώρες): το σύνολο είναι κάτω όριο »',c.val.startsWith('≥ ') && c.sm.includes('το RESMV είναι ελλιπές (19 από 24 ώρες): το σύνολο είναι κάτω όριο'),c);
+  ck('no JS errors in the TEST 24 window',errR.length===0,errR.slice(0,2));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
