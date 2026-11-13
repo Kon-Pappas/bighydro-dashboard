@@ -30,7 +30,10 @@ Steps run in this order, in one job (`concurrency: bighydro-fetch`, runs never o
 6. `build_climatology.py` — stock vs previous years (`continue-on-error`).
 7. `build_inflow.py` — inflow against normal and regime, per river (`continue-on-error`; reads `data/history/` and `data/days/`).
 8. `build_energy_climatology.py` — generation against previous years and the equivalent inflow behind the inflow scenarios (`continue-on-error`; reads `data/history/`, `data/days/`, `pump_daily.json`, `psh_daily.json`, `energy_factors.json`).
-9. Commit and push `data/` if anything changed (`git pull --rebase` first). Derived files are rewritten only when their content changes (`jsonio.py`, D98), so a run with nothing new commits nothing.
+9. `write_meta.py` — `data/meta.json` (`fetched` and `next_update`, UTC), written on **every** run after the steps above (`continue-on-error`, so a failure there never loses the data of the run; skipped in diagnose runs; D105).
+10. Commit and push `data/` if anything changed (`git pull --rebase` first). Derived files are rewritten only when their content changes (`jsonio.py`, D98), **except `meta.json`**, which changes in every run: so every run now commits, at most four a day.
+
+Runs are started **only** by the external cron-job.org (07:15, 09:15, 10:15 and 13:30 Athens; D104): no workflow has a `schedule:`, and all workflows use `checkout@v5`, `setup-python@v6` and `setup-node@v5` (a test, `tests/test_workflows.py`, guards both).
 
 A second, **manual** workflow, `.github/workflows/backfill_entsoe.yml` (*Backfill ENTSO-E history*), shares the same concurrency group. It fetches the weekly stored energy for past years (one request per year) into the **separate** file `data/entsoe_history.json`, which the energy calibration does not read. It has a diagnostic mode that writes nothing.
 
@@ -76,7 +79,7 @@ The 10:15 run has only ~10 minutes of margin for RESMV, hence the recommended 13
 One self-contained file: CSS variables, vanilla JS, hand-written SVG charts, no external libraries. It `fetch()`es the JSON files with relative paths,
 so it must be served over http(s) (GitHub Pages), not opened as a local file.
 * **Look:** dark slate base shared with the other dashboards; the accent colour is the single variable `--acc` (violet); chart colours are `--c1` (sky), `--c2` (amber), `--c3` (emerald).
-* **Shell:** breadcrumb to the hub, title, *Last Update* (newest `Updated` of the latest days in `index.json`), *Next Update* (from the `RUN_TIMES` constant), a *Complete/Partial Data* badge and banner for the selected day (reservoir, SCADA, ISP, RESMV only), footer with sources and disclaimer.
+* **Shell:** breadcrumb to the hub, title, *Last Update* (`fetched` in `data/meta.json`; falls back to the newest `Updated` of the latest days in `index.json` if the file is missing), *Next Update* (`next_update` in `data/meta.json`: the time only today, « (tomorrow) » tomorrow, the date otherwise or when it is already in the past; « - » without the file), a *Complete/Partial Data* badge and banner for the selected day (reservoir, SCADA, ISP, RESMV only), footer with sources and disclaimer.
 * **Loading overlay:** `boot()` reads the eight JSON files (progress bar 1), then `load(date, hook)` renders the five tabs one at a time and the hook fills one overlay row per tab; deliberate pauses (`STEP`, `MIN_READ`, `READY_MS`) keep each step visible (about 3.5 s in total) and are zero when `window.__BH_FAST` is set (tests).
 * **Modals:** one component (`modalHtml`) builds a fixed header (title, boxed ✕), a scrolling body and a fixed footer (boxed Close); `openModal`/`closeModal` also lock the page scroll, and Escape or a click on the backdrop closes them. The river modal also carries the date navigation (select, previous/next, arrow keys): `gotoDay` reloads the page data and re-renders the open modal in place.
 * **Language:** English by default; a two-option switch **GR | EN** with the active option highlighted; the choice is stored in `localStorage` under the shared key `kp_lang` (the legacy key `bh_lang` is still read).

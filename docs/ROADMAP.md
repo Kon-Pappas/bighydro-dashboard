@@ -28,8 +28,21 @@ The clock change of 25 Oct 2026 and the fix of K04, K05 and K26 are complete and
 ## After 26 Oct 2026
 6. ~~**Daylight-saving handling** (ISP, SCADA, RESMV, MCP)~~ — **done** (batch31, D96–D97; 30 Mar and 25–26 Oct re-run and verified). *Optional:* an **automatic clock-alignment flag** per day (the SCADA–ISP ramp lag, D95), stored in `Meta`.
 7. ~~**Water balance for the remaining rivers**~~ — **done** (Nestos, Arachthos, Plastiras, Ladonas and an all-rivers overview; see D36–D39). Next in line: the pumped-storage view (item 2), which reuses the same pump estimates.
-8. ~~**Less clutter**~~ — derived files are now written only when their content changes (batch34, D98); `data/monthly/*.json` is **kept** on purpose. *Open:* the Actions versions that warn about Node 20 (no failure: they already run on Node 24; check the newest versions before changing them).
+8. ~~**Less clutter**~~ — derived files are written only when their content changes (batch34, D98); `data/monthly/*.json` is **kept** on purpose; the Actions versions that warned about Node 20 are replaced (batch37, D104).
 9. ~~Optional backfills~~ — **done on 8 Nov 2026**: MCP for January–May (149 days) is in and **all 312 days of 2026 have MCP**; the RESMV of 1–2 Feb is still incomplete at ADMIE (K03).
+
+## Alignment with the hub playbook (« Τυφλοσούρτης »)
+The other hub dashboards are aligned; this is the last one (decided 9 Nov 2026, discussed first, one phase at a time: analysis → the owner's decisions → code, with a **browser check** at 360 and 320 px, Greek and English, before every zip). Declared exceptions: own SVG charts and the page-side computation of *Days of cover* (D107).
+
+| # | Phase | What | Status |
+|---|---|---|---|
+| 1 | Basics | cron-job.org only, no `schedule:`; actions v5 / v6; `meta.json` from the Python; `no-cache`; the H / C lists; first browser check | **done** (batch37, D104–D107) |
+| 2 | Data colours | no data colour equal to the accent, to yellow / red or to the « complete » green; the new scenario lines included (sample palette first) | next |
+| 3 | Mobile (H06, H02) | secondary box, tabs 3 + 2 at 48 px, the ↑ button, 12 px gaps, short header labels; before / after measures at 360 and 320 px | |
+| 4 | Labels and tables (C02, K30) | no all-caps captions; tables that do not fit become cards, no sideways scroll, « – » instead of 0 | |
+| 5 | Loading and Methodology | the remaining overlay details, the Methodology window (Short / Detailed switch, section of the tab, title) | |
+| 6 | Data size | `scripts/data_size.py` (raw, gzip, growth, days to the 250 KB limit); on 9 Nov 2026 the first visit loads about 174 KB gzip of data, growing about 130 KB a year, so **the limit is reached around mid-2027** (linear estimate) and files per month become due | |
+| 7 | Charts | a decision on Chart.js after the basics (D107) | later |
 
 ## Later
 * Recalibrate the energy factors on the rule in METHODS §2.1 (and in December).
