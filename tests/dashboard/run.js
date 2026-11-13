@@ -238,8 +238,8 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
   ck('default language is English (no stored preference)',dE.querySelector('#ttl').textContent==='Greek Hydro & Reservoir Analytics' && dE.documentElement.lang==='en' && dE.title==='Greek Hydro & Reservoir Analytics',dE.querySelector('#ttl').textContent);
   ck('breadcrumb links back to the hub',(()=>{const a=dE.querySelector('a.crumb');return a && a.getAttribute('href')==='https://kon-pappas.github.io/' && a.textContent.includes('Konstantinos Pappas Hub')})());
-  ck('Last Update is the run time written by the Python in meta.json, in Athens time (2026-11-09T11:15:20Z -> 09/11/2026 13:15)',dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#lu-l').textContent==='Last Update:',dE.querySelector('#lu-v').textContent);
-  ck('Next Update comes from meta.json too (a date far in the future is shown with its date: 01/01/2099 07:15)',dE.querySelector('#nu-v').textContent==='01/01/2099 07:15' && dE.querySelector('#nu-l').textContent==='Next Update:',dE.querySelector('#nu-v').textContent);
+  ck('Last Update is the run time written by the Python in meta.json, in Athens time (2026-11-09T11:15:20Z -> 09/11/2026 13:15)',dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#lu-l .lg').textContent==='Last Update:',dE.querySelector('#lu-v').textContent);
+  ck('Next Update comes from meta.json too (a date far in the future is shown with its date: 01/01/2099 07:15)',dE.querySelector('#nu-v').textContent==='01/01/2099 07:15' && dE.querySelector('#nu-l .lg').textContent==='Next Update:',dE.querySelector('#nu-v').textContent);
   const BB=wE.__bh;
   ck('the page no longer carries its own list of run times (they live in one place, scripts/write_meta.py)',typeof BB.nextRun==='undefined' && typeof BB.nextUpdate==='function' && !fs.readFileSync(ROOT+'/index.html','utf8').includes('RUN_TIMES'));
   ck('fmtStamp handles summer (+0300) and winter (+0200) offsets',BB.fmtStamp('2026-10-16T20:25:02+0300')==='16/10/2026 20:25' && BB.fmtStamp('2026-01-15T10:00:00+0200')==='15/01/2026 10:00',[BB.fmtStamp('2026-10-16T20:25:02+0300'),BB.fmtStamp('2026-01-15T10:00:00+0200')]);
@@ -262,7 +262,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const {dm:dmM,e2:errM}=mkDom({},true,['meta.json']); const wM=await boot2(dmM), dM=wM.document;
   ck('without meta.json the page still works: Last Update falls back to the day files, Next Update is « - », no errors',/^\d\d\/\d\d\/\d{4} \d\d:\d\d$/.test(dM.querySelector('#lu-v').textContent) && dM.querySelector('#nu-v').textContent==='-' && errM.length===0 && !!dM.querySelector('#rg .river'),[dM.querySelector('#lu-v').textContent,dM.querySelector('#nu-v').textContent,errM.slice(0,2)]);
   setLang(dE,'el'); await sleep(60);
-  ck('Greek labels and values: « Τελευταία ενημέρωση: » and « Επόμενη ενημέρωση: » with the same times',dE.querySelector('#lu-l').textContent==='Τελευταία ενημέρωση:' && dE.querySelector('#nu-l').textContent==='Επόμενη ενημέρωση:' && dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#nu-v').textContent==='01/01/2099 07:15');
+  ck('Greek labels and values: « Τελευταία ενημέρωση: » and « Επόμενη ενημέρωση: » with the same times',dE.querySelector('#lu-l .lg').textContent==='Τελευταία ενημέρωση:' && dE.querySelector('#nu-l .lg').textContent==='Επόμενη ενημέρωση:' && dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#nu-v').textContent==='01/01/2099 07:15');
   setLang(dE,'en'); await sleep(60);
   }
   ck('footer: signature, disclaimer and GitHub link',(()=>{const f=dE.querySelector('footer').textContent;return f.includes('Energy Market Analyst') && f.includes('Independent analysis') && f.includes('Greek local time') && !!dE.querySelector('footer a[href*="github.com/Kon-Pappas/bighydro-dashboard"]')})());
@@ -728,6 +728,33 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   setLang(dR,'el'); await sleep(80); c=await card(D_PART);
   ck('Greek: « ≥ » and « το RESMV είναι ελλιπές (19 από 24 ώρες): το σύνολο είναι κάτω όριο »',c.val.startsWith('≥ ') && c.sm.includes('το RESMV είναι ελλιπές (19 από 24 ώρες): το σύνολο είναι κάτω όριο'),c);
   ck('no JS errors in the TEST 24 window',errR.length===0,errR.slice(0,2));
+  }
+  {  // TEST 25: κινητό (H01, H02, H06 · D110). Το jsdom δεν κάνει διάταξη: εδώ ελέγχονται οι κανόνες CSS, οι ετικέτες και το κουμπί ↑· οι μετρήσεις σε 360/320 px γίνονται με Playwright (tests/README)
+  console.log('TEST 25: mobile — short labels, secondary box, tabs 3 + 2 at 48 px, the ↑ button (H01, H02, H06)');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  const mi=css.indexOf('@media (max-width:767px){'); let mob='';
+  if(mi>=0){let d=0,i=css.indexOf('{',mi);for(let j=i;j<css.length;j++){if(css[j]==='{')d++;else if(css[j]==='}'){d--;if(d===0){mob=css.slice(i+1,j);break}}}}
+  const top=css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'');
+  ck('all the mobile rules live in one « max-width:767px » block; outside it only the short labels and the ↑ button are hidden, so the desktop does not change',mob.length>0 && /\.sh\{display:none\}/.test(top) && /#totop\{display:none\}/.test(top) && !/\.lg\{display:none\}/.test(top));
+  ck('mobile: no line under the header and 12 px between the blocks (H01, H06)',/header\.top\{border-bottom:0;padding-bottom:0;gap:12px\}/.test(mob) && /nav\.tabs\{[^}]*margin:12px 0/.test(mob));
+  ck('mobile: one secondary box (slate-800/45, slate-600/50, 12 px corners, 8 px padding) with dark 40 px wells for the day, Methodology and GR | EN',/\.ctrls\{background:rgba\(30,41,59,\.45\);border:1px solid rgba\(71,85,105,\.5\);border-radius:12px;padding:8px;gap:8px\}/.test(mob) && /\.pill,\.btns \.btn,\.seg2\{background:rgba\(2,6,23,\.7\);border:1px solid rgba\(51,65,85,\.6\);[^}]*height:40px\}/.test(mob));
+  ck('mobile: tabs on a 6-column grid, three spanning 2 and two spanning 3 (3 + 2), at least 48 px high, labels allowed to wrap',/nav\.tabs\{grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/.test(mob) && /nav\.tabs button\{grid-column:span 2;min-height:48px/.test(mob) && /nav\.tabs button:nth-child\(n\+4\)\{grid-column:span 3\}/.test(mob) && !/nav\.tabs button\{[^}]*nowrap/.test(mob));
+  ck('mobile: the ↑ button is round, 48 px, bottom right inside the safe area, and the page keeps 5 rem free at the end',/#totop\{position:fixed;right:max\(16px,env\(safe-area-inset-right\)\);bottom:max\(16px,env\(safe-area-inset-bottom\)\);width:48px;height:48px;border-radius:50%/.test(mob) && /body\{padding-bottom:5rem\}/.test(mob));
+  ck('below 340 px the « Day: » label is hidden and the completeness pill keeps only its dot',/@media \(max-width:339px\)\{#dlab\{display:none\}\.badge \.bt\{display:none\}/.test(css));
+  const {dm:dmM,e2:errM}=mkDom({}); const wM=await boot2(dmM), BM=wM.__bh, dM=wM.document; setLang(dM,'el'); await sleep(80); await BM.load('2026-10-15'); await sleep(120);
+  const tb=dM.getElementById('totop'), sc=[...dM.querySelectorAll('script')].filter(x=>!x.src);
+  ck('the ↑ button is in the page before the script that wires it (otherwise it would never appear)',!!tb && sc.length>0 && (tb.compareDocumentPosition(sc[sc.length-1]) & 4)!==0);
+  ck('Greek short labels (H02): « Ενημέρωση: », « Επόμενη: » and « Μεθοδολογία », next to the long ones for the desktop',dM.querySelector('#lu-l .sh').textContent==='Ενημέρωση:' && dM.querySelector('#nu-l .sh').textContent==='Επόμενη:' && dM.querySelector('#meth .sh').textContent==='Μεθοδολογία' && dM.querySelector('#meth .lg').textContent==='Μεθοδολογία και παραδοχές');
+  ck('the pill text sits in its own span (so it can hide below 340 px) and its tooltip still names the missing sources',!!dM.querySelector('#badge .bt') && dM.querySelector('#badge').textContent.length>0);
+  ck('five tabs, the order unchanged',[...dM.querySelectorAll('#tabs button')].map(b=>b.getAttribute('data-t')).join()==='rivers,energy,pump,wb,kast');
+  const tabs=dM.getElementById('tabs'); let bottom=300; tabs.getBoundingClientRect=()=>({top:bottom-104,bottom:bottom,left:0,right:328,width:328,height:104});
+  wM.dispatchEvent(new wM.Event('scroll')); const h0=tb.hidden; bottom=-40; wM.dispatchEvent(new wM.Event('scroll')); const h1=tb.hidden;
+  let to=null; wM.scrollTo=(o)=>{to=o}; tb.click(); bottom=300; wM.dispatchEvent(new wM.Event('scroll'));
+  ck('the ↑ button is hidden while the tabs are on screen, appears once they scroll out, and a tap goes back to the top',h0===true && h1===false && to && to.top===0 && tb.hidden===true,[h0,h1,to]);
+  ck('Greek name for the ↑ button (« Επιστροφή στην κορυφή »)',tb.getAttribute('aria-label')==='Επιστροφή στην κορυφή');
+  setLang(dM,'en'); await sleep(80);
+  ck('English short labels: « Updated: », « Next: », « Methodology », and « Back to top »',dM.querySelector('#lu-l .sh').textContent==='Updated:' && dM.querySelector('#nu-l .sh').textContent==='Next:' && dM.querySelector('#meth .sh').textContent==='Methodology' && tb.getAttribute('aria-label')==='Back to top');
+  ck('no JS errors in the TEST 25 window',errM.length===0,errM.slice(0,2));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
