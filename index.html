@@ -261,7 +261,7 @@ function rname(r){return S.lang==='el'?r.Name:(RN[r.Id]||r.Name)}
 function dname(k){return S.lang==='el'?P.meta.Reservoirs[k].NameEl:(DN[k]||k)}
 
 /* ---------- data ---------- */
-function getJSON(p){if(cache[p])return Promise.resolve(cache[p]);return fetch('data/'+p).then(function(r){if(!r.ok)throw new Error(p+' '+r.status);return r.json()}).then(function(j){cache[p]=j;return j})}
+function getJSON(p){if(cache[p])return Promise.resolve(cache[p]);return fetch('data/'+p,{cache:'no-cache'}).then(function(r){if(!r.ok)throw new Error(p+' '+r.status);return r.json()}).then(function(j){cache[p]=j;return j})}
 function opt(p){return getJSON(p).catch(function(){return null})}
 function cap(k){return P.meta.Reservoirs[k].CapacityHm3}
 function sanitize(){
@@ -728,13 +728,16 @@ function renderMeth(){
   $('#mmc').innerHTML=modalHtml(t('m_title'),'',body,'mclose','mclose-x');
   $('#mclose').onclick=$('#mclose-x').onclick=function(){closeModal('mm')}}
 var USED=['reservoir','scada','isp','resmv'];                       // πηγές που χρησιμοποιεί η σελίδα (ο MCP/τιμή δεν εμφανίζεται πουθενά)
-var RUN_TIMES=['07:15','09:15','10:15'];                              // ώρες Ελλάδας των καθημερινών runs (cron-job.org)
 function srcLab(k){return k==='reservoir'?(S.lang==='el'?'ταμιευτήρες':'reservoirs'):k==='scada'?'SCADA':k==='isp'?'ISP':k==='resmv'?'RESMV':k}
-function athensMin(d){var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Athens',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d||new Date()).forEach(function(p){o[p.type]=p.value});return +o.hour*60+ +o.minute}
-function nextRun(min){for(var i=0;i<RUN_TIMES.length;i++){var q=RUN_TIMES[i].split(':');if(+q[0]*60+ +q[1]>min)return{t:RUN_TIMES[i],tomorrow:false}}return{t:RUN_TIMES[0],tomorrow:true}}
+function athensParts(ms){var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Athens',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(ms)).forEach(function(p){o[p.type]=p.value});return o}
+function nextUpdate(nowMs){      // η «Επόμενη ενημέρωση» διαβάζεται από το meta.json που γράφει το Python (D105)· η σελίδα δεν έχει δική της λίστα ωρών
+  var r=P.run&&P.run.next_update;if(!r)return {t:'-',tomorrow:false};var n=stampMs(r);if(isNaN(n))return {t:'-',tomorrow:false};
+  var now=nowMs==null?Date.now():nowMs;if(n<=now)return {t:fmtStamp(r),tomorrow:false,past:true};      // run που καθυστερεί ή απέτυχε: ημερομηνία και ώρα, ώστε να φαίνεται ότι είναι παρελθόν
+  var a=athensParts(n),b=athensParts(now),da=a.year+'-'+a.month+'-'+a.day,db=b.year+'-'+b.month+'-'+b.day,tom=new Date(Date.UTC(+b.year,+b.month-1,+b.day+1)).toISOString().slice(0,10);   // «αύριο» με ημερομηνία Αθήνας, όχι +24 ώρες (η ημέρα αλλαγής ώρας έχει 23 ή 25)
+  if(da===db)return {t:a.hour+':'+a.minute,tomorrow:false};if(da===tom)return {t:a.hour+':'+a.minute,tomorrow:true};return {t:fmtStamp(r),tomorrow:false}}
 function stampMs(u){return Date.parse(String(u).replace(/([+-]\d\d)(\d\d)$/,'$1:$2'))}
 function fmtStamp(u){var d=new Date(stampMs(u));if(isNaN(d))return '-';var o={};new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Athens',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).forEach(function(p){o[p.type]=p.value});return o.day+'/'+o.month+'/'+o.year+' '+o.hour+':'+o.minute}
-function lastUpdate(){var b=null;P.idx.Days.slice(0,4).forEach(function(x){if(!x.Updated)return;var m=stampMs(x.Updated);if(!isNaN(m)&&(b===null||m>b.m))b={m:m,u:x.Updated}});return b?fmtStamp(b.u):'-'}
+function lastUpdate(){var f=P.run&&P.run.fetched;if(f&&!isNaN(stampMs(f)))return fmtStamp(f);var b=null;P.idx.Days.slice(0,4).forEach(function(x){if(!x.Updated)return;var m=stampMs(x.Updated);if(!isNaN(m)&&(b===null||m>b.m))b={m:m,u:x.Updated}});return b?fmtStamp(b.u):'-'}
 var FAST=!!window.__BH_FAST,REDUCE=!FAST&&!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 var STEP=FAST?0:(REDUCE?120:350),MIN_READ=FAST?0:(REDUCE?200:650),READY_MS=FAST?0:(REDUCE?200:650);   // παύσεις ώστε το μάτι να προλαβαίνει τα βήματα
 function pause(ms){return ms>0?new Promise(function(r){setTimeout(r,ms)}):Promise.resolve()}
@@ -758,7 +761,7 @@ function banner(){
 function chrome(){
   document.documentElement.lang=S.lang;document.title=t('ttl');$('#ttl').textContent=t('ttl');$('#dlab').textContent=t('date')+':';
   [].forEach.call(document.querySelectorAll('#lang button'),function(b){var on=b.getAttribute('data-l')===S.lang;b.className=on?'on':'';b.setAttribute('aria-pressed',on?'true':'false')});$('#meth').innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+t('meth');
-  $('#lu-l').textContent=t('lu');$('#lu-v').textContent=lastUpdate();var nr=nextRun(athensMin());$('#nu-l').textContent=t('nu');$('#nu-v').textContent=nr.t+(nr.tomorrow?' ('+t('tmr')+')':'');
+  $('#lu-l').textContent=t('lu');$('#lu-v').textContent=lastUpdate();var nr=nextUpdate();$('#nu-l').textContent=t('nu');$('#nu-v').textContent=nr.t+(nr.tomorrow?' ('+t('tmr')+')':'');
   var dd=P.idx.Days.filter(function(x){return x.Date===S.date})[0],mi=dd&&dd.Status?USED.filter(function(k){return dd.Status[k]!=='ok'}):[],bd=$('#badge');bd.className='badge '+(mi.length?'warn':'ok');bd.textContent=mi.length?t('b_part'):t('b_full');bd.title=mi.map(srcLab).join(', ');
   $('#ft-src').textContent=t('ft_src');$('#ft-disc').textContent=t('ft_disc');
   $('#tabs').innerHTML=['rivers','energy','pump','wb','kast'].map(function(k){return '<button data-t="'+k+'" class="'+(S.tab===k?'on':'')+'">'+t('t_'+k)+'</button>'}).join('');
@@ -774,9 +777,9 @@ function load(date,hook){
     return p.then(function(){renderMeth();chrome();showTab()})})}
 
 function boot(){
-  ovText();ovRowStart(0);var nF=13,dF=0,t0=Date.now(),tr=function(pr){return pr.then(function(x){dF++;ovSet(0,dF/nF*100);return x})};
-  Promise.all([tr(getJSON('index.json')),tr(getJSON('reservoirs.json')),tr(getJSON('energy_factors.json')),tr(getJSON('reservoir_history.json')),tr(opt('plant_heads.json')),tr(opt('entsoe_reservoir.json')),tr(opt('pump_daily.json')),tr(opt('water_balance.json')),tr(opt('psh_daily.json')),tr(opt('unit_daily.json')),tr(opt('climatology.json')),tr(opt('inflow_climatology.json')),tr(opt('energy_climatology.json'))]).then(function(a){
-    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];P.wb=a[7];P.psh=a[8];P.units=a[9];P.clim=a[10];P.infl=a[11];P.ecl=a[12];P.pump=a[6]||[];P.pm={};P.pump.forEach(function(x){P.pm[x.Date]=x});sanitize();physE();
+  ovText();ovRowStart(0);var nF=14,dF=0,t0=Date.now(),tr=function(pr){return pr.then(function(x){dF++;ovSet(0,dF/nF*100);return x})};
+  Promise.all([tr(getJSON('index.json')),tr(getJSON('reservoirs.json')),tr(getJSON('energy_factors.json')),tr(getJSON('reservoir_history.json')),tr(opt('plant_heads.json')),tr(opt('entsoe_reservoir.json')),tr(opt('pump_daily.json')),tr(opt('water_balance.json')),tr(opt('psh_daily.json')),tr(opt('unit_daily.json')),tr(opt('climatology.json')),tr(opt('inflow_climatology.json')),tr(opt('energy_climatology.json')),tr(opt('meta.json'))]).then(function(a){
+    P.idx=a[0];P.meta=a[1];P.fac=a[2];P.hist=a[3];P.heads=a[4];P.ent=a[5];P.wb=a[7];P.psh=a[8];P.units=a[9];P.clim=a[10];P.infl=a[11];P.ecl=a[12];P.run=a[13];P.pump=a[6]||[];P.pm={};P.pump.forEach(function(x){P.pm[x.Date]=x});sanitize();physE();
     return pause(Math.max(0,MIN_READ-(Date.now()-t0))).then(function(){ovRowDone(0);return pause(STEP)})}).then(function(){
     var DL=dayList(),pick=DL.filter(function(x){return x.Status&&x.Status.scada==='ok'&&x.Status.isp==='ok'})[0]||DL[0];
     $('#dsel').onchange=function(){load(this.value)};
@@ -785,7 +788,7 @@ function boot(){
     $('#rm').onclick=function(e){if(e.target===this)closeModal('rm')};$('#mm').onclick=function(e){if(e.target===this)closeModal('mm')};
     document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeModal('rm');closeModal('mm')}else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&!$('#rm').hidden&&!(e.target&&/^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName||''))){e.preventDefault();stepDay(e.key==='ArrowLeft'?-1:1)}});
     return load(pick.Date,function(i){ovRowStart(i+1);return pause(STEP).then(function(){ovRowDone(i+1)})}).then(function(){ovReady();return pause(READY_MS)}).then(ovHide)}).catch(function(e){ovHide();document.querySelector('main').innerHTML='<div class="panel">'+t('err')+'<br><span class="mut small">'+(e&&e.message||e)+'</span></div>';if(window.console)console.error(e)})}
-window.__bh={sumKey:sumKey,P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver,nextRun:nextRun,fmtStamp:fmtStamp,lastUpdate:lastUpdate,CH:CH,__uname:uname};
+window.__bh={sumKey:sumKey,P:P,S:S,model:model,eqE:eqE,boot:boot,load:load,openRiver:openRiver,nextUpdate:nextUpdate,fmtStamp:fmtStamp,lastUpdate:lastUpdate,CH:CH,__uname:uname};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>

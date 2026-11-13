@@ -50,11 +50,12 @@ tests/                         Python pipeline tests + jsdom page tests (run in 
 ```
 
 ## Daily schedule
-The update is triggered by an external scheduler (cron-job.org) calling the `Daily BigHydro Fetcher` workflow at
-**07:15, 09:15 and 10:15 Athens time** (a 13:30 safety run is recommended). The times follow ADMIE's publication times
+The update is started **only** by an external scheduler (cron-job.org) that calls the `Daily BigHydro Fetcher` workflow through the GitHub API at
+**07:15, 09:15, 10:15 and 13:30 Athens time** (D104; the workflow has no `schedule:` of its own). The times follow ADMIE's publication times
 (observed 11/10/2026): ISP for day D ≈ 00:25 on D · reservoir levels for D ≈ 08:35 on D · SCADA for D ≈ 06:05 on D+1 · RESMV for D ≈ 10:05 on D+1.
-Each run re-reads the last 4 days, so a late file is picked up by the next run. GitHub's own `schedule` trigger (04:17 UTC) exists in the
-workflow but has not been observed to fire.
+Each run re-reads the last 4 days, so a late file is picked up by the next run. After every run `data/meta.json` (written by `scripts/write_meta.py`)
+holds the **time of the run and the time of the next one**, and the page shows them as *Last Update* / *Next Update* (D105). **If a job is changed in
+cron-job.org, change `UPDATE_TIMES_ATHENS` in `scripts/write_meta.py` and the header comment of `fetch_data.yml`**: a test checks that the two agree.
 
 ## Manual runs and backfills
 Actions → *Daily BigHydro Fetcher* → *Run workflow*. Inputs: `start_date`, `end_date` (empty = last 4 days), `only` (comma list of
@@ -63,8 +64,8 @@ Keep a run to roughly **120 requests or fewer**: about 4 per day for `scada,isp`
 A re-run overwrites old values with new non-null values; a missing value never erases an existing one.
 
 ## Tests
-`python tests/run_all.py` (pipeline, 498 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
-(page, ~288 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
+`python tests/run_all.py` (pipeline, 532 checks) and `node tests/dashboard/run.js` after `npm install --prefix tests/dashboard`
+(page, ~301 checks, uses the real data in `data/`). Both run automatically on pushes that touch code. See [tests/README.md](tests/README.md).
 A failing test never blocks the daily data update.
 
 ## Read this before trusting a number
