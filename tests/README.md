@@ -39,6 +39,8 @@ First `npm install --prefix tests/dashboard`. The badge checks («only the MCP m
 
 **Loading and Methodology (TEST 27, D113–D115).** The order of the overlay steps is watched while the page boots (each tab must be drawn while its step is already lit); a boot with `index.json` blocked must leave the overlay on screen with the stopped spinner and the playbook message. The Methodology window is checked for its seven sections, the Short / Detailed switch, the new Detailed paragraphs and the removed stale phrases, the marked section of the tab it was opened from (kept when switching), the focus (X on open, Tab kept inside, focus back on close) and the « Μεθοδολογία → » link. Where the window scrolls to is checked by hand in a real browser (jsdom does no layout).
 
+**River switch and tabs (TEST 28, D116, D117).** The CSS must give the desktop tabs equal shares of the width, the river choice one frame without borders per button, a chosen river that is not the filled accent, the 1 + 3 + 3 grid on a phone and the wider, separated « all rivers » on a desktop; the buttons must follow the order of `reservoirs.json`, show the short name and keep the full one as the tooltip, and choosing a river must still work. Positions and widths are measured with Playwright at 320, 360, 800 and 1280 px.
+
 ## Not covered
 Real browser rendering (charts are checked as SVG markup, not pixels; mobile heights are measured with Playwright by hand, see TEST 25 above), live ADMIE/ENTSO-E responses (only synthetic samples), `calibrate_energy.py` (run manually and reviewed by eye).
 

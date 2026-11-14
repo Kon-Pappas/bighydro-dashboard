@@ -154,6 +154,17 @@ body.modal-open{overflow:hidden}
 #mmc section.cur{border-left:2px solid var(--acc);padding-left:10px;margin-left:-12px}
 .mlink{display:none}
 @media (min-width:768px){.mlink{display:flex;justify-content:flex-end;margin:-6px 0 10px}.mlink button{border:0;background:none;color:var(--mut);font-size:12px;padding:0;cursor:pointer}.mlink button:hover{color:var(--acc)}}
+/* D117: η επιλογή ποταμού του Ισοζυγίου είναι διακόπτης μέσα στο περιεχόμενο (όπως Σύντομη / Αναλυτική), όχι δεύτερη σειρά tabs */
+#t-wb .seg{display:flex;background:rgba(15,23,42,.6);border:1px solid #334155;border-radius:12px;padding:4px;gap:4px;margin-bottom:14px;width:100%}
+#t-wb .seg button{flex:1 1 0;min-width:0;background:transparent;border:0;border-radius:8px;min-height:36px;padding:6px 10px;color:var(--mut);font-weight:500;text-align:center}
+#t-wb .seg button:hover{color:var(--ink)}
+#t-wb .seg button.on{background:#334155;color:#c4b5fd;font-weight:600;border:0}
+#t-wb .seg .lg{display:none}#t-wb .seg .sh{display:inline}
+@media (max-width:767px){#t-wb .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}#t-wb .seg button{padding:4px 6px;line-height:1.15;font-size:13px}#t-wb .seg button:first-child{grid-column:1/-1}}
+@media (min-width:768px) and (max-width:1023px){#t-wb .seg button{padding:6px 4px;font-size:13px}}
+@media (min-width:768px){#t-wb .seg button:first-child{flex:1.4 1 0;margin-right:10px;position:relative}#t-wb .seg button:first-child::after{content:'';position:absolute;right:-7px;top:6px;bottom:6px;width:1px;background:var(--line2)}}
+/* D116: στον υπολογιστή τα tabs μοιράζονται ισόποσα όλο το πλάτος */
+@media (min-width:768px){nav.tabs{gap:0}nav.tabs button{flex:1 1 0;text-align:center;padding:0 4px 10px}}
 /* footer */
 footer{border-top:1px solid #1e293b;margin-top:48px;padding:24px 0 32px;text-align:center;font-size:12px;color:var(--mut2)}
 footer p{margin:4px 0}footer .who{font-weight:600;color:var(--mut)}footer a{color:var(--mut);text-decoration:none;border-bottom:1px dotted var(--line2)}footer a:hover{color:var(--acc)}
@@ -728,7 +739,7 @@ function renderWB(){
   var el=$('#t-wb'),WB=P.wb&&P.wb.Rivers;
   if(!WB||!Object.keys(WB).length){el.innerHTML='<div class="panel">'+t('w_nodata')+'</div>';return}
   var ids=P.meta.Rivers.map(function(r){return r.Id}).filter(function(id){return WB[id]&&WB[id].Daily&&WB[id].Daily.length}),rid=(S.wbRiver==='all'||WB[S.wbRiver])?S.wbRiver:'all';if(!ids.length){el.innerHTML='<div class="panel">'+t('w_nodata')+'</div>';return}S.wbRiver=rid;
-  var h='<div class="seg"><button data-r="all" class="'+(rid==='all'?'on':'')+'">'+t('w_all_btn')+'</button>'+ids.map(function(id){var r=P.meta.Rivers.filter(function(x){return x.Id===id})[0];return '<button data-r="'+id+'" class="'+(id===rid?'on':'')+'">'+rname(r)+'</button>'}).join('')+'</div>';
+  var h='<div class="seg"><button data-r="all" class="'+(rid==='all'?'on':'')+'">'+t('w_all_btn')+'</button>'+ids.map(function(id){var r=P.meta.Rivers.filter(function(x){return x.Id===id})[0];var nm=rname(r),sh=nm.replace(/\s*\(.*\)\s*$/,'');return '<button data-r="'+id+'" class="'+(id===rid?'on':'')+'"'+(sh!==nm?' title="'+nm+'"':'')+'>'+(sh!==nm?'<span class="lg">'+nm+'</span><span class="sh">'+sh+'</span>':nm)+'</button>'}).join('')+'</div>';
   var bind=function(){[].forEach.call(el.querySelectorAll('.seg button'),function(b){b.onclick=function(){S.wbRiver=b.getAttribute('data-r');renderWB()}})};
   if(rid==='all'){el.innerHTML=h+wbAll(WB,ids);bind();return}
   var W=WB[rid],D=W.Daily,G=W.Groups,n=G.length,C=11.574,sm=function(a){return a.reduce(function(x,y){return x+y},0)},lbl=function(g){return S.lang==='el'?g.LabelEl:g.LabelEn},COL=['s1','s2','s3'],CV=['var(--c1)','var(--c2)','var(--c3)'];

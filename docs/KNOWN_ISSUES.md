@@ -48,6 +48,7 @@ Same structure in every hub page, so a fix here alone would make this page diffe
 | H01 | Mobile: two divider lines between the header and the tabs | live-greekpower; Flows fixed it as pilot (D25) | **OK** (D110): no line between the header and the tabs on mobile, 12 px gaps (14 Nov 2026) |
 | H02 | Header labels on mobile: short labels (\"Updated:\" / \"Next:\", \"Ενημέρωση:\" / \"Επόμενη:\") | Flows, live-greekpower (only \"Next\") | **OK** (D110, batch41): « Updated: » / « Next: » (« Ενημέρωση: » / « Επόμενη: ») below 768 px; the desktop keeps the full labels |
 | H06 | Mobile: the secondary controls (date, pill, methodology, language) do not stand apart from the main ones (tabs) and take much height | BESS fixed it as pilot (D70–D75, content from 585 to 407 px) | **OK** (D110, batch41): one secondary box with dark 40 px wells, tabs 3 + 2 at 48 px, the ↑ button, 12 px gaps. First content 436 → 370 px (360 px, Greek), 398 → 370 (English); 535 → 398 (320 px, Greek), 491 → 370 (English) |
+| H07 | Desktop tabs as wide as their text, starting at the left; the owner wants them to share the full width equally on every dashboard | BigHydro is the pilot (D116, batch44) | **OK** here; other dashboards and the playbook: for the hub-wide pass |
 
 H03 and H04 no longer exist (replaced by C02); H05 was replaced by H06.
 

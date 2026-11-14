@@ -736,7 +736,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const mi=css.indexOf('@media (max-width:767px){'); let mob='';
   if(mi>=0){let d=0,i=css.indexOf('{',mi);for(let j=i;j<css.length;j++){if(css[j]==='{')d++;else if(css[j]==='}'){d--;if(d===0){mob=css.slice(i+1,j);break}}}}
   const top=css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'');
-  ck('all the mobile rules live in one « max-width:767px » block; outside it only the short labels and the ↑ button are hidden, so the desktop does not change',mob.length>0 && /\.sh\{display:none\}/.test(top) && /#totop\{display:none\}/.test(top) && !/\.lg\{display:none\}/.test(top));
+  ck('all the mobile rules live in one « max-width:767px » block; outside it only the short labels and the ↑ button are hidden, so the desktop does not change',mob.length>0 && /\.sh\{display:none\}/.test(top) && /#totop\{display:none\}/.test(top) && !/(^|[}\n])\.lg\{display:none\}/.test(top));
   ck('mobile: no line under the header and 12 px between the blocks (H01, H06)',/header\.top\{border-bottom:0;padding-bottom:0;gap:12px\}/.test(mob) && /nav\.tabs\{[^}]*margin:12px 0/.test(mob));
   ck('mobile: one secondary box (slate-800/45, slate-600/50, 12 px corners, 8 px padding) with dark 40 px wells for the day, Methodology and GR | EN',/\.ctrls\{background:rgba\(30,41,59,\.45\);border:1px solid rgba\(71,85,105,\.5\);border-radius:12px;padding:8px;gap:8px\}/.test(mob) && /\.pill,\.btns \.btn,\.seg2\{background:rgba\(2,6,23,\.7\);border:1px solid rgba\(51,65,85,\.6\);[^}]*height:40px\}/.test(mob));
   ck('mobile: tabs on a 6-column grid, three spanning 2 and two spanning 3 (3 + 2), at least 48 px high, labels allowed to wrap',/nav\.tabs\{grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/.test(mob) && /nav\.tabs button\{grid-column:span 2;min-height:48px/.test(mob) && /nav\.tabs button:nth-child\(n\+4\)\{grid-column:span 3\}/.test(mob) && !/nav\.tabs button\{[^}]*nowrap/.test(mob));
@@ -839,6 +839,25 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   // ---- pill words
   ck('the completeness pill keeps words on a phone (BESS D31): below 340 px the short word (« Πλήρη » / « Μερικά »), never a dot alone',/\.badge \.bts\{display:none\}/.test(css) && /@media \(max-width:339px\)\{#dlab\{display:none\}\.badge \.bt\{display:none\}\.badge \.bts\{display:inline\}\}/.test(css) && !!dO.querySelector('#badge .bts') && dO.querySelector('#badge .bts').textContent.length>0);
   ck('no JS errors in the TEST 27 windows',errO.length===0 && errF.length===0,[errO.slice(0,2),errF.slice(0,2)]);
+  }
+  {  // TEST 28: η επιλογή ποταμού του Ισοζυγίου είναι διακόπτης (D117) και τα tabs του υπολογιστή μοιράζονται το πλάτος (D116, H07)
+  console.log('TEST 28: the river choice of « Water balance » is a switch, not a second row of tabs; desktop tabs share the full width');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  ck('desktop: the five tabs share the full width equally (flex 1 1 0, centred)',/@media \(min-width:768px\)\{nav\.tabs\{gap:0\}nav\.tabs button\{flex:1 1 0;text-align:center/.test(css));
+  ck('the river choice sits in one dark frame (one border, 12 px corners) and its buttons have no border of their own',/#t-wb \.seg\{display:flex;background:rgba\(15,23,42,\.6\);border:1px solid #334155;border-radius:12px;padding:4px/.test(css) && /#t-wb \.seg button\{[^}]*background:transparent;border:0/.test(css));
+  ck('the chosen river is grey with accent letters, never the filled accent of the active tab',/#t-wb \.seg button\.on\{background:#334155;color:#c4b5fd/.test(css) && !/#t-wb \.seg button\.on\{[^}]*var\(--acc2\)/.test(css));
+  ck('mobile: « Όλα τα ποτάμια » alone on the first row, then 3 + 3 equal boxes (a 3-column grid, the first spanning all)',/@media \(max-width:767px\)\{#t-wb \.seg\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/.test(css) && /#t-wb \.seg button:first-child\{grid-column:1\/-1\}/.test(css));
+  ck('desktop: seven equal parts across the width, « Όλα τα ποτάμια » a little wider and set apart by a thin line',/#t-wb \.seg button\{flex:1 1 0/.test(css) && /@media \(min-width:768px\)\{#t-wb \.seg button:first-child\{flex:1\.4 1 0;margin-right:10px;position:relative\}#t-wb \.seg button:first-child::after\{content:'';position:absolute;right:-7px/.test(css));
+  const {dm:dmW,e2:errW}=mkDom({}); const wW=await boot2(dmW), dW=wW.document; setLang(dW,'el'); await sleep(80);
+  dW.querySelector('#tabs button[data-t="wb"]').click(); await sleep(50);
+  const bs=[...dW.querySelectorAll('#t-wb .seg button')];
+  const R=JSON.parse(fs.readFileSync(ROOT+'/data/reservoirs.json','utf8')).Rivers, full=Object.fromEntries(R.map(r=>[r.Id,r.Name]));
+  ck('seven choices: all rivers, then the six rivers in the usual order',bs.map(b=>b.getAttribute('data-r')).join()==='all,'+R.map(r=>r.Id).join());
+  ck('rivers with a note in brackets show the short name, keep the full name for the desktop text and as the tooltip (e.g. « Άραχθος » / « Άραχθος (με εκτροπή Πηγών Αώου) »)',bs.slice(1).every(b=>{const id=b.getAttribute('data-r'),nm=full[id],sh=nm.replace(/\s*\(.*\)\s*$/,'');return sh===nm?(b.textContent===nm && !b.title):(b.querySelector('.sh').textContent===sh && b.querySelector('.lg').textContent===nm && b.title===nm)}),bs.map(b=>[b.textContent,b.title]));
+  ck('the short name is the one shown on every screen (the switch hides the long one)',/#t-wb \.seg \.lg\{display:none\}#t-wb \.seg \.sh\{display:inline\}/.test(css));
+  const ar=bs.find(b=>b.getAttribute('data-r')==='arachthos'); ar.click(); await sleep(50);
+  ck('choosing a river still works: the chosen one is « on » and the title names the river',dW.querySelector('#t-wb .seg button.on').getAttribute('data-r')==='arachthos' && dW.querySelector('#t-wb h2').textContent.includes('Άραχθος'));
+  ck('no JS errors in the TEST 28 window',errW.length===0,errW.slice(0,2));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
