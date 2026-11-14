@@ -35,6 +35,8 @@ First `npm install --prefix tests/dashboard`. The badge checks («only the MCP m
 
 **Mobile (TEST 25, D110).** jsdom does no layout, so the page test checks the mobile rules in the one `max-width:767px` block (no header line, 12 px gaps, the secondary box and its 40 px wells, tabs 3 + 2 at 48 px, the ↑ button), the short labels in both languages, that the ↑ button sits before the script that wires it, and its show / hide / back-to-top behaviour with a stubbed position of the tabs. The heights themselves (first content at 360 and 320 px) are measured in a real browser (Playwright) before every zip and written in DECISIONS.
 
+**Tables as cards (TEST 26, D111, D112).** Every table of the four tabs must carry its header on each cell (`data-l`), the long ones (> 6 rows) must keep exactly their 3 newest rows visible with one « All » button that opens and closes and is rebuilt (not doubled) after a language switch; the Thesavros months without pumping are found from `psh_daily.json` and must read « – »; the CSS must hold no `uppercase`, and the ↑ button must sit below the modals and be hidden while one is open.
+
 ## Not covered
 Real browser rendering (charts are checked as SVG markup, not pixels; mobile heights are measured with Playwright by hand, see TEST 25 above), live ADMIE/ENTSO-E responses (only synthetic samples), `calibrate_energy.py` (run manually and reviewed by eye).
 

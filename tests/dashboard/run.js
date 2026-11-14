@@ -756,6 +756,38 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English short labels: « Updated: », « Next: », « Methodology », and « Back to top »',dM.querySelector('#lu-l .sh').textContent==='Updated:' && dM.querySelector('#nu-l .sh').textContent==='Next:' && dM.querySelector('#meth .sh').textContent==='Methodology' && tb.getAttribute('aria-label')==='Back to top');
   ck('no JS errors in the TEST 25 window',errM.length===0,errM.slice(0,2));
   }
+  {  // TEST 26: πίνακες στο κινητό ως κάρτες, «–» για μηδενική άντληση, χωρίς ολο-κεφαλαία, βελάκι ↑ κάτω από τα modal (C02, K30 · D111, D112)
+  console.log('TEST 26: tables become cards on mobile (3 recent + « All months »), « – » for zero pumping, no all-caps, the ↑ button never over a modal');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  ck('no all-caps captions left (C02): no « text-transform:uppercase » in the CSS',!/uppercase/.test(css));
+  const mz=(css.match(/\.modal-b\{[^}]*z-index:(\d+)/)||[])[1], tz=(css.match(/#totop\{position:fixed[^}]*z-index:(\d+)/)||[])[1];
+  ck('the ↑ button sits below every modal (z-index '+tz+' < '+mz+') and is hidden while a modal is open, so it never covers the modal\'s Close',mz && tz && +tz<+mz && /body\.modal-open #totop\{display:none!important\}/.test(css),[tz,mz]);
+  ck('the ↑ button looks as in BESS: dark slate, 1 px slate border, accent arrow (not a filled accent disc)',/#totop\{position:fixed[^}]*border:1px solid #475569;background:rgba\(30,41,59,\.95\);color:var\(--acc\)/.test(css));
+  ck('the card rules live in the mobile block only; on desktop the « All months » button is hidden',/\.mcmore\{display:none\}/.test(css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'')) && /table\.mc tr:first-child\{display:none\}/.test(css));
+  const {dm:dmT,e2:errT}=mkDom({}); const wT=await boot2(dmT), BT=wT.__bh, dT=wT.document; setLang(dT,'el'); await sleep(80); await BT.load('2026-10-15'); await sleep(150);
+  const tabsT=['rivers','energy','pump','wb']; const tbls=[].concat(...tabsT.map(k=>[...dT.querySelectorAll('#t-'+k+' .scroll>table')]));
+  ck('all '+tbls.length+' tables of the four tabs are marked for cards (Kastraki has none)',tbls.length>=9 && tbls.every(x=>x.classList.contains('mc')),tbls.length);
+  ck('every data cell carries its column header as the card label (data-l)',tbls.every(tb=>{const hd=[...tb.rows[0].cells].map(c=>c.textContent.trim());return [...tb.rows].slice(1).every(r=>[...r.cells].every((c,j)=>c.getAttribute('data-l')===hd[j]))}));
+  const long=tbls.filter(tb=>tb.rows.length-1>6), btn=[...dT.querySelectorAll('main .mcmore')];
+  ck('tables longer than 6 rows ('+long.length+') get one « All » button each, and shorter ones none',long.length>=5 && btn.length===long.length && long.every(tb=>tb.classList.contains('few') && tb.closest('.scroll').nextElementSibling.classList.contains('mcmore')),[long.length,btn.length]);
+  ck('in each long table exactly the 3 newest rows stay visible (the rest are « old »), and tables written oldest-first are reversed on mobile',long.every(tb=>{const rows=[...tb.rows].slice(1),keys=rows.map(r=>r.cells[0].textContent.trim()),top3=keys.slice().sort().reverse().slice(0,3);const asc=keys[0]<keys[keys.length-1];return rows.filter(r=>!r.classList.contains('old')).map(r=>r.cells[0].textContent.trim()).sort().join()===top3.sort().join() && tb.classList.contains('rv')===asc}));
+  const wk=long.find(tb=>/W\d/.test(tb.rows[1].cells[0].textContent)), mo=long.find(tb=>/^\d{4}-\d{2}/.test(tb.rows[1].cells[0].textContent)&&!/W\d/.test(tb.rows[1].cells[0].textContent));
+  const bm=mo.closest('.scroll').nextElementSibling, bw=wk&&wk.closest('.scroll').nextElementSibling;
+  ck('Greek button texts: « Όλοι οι μήνες (N) ▾ » and « Όλες οι εβδομάδες (N) ▾ »',bm.textContent==='Όλοι οι μήνες ('+(mo.rows.length-1)+') ▾' && (!wk || bw.textContent==='Όλες οι εβδομάδες ('+(wk.rows.length-1)+') ▾'),[bm.textContent,bw&&bw.textContent]);
+  bm.click(); const open1=mo.classList.contains('all') && bm.getAttribute('aria-expanded')==='true' && bm.textContent.endsWith('▴'); bm.click();
+  ck('a tap shows all the rows (▴, aria-expanded) and a second tap goes back to the 3 newest',open1 && !mo.classList.contains('all') && bm.getAttribute('aria-expanded')==='false' && bm.textContent.endsWith('▾'));
+  setLang(dT,'en'); await sleep(150);
+  const btnE=[...dT.querySelectorAll('main .mcmore')];
+  ck('after switching to English the buttons are rebuilt, not doubled: « All months (N) ▾ »',btnE.length===long.length && btnE.some(b=>/^All months \(\d+\) ▾$/.test(b.textContent)) && !btnE.some(b=>/Όλοι/.test(b.textContent)),btnE.map(b=>b.textContent));
+  const PL=JSON.parse(fs.readFileSync(ROOT+'/data/psh_daily.json','utf8')).Plants, th=PL.THESAVROS.Daily, mon={};
+  th.forEach(x=>{const m=x.Date.slice(0,7);(mon[m]=mon[m]||{P:0,Ep:0});mon[m].P+=x.P;mon[m].Ep+=x.Ep});
+  const zm=Object.keys(mon).filter(m=>Math.round(mon[m].P)===0), nzm=Object.keys(mon).filter(m=>Math.round(mon[m].P)>0);
+  const thT=[...dT.querySelectorAll('#t-pump .scroll>table')].find(tb=>tb.closest('.panel').querySelector('h2').textContent.includes('Thesavros')||tb.closest('.panel').querySelector('h2').textContent.includes('Θησαυρ'));
+  const rowOf=m=>[...thT.rows].find(r=>r.cells[0].textContent.replace('*','')===m);
+  ck('Thesavros: the months without pumping (recomputed from psh_daily.json: '+zm.join(', ')+') read « – » for pumped water, recycled share and pumping energy, never 0',zm.length>0 && zm.every(m=>{const c=rowOf(m).cells;return c[2].textContent==='–' && c[3].textContent==='–' && c[6].textContent==='–'}),zm.map(m=>[...rowOf(m).cells].map(c=>c.textContent)));
+  ck('…and the months with pumping keep their numbers (no « – » in those three columns)',nzm.every(m=>{const c=rowOf(m).cells;return c[2].textContent!=='–' && c[3].textContent!=='–'}));
+  ck('no JS errors in the TEST 26 window',errT.length===0,errT.slice(0,2));
+  }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();
