@@ -37,6 +37,8 @@ First `npm install --prefix tests/dashboard`. The badge checks («only the MCP m
 
 **Tables as cards (TEST 26, D111, D112).** Every table of the four tabs must carry its header on each cell (`data-l`), the long ones (> 6 rows) must keep exactly their 3 newest rows visible with one « All » button that opens and closes and is rebuilt (not doubled) after a language switch; the Thesavros months without pumping are found from `psh_daily.json` and must read « – »; the CSS must hold no `uppercase`, and the ↑ button must sit below the modals and be hidden while one is open.
 
+**Loading and Methodology (TEST 27, D113–D115).** The order of the overlay steps is watched while the page boots (each tab must be drawn while its step is already lit); a boot with `index.json` blocked must leave the overlay on screen with the stopped spinner and the playbook message. The Methodology window is checked for its seven sections, the Short / Detailed switch, the new Detailed paragraphs and the removed stale phrases, the marked section of the tab it was opened from (kept when switching), the focus (X on open, Tab kept inside, focus back on close) and the « Μεθοδολογία → » link. Where the window scrolls to is checked by hand in a real browser (jsdom does no layout).
+
 ## Not covered
 Real browser rendering (charts are checked as SVG markup, not pixels; mobile heights are measured with Playwright by hand, see TEST 25 above), live ADMIE/ENTSO-E responses (only synthetic samples), `calibrate_energy.py` (run manually and reviewed by eye).
 

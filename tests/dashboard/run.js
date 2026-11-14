@@ -115,7 +115,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('English mode renders (title, river names)',d.querySelector('#ttl').textContent.includes('Hydro & Reservoir') && d.querySelector('#rg').textContent.includes('Acheloos'),d.querySelector('#ttl').textContent);
   ck('English: no untranslated placeholders {x} / undefined',!/\{[xd]\}|undefined|NaN/.test(txt()));
   setLang(d,'el'); await sleep(50);
-  ck('methodology modal opens with 13 paragraphs',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc p').length===13 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
+  ck('methodology modal opens in its Short view: 7 sections, one paragraph each (D114)',(d.querySelector('#meth').click(),d.querySelectorAll('#mmc section[data-sec]').length===7 && d.querySelectorAll('#mmc p').length===7 && !d.querySelector('#mm').hidden),d.querySelectorAll('#mmc p').length);
   ck('date selector lists every day that has reservoir levels, newest first, and never one without',d.querySelectorAll('#dsel option').length===B.P.idx.Days.filter(x=>B.P.fi[x.Date]!=null).length && d.querySelector('#dsel option').value===SYN_TODAY && ![...d.querySelectorAll('#dsel option')].some(o=>o.value===SYN_NORES),d.querySelectorAll('#dsel option').length);
 
   console.log('TEST 6: pump tab, per-plant estimate, Stratos 1+2');
@@ -281,8 +281,8 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const dayBad=BE.P.idx.Days.find(x=>x.Date===D_BAD);
   ck('the two fixed test days exist in the index with the forced statuses (the badge checks below can no longer be skipped silently)',!!dayOK&&!!dayBad&&dayOK.Status.mcp==='missing'&&dayBad.Status.resmv==='missing',[dayOK,dayBad]);
   setLang(wE2.document,'en'); await sleep(60);   // back to English
-  { await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete Data", no banner',wE2.document.querySelector('#badge').textContent==='Complete Data' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
-  { await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial Data" listing '+miss.join(','),wE2.document.querySelector('#badge').textContent==='Partial Data' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
+  { await BE.load(dayOK.Date); ck('day with only MCP missing ('+dayOK.Date+'): badge "Complete data" (short « Complete » below 340 px), no banner',wE2.document.querySelector('#badge .bt').textContent==='Complete data' && wE2.document.querySelector('#badge .bts').textContent==='Complete' && wE2.document.querySelector('#badge').className.includes('ok') && wE2.document.querySelector('#banner').textContent.trim()===''); }
+  { await BE.load(dayBad.Date); const miss=used.filter(k=>dayBad.Status[k]!=='ok'); ck('day with missing sources ('+dayBad.Date+'): badge "Partial data" (short « Partial ») listing '+miss.join(','),wE2.document.querySelector('#badge .bt').textContent==='Partial data' && wE2.document.querySelector('#badge .bts').textContent==='Partial' && wE2.document.querySelector('#badge').className.includes('warn') && miss.every(k=>wE2.document.querySelector('#banner').textContent.toLowerCase().includes(k==='reservoir'?'reservoirs':k)),[wE2.document.querySelector('#badge').textContent,wE2.document.querySelector('#banner').textContent]); }
   ck('no JS errors in the English/shell tests',errE.length===0,errE.slice(0,3));
 
   console.log('TEST 10: tooltips on every chart');
@@ -327,12 +327,13 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   B.openRiver(0); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('Escape closes it',d.querySelector('#rm').hidden===true);
   B.openRiver(0); d.querySelector('#rm').dispatchEvent(new w.MouseEvent('click',{bubbles:true})); ck('clicking the dark backdrop closes it',d.querySelector('#rm').hidden===true);
   d.querySelector('#meth').click(); const mm=d.querySelector('#mmc');
-  ck('methodology modal has the same three-part structure and the title "Μεθοδολογία και παραδοχές"',[...mm.children].map(c=>c.className).join(',')==='mh,mb,mf' && mm.children[0].querySelector('h2').textContent==='Μεθοδολογία και παραδοχές' && d.querySelector('#meth').textContent.includes('παραδοχές'));
-  ck('it has a Methodology section (13 paragraphs) and an Assumptions section (9 items)',mm.querySelectorAll('.mb h3.mhd').length===2 && mm.querySelectorAll('.mb p').length===13 && mm.querySelectorAll('.mb ul.mal li').length===9,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
+  ck('methodology modal: fixed header, the Short / Detailed switch, scrolling body, fixed footer; title « Μεθοδολογία, παραδοχές και περιορισμοί » (D114)',[...mm.children].map(c=>c.className).join(',')==='mh,mseg,mb,mf' && mm.children[0].querySelector('h2').textContent==='Μεθοδολογία, παραδοχές και περιορισμοί' && d.querySelector('#meth .lg').textContent.includes('παραδοχές'));
+  mm.querySelector('.mseg button[data-v="long"]').click();
+  ck('Detailed: 7 sections, the 13 earlier paragraphs plus 7 new ones (20) and the 9 assumptions in « Assumptions and limits »',mm.querySelectorAll('.mb h3.mhd').length===7 && mm.querySelectorAll('.mb p').length===20 && mm.querySelectorAll('.mb section[data-sec="lim"] ul.mal li').length===9,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
   d.querySelector('#mclose-x').click(); ck('methodology: X closes',d.querySelector('#mm').hidden===true);
   d.querySelector('#meth').click(); d.querySelector('#mclose').click(); ck('methodology: footer Close closes',d.querySelector('#mm').hidden===true && !d.body.classList.contains('modal-open'));
   d.querySelector('#meth').click(); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('methodology: Escape closes',d.querySelector('#mm').hidden===true);
-  ck('English labels: "Methodology & Assumptions" on the button, in the title and a "Key assumptions" heading',(()=>{ setLang(dE,'en'); return true })() && (await sleep(60),true) && dE.querySelector('#meth').textContent.includes('Methodology & Assumptions') && (dE.querySelector('#meth').click(),dE.querySelector('#mmc .mh h2').textContent==='Methodology & Assumptions' && [...dE.querySelectorAll('#mmc h3.mhd')].map(x=>x.textContent).join('|')==='Methodology|Key assumptions'));
+  ck('English: « Methodology & Assumptions » on the desktop button, « Methodology, assumptions and limitations » as the title, and the seven section names',(()=>{ setLang(dE,'en'); return true })() && (await sleep(60),true) && dE.querySelector('#meth .lg').textContent.includes('Methodology & Assumptions') && (dE.querySelector('#meth').click(),dE.querySelector('#mmc .mh h2').textContent==='Methodology, assumptions and limitations' && [...dE.querySelectorAll('#mmc h3.mhd')].map(x=>x.textContent).join('|')==='Sources and time|Rivers|Stored energy|Pumping|Water balance|Kastraki|Assumptions and limits'));
   dE.querySelector('#mclose').click();
   ck('no JS errors in the modal tests',errors.length===0 && errE.length===0,[errors.slice(0,2),errE.slice(0,2)]);
 
@@ -444,7 +445,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('the texts describe the loop correctly: Sfikia ↔ Asomata and Thesavros ↔ Platanovrysi, Polyfyto only as a river source, no upstream source for the Nestos (Bulgaria)',tab.textContent.includes('Σφηκιά ↔ Ασώματα') && tab.textContent.includes('Θησαυρός ↔ Πλατανόβρυση') && tab.textContent.includes('Ο Πολύφυτος δεν ανήκει στον κύκλο') && tab.textContent.includes('Βουλγαρία'));
   ck('"closed loop = 100 %" is stated as a volume of water, and the energy round-trip efficiency is named as a different quantity',tab.textContent.includes('σε όγκο νερού και όχι σε ενέργεια') && tab.textContent.includes('(100%)') && tab.textContent.includes('άλλο μέγεθος'));
   ck('both cycle factors come from the data file and are shown with two decimals',['SFIKIA','THESAVROS'].every(k=>tab.textContent.includes(PSJ.Plants[k].CycleFactor.toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2}))));
-  d.querySelector('#meth').click(); const mmx=d.querySelector('#mmc'); ck('methodology mentions pumped storage and the pump-head/efficiency assumption',mmx.textContent.includes('Αντλησιοταμίευση.') && mmx.textContent.includes('0,87')); d.querySelector('#mclose').click();
+  d.querySelector('#mlinkb').click(); const mmx=d.querySelector('#mmc'); ck('methodology mentions pumped storage and the pump-head/efficiency assumption',mmx.textContent.includes('Αντλησιοταμίευση.') && mmx.textContent.includes('0,87')); d.querySelector('#mclose').click();
   setLang(d,'en'); await sleep(80);
   ck('English: section title, card labels, notes; no placeholders',/Pumped storage: recycled water vs river flow/.test(d.querySelector('#t-pump').textContent) && /Recycled water · Sfikia · 30 days/.test(d.querySelector('#t-pump').textContent) && !/\{[xpqabkl]\}|undefined|NaN/.test(d.querySelector('#t-pump').textContent));
   setLang(d,'el'); await sleep(60);
@@ -509,11 +510,11 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
 
   console.log('TEST 18: the Nestos pump direction is confirmed by a published paper (K11 closed)');
   {
-  setLang(d,'el'); await sleep(60); d.querySelector('#meth').click(); const m18=d.querySelector('#mmc').textContent; d.querySelector('#mclose').click();
+  setLang(d,'el'); await sleep(60); d.querySelector('#mlinkb').click(); const m18=d.querySelector('#mmc').textContent; d.querySelector('#mclose').click();
   ck('methodology (GR): the direction is "confirmed by a published paper (2001)" and nowhere called an assumption',m18.includes('Η κατεύθυνση της αντλίας Πλατανόβρυση → Θησαυρός επιβεβαιώνεται από δημοσιευμένη εργασία (2001)') && !/αντλία Πλατανόβρυση → Θησαυρός είναι υπόθεση/.test(m18));
   d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'nestos'); const n18=d.querySelector('#t-wb').textContent;
   ck('Nestos water-balance note (GR) cites the paper (Αλμπανάκης, Ψιλοβίκος, Βουβαλίδης, 2001)',n18.includes('Αλμπανάκης, Ψιλοβίκος, Βουβαλίδης, 2001'));
-  setLang(d,'en'); await sleep(80); d.querySelector('#meth').click(); const m18e=d.querySelector('#mmc').textContent; d.querySelector('#mclose').click();
+  setLang(d,'en'); await sleep(80); d.querySelector('#mlinkb').click(); const m18e=d.querySelector('#mmc').textContent; d.querySelector('#mclose').click();
   ck('methodology (EN): "confirmed by a published paper (2001)"; no "pump is an assumption"',m18e.includes('The Platanovrysi → Thesavros pump direction is confirmed by a published paper (2001)') && !/pump is an assumption/.test(m18e));
   d.querySelector('#tabs button[data-t="wb"]').click(); wbPick(d,'nestos'); ck('Nestos note (EN) cites Albanakis, Psilovikos, Vouvalidis, 2001',d.querySelector('#t-wb').textContent.includes('Albanakis, Psilovikos, Vouvalidis, 2001'));
   setLang(d,'el'); await sleep(60);
@@ -787,6 +788,57 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('Thesavros: the months without pumping (recomputed from psh_daily.json: '+zm.join(', ')+') read « – » for pumped water, recycled share and pumping energy, never 0',zm.length>0 && zm.every(m=>{const c=rowOf(m).cells;return c[2].textContent==='–' && c[3].textContent==='–' && c[6].textContent==='–'}),zm.map(m=>[...rowOf(m).cells].map(c=>c.textContent)));
   ck('…and the months with pumping keep their numbers (no « – » in those three columns)',nzm.every(m=>{const c=rowOf(m).cells;return c[2].textContent!=='–' && c[3].textContent!=='–'}));
   ck('no JS errors in the TEST 26 window',errT.length===0,errT.slice(0,2));
+  }
+  {  // TEST 27: οθόνη φόρτωσης και Μεθοδολογία όπως στο BESS και στον τυφλοσούρτη (D113, D114), λέξεις στο pill (D115)
+  console.log('TEST 27: loading overlay (texts, order, failure) and the Methodology window (Short / Detailed, sections, link, focus); pill words at 320 px');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  // ---- overlay: order of each step, watched while the page boots
+  const {dm:dmO,e2:errO}=mkDom({kp_lang:'el'}); const seen={};
+  // ένας observer για όλη τη σελίδα: οι εγγραφές έρχονται με τη σειρά που έγιναν οι αλλαγές, άρα ξέρουμε την κατάσταση του βήματος τη στιγμή του σχεδίου
+  const obs=()=>{const d=dmO.window.document,K=['rivers','energy','pump','wb','kast'],cls={};
+    new dmO.window.MutationObserver(recs=>{recs.forEach(r=>{const el=r.target;if(r.type==='attributes'&&el.id&&/^ovr\d$/.test(el.id)){cls[el.id]=el.className;return}
+      if(r.type==='childList'){const sec=el.closest&&el.closest('section[id^="t-"]');if(!sec)return;const k=sec.id.slice(2),i=K.indexOf(k);if(i<0||(k in seen))return;seen[k]=cls['ovr'+(i+1)]||'lrow'}})}).observe(d.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']})};
+  obs(); const wO=await boot2(dmO), dO=wO.document;
+  ck('each tab is drawn while its loading step is already lit (« act »), not before (step lights → 20 ms → the tab is drawn → the bar fills → ✓)',['rivers','energy','pump','wb','kast'].every(k=>seen[k]==='lrow act'),seen);
+  const ovT=k=>dO.getElementById(k)?dO.getElementById(k).textContent:null;
+  // the overlay is removed after boot; read the texts from the dictionary through a fresh, failing boot below
+  const {dm:dmF,e2:errF}=mkDom({kp_lang:'el'},true,['index.json']); await sleep(1500); const dF=dmF.window.document;
+  ck('Greek overlay texts as in BESS: « Εκκίνηση », « Λήψη δεδομένων » / « Ανάγνωση δεδομένων », « Προετοιμασία προβολών » and one step per tab named after it',dF.getElementById('ov-title').textContent==='Εκκίνηση' && dF.getElementById('ov-l0').textContent==='Λήψη δεδομένων' && dF.getElementById('ov-r0').textContent==='Ανάγνωση δεδομένων' && dF.getElementById('ov-l1').textContent==='Προετοιμασία προβολών' && ['Ποτάμια','Αποθηκευμένη ενέργεια','Άντληση','Ισοζύγιο νερού','Καστράκι'].every((x,i)=>dF.getElementById('ov-r'+(i+1)).textContent===x) && !/Φόρτωση/.test(dF.getElementById('loading-overlay').textContent));
+  const ov=dF.getElementById('loading-overlay'), rd=dF.getElementById('ov-ready');
+  ck('when the data do not load the overlay STAYS, the spinner stops and the message reads « Τα δεδομένα δεν φορτώθηκαν. Ανανεώστε τη σελίδα σε λίγα λεπτά. »',!!ov && !ov.classList.contains('hide') && dF.getElementById('mainSpinner').style.animation.startsWith('none') && rd.classList.contains('err') && rd.textContent.trim()==='Τα δεδομένα δεν φορτώθηκαν. Ανανεώστε τη σελίδα σε λίγα λεπτά.',[ov&&ov.className,rd&&rd.className,rd&&rd.textContent]);
+  ck('…and the page underneath is not replaced by a technical error panel',!dF.querySelector('main .panel'));
+  const {dm:dmF2}=mkDom({kp_lang:'en'},true,['index.json']); await sleep(1500); const dF2=dmF2.window.document;
+  ck('English overlay in sentence case: « Data fetching », « Building views », « Rivers » … and « The data could not be loaded. Reload the page in a few minutes. »',dF2.getElementById('ov-l0').textContent==='Data fetching' && dF2.getElementById('ov-l1').textContent==='Building views' && dF2.getElementById('ov-r2').textContent==='Stored energy' && dF2.getElementById('ov-ready').textContent.trim()==='The data could not be loaded. Reload the page in a few minutes.');
+  ck('reduced motion: the overlay fades in 200 ms',/@media \(prefers-reduced-motion:reduce\)\{#loading-overlay\{transition-duration:\.2s\}\}/.test(css));
+  // ---- methodology
+  setLang(dO,'el'); await sleep(80);
+  const secs=['gen','rivers','energy','pump','wb','kast','lim'];
+  dO.querySelector('#meth').focus(); dO.querySelector('#meth').click(); await sleep(20); const mm=dO.querySelector('#mmc');
+  ck('Short view: a section for every tab plus « Πηγές και ώρα » and « Παραδοχές και όρια », each with a short text',secs.every(k=>{const e=mm.querySelector('section[data-sec="'+k+'"]');return e && e.querySelectorAll('p').length===1 && e.querySelector('p').textContent.length>80}));
+  ck('the header button opens the Short view, and the X gets the focus',mm.querySelector('.mseg button.on').getAttribute('data-v')==='short' && dO.activeElement && dO.activeElement.id==='mclose-x');
+  const last=mm.querySelector('#mclose'); last.focus(); dO.dispatchEvent(new wO.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));
+  const wrap1=dO.activeElement===mm.querySelector('#mclose-x'); dO.dispatchEvent(new wO.KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true}));
+  ck('Tab stays inside the window (from Close it goes back to the X, and Shift+Tab the other way)',wrap1 && dO.activeElement===mm.querySelector('#mclose'));
+  mm.querySelector('.mseg button[data-v="long"]').click(); const mm2=dO.querySelector('#mmc');
+  ck('« Αναλυτική » shows the full text: 20 paragraphs and the 9 assumptions; the switch shows which view is on (aria-pressed)',mm2.querySelectorAll('p').length===20 && mm2.querySelectorAll('section[data-sec="lim"] li').length===9 && mm2.querySelector('.mseg button[data-v="long"]').getAttribute('aria-pressed')==='true');
+  const det=mm2.textContent;
+  ck('the Detailed text now covers what was added since: availability (1 MWh, 90 days), inflow against normal (regime, 2018–2025), the « ≥ » lower bound, days of cover, generation against previous years, inflow scenarios',['Διαθεσιμότητα μονάδων.','1 MWh','Εισροή σε σχέση με το κανονικό.','«υγρό»','Ορατή παραγωγή ως κάτω όριο.','Ημέρες κάλυψης.','Παραγωγή σε σχέση με προηγούμενα έτη.','Σενάρια εισροής.'].every(x=>det.includes(x)),['Διαθεσιμότητα','κάτω όριο'].map(x=>det.includes(x)));
+  ck('stale phrases are gone: the water balance covers six rivers, Ilarionas is described (no « βλάβη »), the factors are re-estimated « τον Δεκέμβριο »',det.includes('Ισοζύγιο νερού (έξι ποτάμια).') && !det.includes('(Αχελώος, Αλιάκμονας)') && !/βλάβη/.test(det) && !/φθινοπωρινή/.test(det) && det.includes('τον Δεκέμβριο'));
+  dO.dispatchEvent(new wO.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  ck('closing returns the focus to the button that opened it',dO.querySelector('#mm').hidden && dO.activeElement===dO.querySelector('#meth'));
+  ck('« Μεθοδολογία → » (desktop only: hidden below 768 px) opens the Detailed view',dO.querySelector('#mlinkb').textContent==='Μεθοδολογία →' && /\.mlink\{display:none\}/.test(css) && /@media \(min-width:768px\)\{\.mlink\{display:flex/.test(css) && (dO.querySelector('#mlinkb').click(),dO.querySelector('#mmc .mseg button.on').getAttribute('data-v')==='long'));
+  dO.querySelector('#mclose').click();
+  setLang(dO,'en'); await sleep(100); dO.querySelector('#meth').click(); await sleep(10);
+  const en=dO.querySelector('#mmc');
+  ck('English Short and Detailed: « Short » / « Detailed », seven sections, and the new paragraphs in English',en.querySelector('.mseg').textContent==='ShortDetailed' && en.querySelectorAll('section[data-sec]').length===7 && (en.querySelector('.mseg button[data-v="long"]').click(),['Unit availability.','Inflow against normal.','Days of cover.','Inflow scenarios.','Water balance (six rivers).'].every(x=>dO.querySelector('#mmc').textContent.includes(x))));
+  dO.querySelector('#mclose').click();
+  dO.querySelector('#tabs button[data-t="pump"]').click(); await sleep(30); dO.querySelector('#meth').click(); await sleep(10);
+  const c1=dO.querySelector('#mmc section.cur'); dO.querySelector('#mmc .mseg button[data-v="long"]').click(); const c2=dO.querySelector('#mmc section.cur');
+  ck('opened from « Pumping », the window marks the Pumping section, and switching to Detailed keeps it (the section the window opened with)',!!c1 && c1.getAttribute('data-sec')==='pump' && !!c2 && c2.getAttribute('data-sec')==='pump' && dO.querySelectorAll('#mmc section.cur').length===1);
+  dO.querySelector('#mclose').click(); dO.querySelector('#tabs button[data-t="rivers"]').click(); await sleep(20);
+  // ---- pill words
+  ck('the completeness pill keeps words on a phone (BESS D31): below 340 px the short word (« Πλήρη » / « Μερικά »), never a dot alone',/\.badge \.bts\{display:none\}/.test(css) && /@media \(max-width:339px\)\{#dlab\{display:none\}\.badge \.bt\{display:none\}\.badge \.bts\{display:inline\}\}/.test(css) && !!dO.querySelector('#badge .bts') && dO.querySelector('#badge .bts').textContent.length>0);
+  ck('no JS errors in the TEST 27 windows',errO.length===0 && errF.length===0,[errO.slice(0,2),errF.slice(0,2)]);
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);

@@ -40,7 +40,7 @@ The other hub dashboards are aligned; this is the last one (decided 9 Nov 2026, 
 | 2 | Data colours | no data colour equal to the accent, to yellow / red or to the « complete » green; the new scenario lines included (sample palette first) | **done** (batch39, D108, `tests/test_colors.py`) |
 | 3 | Mobile (H06, H02) | secondary box, tabs 3 + 2 at 48 px, the ↑ button, 12 px gaps, short header labels; first content at 360 px 436 → 370 px (Greek) | **done** (batch41, D110) |
 | 4 | Labels and tables (C02, K30) | no all-caps captions; tables that do not fit become cards (3 newest rows + « All months »), no sideways scroll, « – » instead of 0 | **done** (batch42, D111; the ↑ button fixed under modals, D112) |
-| 5 | Loading and Methodology | the remaining overlay details, the Methodology window (Short / Detailed switch, section of the tab, title) | |
+| 5 | Loading and Methodology | the remaining overlay details, the Methodology window (Short / Detailed switch, section of the tab, title) | **done** (batch43, D113–D115; the Detailed text brought up to date with METHODS §7–§11) |
 | 6 | Data size | `scripts/data_size.py` (raw, gzip, growth, days to the 250 KB limit); on 9 Nov 2026 the first visit loads about 174 KB gzip of data, growing about 130 KB a year, so **the limit is reached around mid-2027** (linear estimate) and files per month become due | |
 | 7 | Charts | a decision on Chart.js after the basics (D107) | later |
 
