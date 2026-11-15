@@ -200,6 +200,11 @@ body.modal-open{overflow:hidden}
  #t-rivers .cards>.card:last-child:nth-child(odd),#t-wb .cards>.card:last-child:nth-child(odd),#t-kast .cards>.card:last-child:nth-child(odd){grid-column:1/-1}
  #t-rivers .card,#t-wb .card,#t-kast .card{padding:10px 12px}#t-rivers .card .val,#t-wb .card .val,#t-kast .card .val{font-size:18px}#t-rivers .card .sm,#t-wb .card .sm,#t-kast .card .sm{font-size:11px}
 }
+/* D121 modal header icon + full-width close on mobile */
+.mh h2:has(.mico){display:flex;align-items:center;gap:12px}
+.mico{flex:none;width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:rgba(167,139,250,.15);color:var(--acc)}.mico svg{width:20px;height:20px}
+@media (max-width:767px){.mf{padding:12px 16px}.mf .btn{width:100%;min-height:44px;font-size:14px;font-weight:700;color:var(--ink);background:#334155;border:1px solid var(--line2);border-radius:10px}.mf .btn:hover{background:#3b4a61}}
+@media (max-width:560px){.mhr.mhx{width:auto}}
 /* footer */
 footer{border-top:1px solid #1e293b;margin-top:48px;padding:24px 0 32px;text-align:center;font-size:12px;color:var(--mut2)}
 footer p{margin:4px 0}footer .who{font-weight:600;color:var(--mut)}footer a{color:var(--mut);text-decoration:none;border-bottom:1px dotted var(--line2)}footer a:hover{color:var(--acc)}
@@ -848,7 +853,7 @@ function renderMeth(){
     if(MV==='short')h+='<p>'+t('m_s')[k]+'</p>';else{h+=MPARTS[k].map(function(i){return '<p>'+(typeof i==='number'?M[i]:X[i])+'</p>'}).join('');if(k==='lim')h+='<ul class="mal">'+t('m_a').map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
     return h+'</section>'}).join('');
   var sw='<div class="mseg" role="group"><button type="button" data-v="short" aria-pressed="'+(MV==='short')+'" class="'+(MV==='short'?'on':'')+'">'+t('m_short')+'</button><button type="button" data-v="long" aria-pressed="'+(MV==='long')+'" class="'+(MV==='long'?'on':'')+'">'+t('m_long')+'</button></div>';
-  $('#mmc').innerHTML=modalHtml(t('m_title2'),'',body,'mclose','mclose-x').replace('</div><div class="mb">','</div>'+sw+'<div class="mb">');
+  $('#mmc').innerHTML=modalHtml('<span class="mico" aria-hidden="true">'+DOCSVG+'</span><span>'+t('m_title2')+'</span>','',body,'mclose','mclose-x').replace('</div><div class="mb">','</div>'+sw+'<div class="mb">');
   [].forEach.call(document.querySelectorAll('#mmc .mseg button'),function(b){b.onclick=function(){var mb=$('#mmc .mb'),sec=(MOS&&mb&&Math.abs(mb.scrollTop-MSC)<4)?MOS:curSec();MV=b.getAttribute('data-v');renderMeth();methGo(sec);var nmb=$('#mmc .mb');if(sec===MOS&&nmb)MSC=nmb.scrollTop;else MOS=null;var nb=document.querySelector('#mmc .mseg button[data-v="'+MV+'"]');if(nb)nb.focus()}});
   $('#mclose').onclick=$('#mclose-x').onclick=function(){closeModal('mm')}}
 function curSec(){var b=$('#mmc .mb');if(!b)return null;var best=MSECS[0];[].forEach.call(b.querySelectorAll('[data-sec]'),function(e){if(e.offsetTop-b.offsetTop<=b.scrollTop+8)best=e.getAttribute('data-sec')});return best}
@@ -877,8 +882,8 @@ function ovRowDone(i){var r=ovRow(i);if(r){r.className='lrow done';ovSet(i,100)}
 function ovReady(){var e=document.getElementById('ov-ready'),sp=document.getElementById('mainSpinner');if(e)e.className='ovready on';if(sp)sp.style.display='none'}
 function ovText(){['ov-title','ov-l0','ov-l1','ov-r0','ov-r1','ov-r2','ov-r3','ov-r4','ov-r5','ov-rd'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t(id.replace('-','_'))})}
 function ovHide(){var o=document.getElementById('loading-overlay');if(!o)return;o.classList.add('hide');setTimeout(function(){if(o.parentNode)o.parentNode.removeChild(o)},600)}
-var XSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-function modalHtml(title,sub,body,idc,idx,extra){return '<div class="mh"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+((extra||idx)?'<div class="mhr">'+(extra||'')+(idx?'<button type="button" class="xbtn" id="'+idx+'" aria-label="'+t('close')+'">'+XSVG+'</button>':'')+'</div>':'')+'</div><div class="mb">'+body+'</div><div class="mf"><button type="button" class="btn" id="'+idc+'">'+t('close')+'</button></div>'}
+var DOCSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>';var XSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function modalHtml(title,sub,body,idc,idx,extra){return '<div class="mh"><div><h2>'+title+'</h2>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>'+((extra||idx)?'<div class="mhr'+(extra?'':' mhx')+'">'+(extra||'')+(idx?'<button type="button" class="xbtn" id="'+idx+'" aria-label="'+t('close')+'">'+XSVG+'</button>':'')+'</div>':'')+'</div><div class="mb">'+body+'</div><div class="mf"><button type="button" class="btn" id="'+idc+'">'+t('close')+'</button></div>'}
 var MOPEN=[];   // D114: ποιο στοιχείο άνοιξε κάθε παράθυρο, ώστε το focus να επιστρέφει εκεί
 function openModal(id){var e=document.getElementById(id);if(!e)return;if(e.hidden)MOPEN.push([id,document.activeElement]);e.hidden=false;setTimeout(function(){var x=e.querySelector('.xbtn');if(x&&!e.hidden)x.focus()},0);document.body.classList.add('modal-open');var b=e.querySelector('.mb');if(b)b.scrollTop=0}
 function closeModal(id){var e=document.getElementById(id);var was=e&&!e.hidden;if(e)e.hidden=true;if(was){for(var k=MOPEN.length-1;k>=0;k--)if(MOPEN[k][0]===id){var o=MOPEN.splice(k,1)[0][1];if(o&&o.focus&&document.contains(o))o.focus();break}};if(!document.querySelector('.modal-b:not([hidden])'))document.body.classList.remove('modal-open')}

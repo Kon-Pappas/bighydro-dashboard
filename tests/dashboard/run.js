@@ -917,6 +917,28 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   dR.querySelector('#mclose').click();
   ck('no JS errors in the TEST 30 window',errR.length===0,errR.slice(0,2));
   }
+  {  // TEST 31: παράθυρα — « Κλείσιμο » σε όλο το πλάτος στο κινητό, X στη γραμμή του τίτλου, εικονίδιο Μεθοδολογίας (D121)
+  console.log('TEST 31: modals — full-width Close on mobile, X on the title row, Methodology icon');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  const top=css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,''), mob=[...css.matchAll(/@media \(max-width:767px\)\{((?:[^{}]*\{[^{}]*\})*)[^{}]*\}/g)].map(m=>m[1]).join('\n');
+  ck('mobile: the footer Close spans the modal, 44 px high, bold, light text on a filled slate button',/\.mf \.btn\{[^}]*width:100%[^}]*min-height:44px[^}]*font-weight:700[^}]*color:var\(--ink\)[^}]*background:#334155/.test(mob));
+  ck('desktop: the footer Close stays small at the right (no width:100% outside the phone rules)',/\.mf\{[^}]*justify-content:flex-end/.test(top) && ![...top.matchAll(/([^{}]+)\{([^}]*)\}/g)].some(m=>/\.mf \.btn/.test(m[1]) && /width:100%/.test(m[2])));
+  ck('narrow screens: a header row that holds only the X keeps it beside the title (.mhr.mhx is not full width)',/@media \(max-width:560px\)\{\.mhr\.mhx\{width:auto\}\}/.test(css));
+  const {dm:dmM,e2:errM}=mkDom({}); const wM=await boot2(dmM), dM=wM.document; setLang(dM,'el'); await sleep(150);
+  dM.querySelector('#meth').click(); await sleep(10);
+  const mh=dM.querySelector('#mmc .mh'), h2=mh.querySelector('h2');
+  ck('Methodology: a document icon (hidden from screen readers) and the title in the heading',!!h2.querySelector('.mico[aria-hidden="true"] svg') && h2.textContent==='Μεθοδολογία, παραδοχές και περιορισμοί');
+  ck('Methodology: the X sits in the header row of its own kind (mhx), after the title',!!mh.querySelector('.mhr.mhx > #mclose-x.xbtn') && mh.querySelector('.mhr').previousElementSibling.contains(h2));
+  ck('Methodology: the footer still holds the « Κλείσιμο » button and it closes the window',dM.querySelector('#mmc .mf #mclose').textContent==='Κλείσιμο' && (dM.querySelector('#mclose').click(),dM.querySelector('#mm').hidden===true));
+  wM.__bh.openRiver(0); await sleep(10);
+  const rh=dM.querySelector('#rm .mh');
+  ck('river window: still no X and no icon (owner: the footer Close is enough, it saves space); the date row stays full width',![...rh.querySelectorAll('button')].some(b=>b.getAttribute('aria-label')==='Κλείσιμο') && !rh.querySelector('.mico') && !!rh.querySelector('.mhr') && !rh.querySelector('.mhr.mhx') && dM.querySelector('#rm .mf #rclose').textContent==='Κλείσιμο');
+  dM.querySelector('#rclose').click();
+  setLang(dM,'en'); await sleep(100); dM.querySelector('#meth').click(); await sleep(10);
+  ck('English: the icon stays and the title reads « Methodology, assumptions and limitations », footer « Close »',!!dM.querySelector('#mmc h2 .mico') && dM.querySelector('#mmc h2').textContent==='Methodology, assumptions and limitations' && dM.querySelector('#mclose').textContent==='Close');
+  dM.querySelector('#mclose').click();
+  ck('no JS errors in the TEST 31 window',errM.length===0,errM.slice(0,2));
+  }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();

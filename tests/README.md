@@ -45,6 +45,8 @@ First `npm install --prefix tests/dashboard`. The badge checks («only the MCP m
 
 **Compact river cards (TEST 30, D120).** Below 768 px the river card must show the fill next to the name (the same value as the big number), the short name without brackets (full name kept for the desktop), and the columns generation, stock and 4-week inflow with exactly the values of the long rows; the CSS must hide the compact parts on the desktop and put the summary cards of Rivers, Water balance and Kastraki two per row on mobile. The cue and hint read « Τα φράγματα του ποταμού », and the Methodology explains « καταρράκτης » in both texts and both languages. A check also guards the batch-46 regression: no top-level `display:none` on `.more`.
 
+**Modal windows (TEST 31, D121).** On mobile the footer Close must span the window (44 px, bold, filled slate) and stay small at the right on the desktop; the X of the Methodology must stay on the title row on narrow screens; the Methodology heading carries the document icon in both languages; the river window keeps no X and no icon, only the footer Close.
+
 ## Not covered
 Real browser rendering (charts are checked as SVG markup, not pixels; mobile heights are measured with Playwright by hand, see TEST 25 above), live ADMIE/ENTSO-E responses (only synthetic samples), `calibrate_energy.py` (run manually and reviewed by eye).
 
