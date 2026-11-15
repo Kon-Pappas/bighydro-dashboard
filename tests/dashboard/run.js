@@ -237,7 +237,9 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const boot2=async(dm)=>{ for(let i=0;i<100&&!dm.window.document.querySelector('#rg .river');i++) await sleep(100); await sleep(900); return dm.window; };
   const {dm:dmE,e2:errE}=mkDom({}); const wE=await boot2(dmE); const dE=wE.document;
   ck('default language is English (no stored preference)',dE.querySelector('#ttl').textContent==='Greek Hydro & Reservoir Analytics' && dE.documentElement.lang==='en' && dE.title==='Greek Hydro & Reservoir Analytics',dE.querySelector('#ttl').textContent);
-  ck('breadcrumb links back to the hub',(()=>{const a=dE.querySelector('a.crumb');return a && a.getAttribute('href')==='https://kon-pappas.github.io/' && a.textContent.includes('Konstantinos Pappas Hub')})());
+  ck('breadcrumb links back to the hub',(()=>{const a=dE.querySelector('a.crumb');return a && a.getAttribute('href')==='https://kon-pappas.github.io/' && a.textContent.trim()==='Greek Energy Hub' && !a.querySelector('.sl') && !a.textContent.includes('/') && !!a.querySelector('svg')})());
+  { const H=fs.readFileSync(ROOT+'/index.html','utf8'), gc='<script data-goatcounter="https://konpappas.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>';
+    ck('visit counting (GoatCounter, D118): the one script line sits right before </body>, async, and it is the only external script of the page',H.split(gc).length===2 && H.includes(gc+'\n</body>') && (H.match(/<script[^>]*\ssrc=/g)||[]).length===1); }
   ck('Last Update is the run time written by the Python in meta.json, in Athens time (2026-11-09T11:15:20Z -> 09/11/2026 13:15)',dE.querySelector('#lu-v').textContent==='09/11/2026 13:15' && dE.querySelector('#lu-l .lg').textContent==='Last Update:',dE.querySelector('#lu-v').textContent);
   ck('Next Update comes from meta.json too (a date far in the future is shown with its date: 01/01/2099 07:15)',dE.querySelector('#nu-v').textContent==='01/01/2099 07:15' && dE.querySelector('#nu-l .lg').textContent==='Next Update:',dE.querySelector('#nu-v').textContent);
   const BB=wE.__bh;

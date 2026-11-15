@@ -18,7 +18,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 ui-sans-serif,
 header.top{border-bottom:1px solid var(--line);padding-bottom:16px;display:flex;flex-direction:column;gap:14px}
 @media (min-width:1024px){header.top{flex-direction:row;justify-content:space-between;align-items:center}}
 .crumb{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);text-decoration:none;font-weight:500;margin-bottom:8px}
-.crumb:hover{color:var(--acc)}.crumb svg{width:16px;height:16px;color:var(--mut2)}.crumb .sl{color:var(--line2);font-weight:300}
+.crumb:hover{color:var(--acc)}.crumb svg{width:16px;height:16px;color:var(--mut2)}
 h1{font-size:24px;margin:0;font-weight:700;color:var(--acc);line-height:1.2}
 @media (min-width:768px){h1{font-size:30px}}
 .upd{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:12px;color:var(--mut);margin-top:8px}.upd strong{color:var(--acc)}.upd .nx{color:#e2e8f0}
@@ -196,7 +196,7 @@ footer p{margin:4px 0}footer .who{font-weight:600;color:var(--mut)}footer a{colo
 <div class="wrap">
 <header class="top">
   <div class="hl">
-    <a class="crumb" href="https://kon-pappas.github.io/"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Konstantinos Pappas Hub</span><span class="sl">/</span></a>
+    <a class="crumb" href="https://kon-pappas.github.io/"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Greek Energy Hub</span></a>
     <h1 id="ttl"></h1>
     <div class="upd"><div><span id="lu-l"></span> <strong id="lu-v">-</strong></div><div><span id="nu-l"></span> <strong class="nx" id="nu-v">-</strong></div></div>
   </div>
@@ -882,5 +882,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();
  b.addEventListener('click',function(){var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:0,behavior:rm?'auto':'smooth'})})})();
 </script>
+<script data-goatcounter="https://konpappas.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
