@@ -861,6 +861,36 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   ck('choosing a river still works: the chosen one is « on » and the title names the river',dW.querySelector('#t-wb .seg button.on').getAttribute('data-r')==='arachthos' && dW.querySelector('#t-wb h2').textContent.includes('Άραχθος'));
   ck('no JS errors in the TEST 28 window',errW.length===0,errW.slice(0,2));
   }
+  {  // TEST 29: στο κινητό τα δύο μεγάλα tabs χωρίζονται σε κομμάτια με διακόπτη, οι μεγάλες επεξηγήσεις κόβονται με « Περισσότερα » (D119)
+  console.log('TEST 29: mobile sub-views — Stored energy (4 parts) and Pumping (2 parts + plant switch), « More » on long notes, compact scenarios');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  const top=css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'');
+  ck('desktop: the switches and the « More » / « All figures » buttons are hidden, and nothing is hidden by the sub-views (all parts show as before)',/\.ssw,\.more,\.cvmore\{display:none\}/.test(top) && !/\.svh/.test(top) && !/\.clp/.test(top));
+  ck('mobile: a part not chosen and a plant not chosen are hidden; long notes are cut to 2 lines until opened',/\[data-sv\]\.svh,\.panel\.plh\{display:none\}/.test(css) && /p\.note\.clp:not\(\.open\),\.trendline\.clp:not\(\.open\)\{display:-webkit-box;-webkit-line-clamp:2/.test(css));
+  ck('mobile: summary cards two per row in these tabs (an odd last card spans the row), scenario rows keep the name and the days until « All figures »',/#t-energy \.cards,#t-pump \.cards\{grid-template-columns:1fr 1fr/.test(css) && /:last-child:nth-child\(odd\)\{grid-column:1\/-1\}/.test(css) && /table\.cvt\.mc:not\(\.cvall\) td:nth-child\(2\)/.test(css));
+  const {dm:dmS,e2:errS}=mkDom({}); const wS=await boot2(dmS), dS=wS.document; setLang(dS,'el'); await sleep(80);
+  const E=dS.getElementById('t-energy'), parts=[...E.querySelectorAll(':scope > [data-sv]')].map(x=>x.getAttribute('data-sv'));
+  ck('Stored energy is split into four parts in this order: stock, generation, days of cover, model check',parts.join()==='stock,gen,cover,model',parts);
+  ck('…the switch names them « Απόθεμα · Παραγωγή · Ημέρες κάλυψης · Έλεγχος μοντέλου », the first is on and the other parts carry the hidden class',[...E.querySelectorAll('.ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Απόθεμα|Παραγωγή|Ημέρες κάλυψης|Έλεγχος μοντέλου' && E.querySelector('.ssw button.on').getAttribute('data-k')==='stock' && [...E.querySelectorAll(':scope > [data-sv]')].every(x=>x.classList.contains('svh')===(x.getAttribute('data-sv')!=='stock')));
+  ck('every piece of the tab is in exactly one part (nothing lost): the weekly ENTSO-E check and the per-river table are in « model », days of cover in « cover », generation in « gen »',!!E.querySelector('[data-sv="model"] table') && E.querySelector('[data-sv="model"]').textContent.includes('ENTSO-E') && !!E.querySelector('[data-sv="cover"] table.cvt') && !!E.querySelector('[data-sv="gen"] [data-sect="gen"]') && [...E.children].every(x=>x.matches('.ssw,[data-sv]')));
+  E.querySelector('.ssw button[data-k="cover"]').click(); await sleep(20);
+  ck('a tap shows that part only, and the choice survives a change of day',E.querySelector('.ssw button.on').getAttribute('data-k')==='cover' && !E.querySelector('[data-sv="cover"]').classList.contains('svh') && E.querySelector('[data-sv="stock"]').classList.contains('svh') && (await wS.__bh.load(wS.__bh.S.date),await sleep(150),dS.querySelector('#t-energy .ssw button.on').getAttribute('data-k')==='cover'));
+  const E2=dS.getElementById('t-energy'), cl=[...E2.querySelectorAll('p.note.clp,.trendline.clp')];
+  ck('long notes (over 120 characters) get « Περισσότερα ▾ » right after them; short ones do not',cl.length>0 && cl.every(n=>n.textContent.length>120 && n.nextElementSibling.classList.contains('more') && n.nextElementSibling.textContent==='Περισσότερα ▾') && [...E2.querySelectorAll('p.note:not(.clp)')].every(n=>n.textContent.length<=120));
+  const n0=cl[0], b0=n0.nextElementSibling; b0.click();
+  ck('« Περισσότερα » opens that one note only (« Λιγότερα ▴ », aria-expanded), the others stay cut; a second tap closes it',n0.classList.contains('open') && b0.textContent==='Λιγότερα ▴' && b0.getAttribute('aria-expanded')==='true' && cl.slice(1).every(n=>!n.classList.contains('open')) && (b0.click(),!n0.classList.contains('open') && b0.textContent==='Περισσότερα ▾'));
+  const cv=[...E2.querySelectorAll('table.cvt')];
+  ck('both scenario tables get one « Όλα τα στοιχεία ▾ » button that shows all their figures and hides them again',cv.length===2 && cv.every(tb=>{const bt=tb.closest('.scroll').nextElementSibling;if(!bt||!bt.classList.contains('cvmore')||bt.textContent!=='Όλα τα στοιχεία ▾')return false;bt.click();const o=tb.classList.contains('cvall')&&bt.textContent==='Λιγότερα ▴';bt.click();return o&&!tb.classList.contains('cvall')}));
+  const PU=dS.getElementById('t-pump'), pp=[...PU.querySelectorAll(':scope > [data-sv]')].map(x=>x.getAttribute('data-sv'));
+  ck('Pumping is split into « Άντληση » and « Αντλησιοταμίευση »',pp.join()==='pump,psh' && [...PU.querySelectorAll('.ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Άντληση|Αντλησιοταμίευση');
+  const pl=[...PU.querySelectorAll('.panel[data-pl]')];
+  ck('in « Αντλησιοταμίευση » a plant switch « Σφηκιά | Θησαυρός » shows one monthly panel at a time (Sfikia first)',pl.length===2 && !pl[0].classList.contains('plh') && pl[1].classList.contains('plh') && [...PU.querySelectorAll('.ssw[data-pl-sw] button')].map(b=>b.textContent).join('|')==='Σφηκιά|Θησαυρός');
+  PU.querySelector('.ssw[data-pl-sw] button[data-pl="THESAVROS"]').click();
+  ck('…and choosing Θησαυρός swaps them',pl[0].classList.contains('plh') && !pl[1].classList.contains('plh') && PU.querySelector('.ssw[data-pl-sw] button.on').getAttribute('data-pl')==='THESAVROS');
+  setLang(dS,'en'); await sleep(120);
+  ck('English: « Stock · Generation · Days of cover · Model check », « Pumping · Pumped storage », « More ▾ », « All figures ▾ »',[...dS.querySelectorAll('#t-energy .ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Stock|Generation|Days of cover|Model check' && [...dS.querySelectorAll('#t-pump .ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Pumping|Pumped storage' && !!dS.querySelector('#t-energy .more') && dS.querySelector('#t-energy .more').textContent==='More ▾' && dS.querySelector('#t-energy .cvmore').textContent==='All figures ▾');
+  ck('no JS errors in the TEST 29 window',errS.length===0,errS.slice(0,2));
+  }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
 })();

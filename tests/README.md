@@ -41,6 +41,8 @@ First `npm install --prefix tests/dashboard`. The badge checks («only the MCP m
 
 **River switch and tabs (TEST 28, D116, D117).** The CSS must give the desktop tabs equal shares of the width, the river choice one frame without borders per button, a chosen river that is not the filled accent, the 1 + 3 + 3 grid on a phone and the wider, separated « all rivers » on a desktop; the buttons must follow the order of `reservoirs.json`, show the short name and keep the full one as the tooltip, and choosing a river must still work. Positions and widths are measured with Playwright at 320, 360, 800 and 1280 px.
 
+**Mobile sub-views (TEST 29, D119).** The two long tabs must be split into their parts in order with nothing left outside a part, the switch must show one part (and keep it when the day changes), the plant switch must swap the Sfikia / Thesavros monthly panels, « More » must open one note only and close it again, and both scenario tables must get « All figures ». The CSS must keep all of it off the desktop. The lengths in phone screens are measured with Playwright, and the desktop is compared pixel for pixel.
+
 ## Not covered
 Real browser rendering (charts are checked as SVG markup, not pixels; mobile heights are measured with Playwright by hand, see TEST 25 above), live ADMIE/ENTSO-E responses (only synthetic samples), `calibrate_energy.py` (run manually and reviewed by eye).
 

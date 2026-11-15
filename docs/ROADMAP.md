@@ -46,7 +46,7 @@ The other hub dashboards are aligned; this is the last one (decided 9 Nov 2026, 
 
 ## Later
 * Recalibrate the energy factors on the rule in METHODS §2.1 (and in December).
-* Marker for the start of the Amfilochia pumped storage in the Kastraki tab, once a date is known.
+* **Amfilochia pumped storage** (commissioning expected around December 2026; discussed 15 Nov 2026, no code yet). First look at the SCADA and ISP files of its first days for the names of its units. Then, in this repository: add it as a **third plant in the per-plant pumping split** (otherwise its pumping would be shared out to Sfikia and Thesavros), a marker of its start in the Kastraki tab, and a check of the Acheloos water balance and of the stored energy (its upper reservoirs are not in ADMIE's reservoir file). The market side (when it pumps and generates against prices, cycle efficiency, arbitrage) belongs to the BESS repository; a link from the Kastraki tab, no duplicated figures.
 * CSV export of tables; shareable links (date, tab, river).
 * Move the charts to the library chosen for all dashboards, if the shared-shell thread decides so.
 
