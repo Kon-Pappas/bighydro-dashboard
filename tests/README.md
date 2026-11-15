@@ -43,6 +43,8 @@ First `npm install --prefix tests/dashboard`. The badge checks («only the MCP m
 
 **Mobile sub-views (TEST 29, D119).** The two long tabs must be split into their parts in order with nothing left outside a part, the switch must show one part (and keep it when the day changes), the plant switch must swap the Sfikia / Thesavros monthly panels, « More » must open one note only and close it again, and both scenario tables must get « All figures ». The CSS must keep all of it off the desktop. The lengths in phone screens are measured with Playwright, and the desktop is compared pixel for pixel.
 
+**Compact river cards (TEST 30, D120).** Below 768 px the river card must show the fill next to the name (the same value as the big number), the short name without brackets (full name kept for the desktop), and the columns generation, stock and 4-week inflow with exactly the values of the long rows; the CSS must hide the compact parts on the desktop and put the summary cards of Rivers, Water balance and Kastraki two per row on mobile. The cue and hint read « Τα φράγματα του ποταμού », and the Methodology explains « καταρράκτης » in both texts and both languages. A check also guards the batch-46 regression: no top-level `display:none` on `.more`.
+
 ## Not covered
 Real browser rendering (charts are checked as SVG markup, not pixels; mobile heights are measured with Playwright by hand, see TEST 25 above), live ADMIE/ENTSO-E responses (only synthetic samples), `calibrate_energy.py` (run manually and reviewed by eye).
 

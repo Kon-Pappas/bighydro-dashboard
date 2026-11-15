@@ -331,7 +331,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   d.querySelector('#meth').click(); const mm=d.querySelector('#mmc');
   ck('methodology modal: fixed header, the Short / Detailed switch, scrolling body, fixed footer; title « Μεθοδολογία, παραδοχές και περιορισμοί » (D114)',[...mm.children].map(c=>c.className).join(',')==='mh,mseg,mb,mf' && mm.children[0].querySelector('h2').textContent==='Μεθοδολογία, παραδοχές και περιορισμοί' && d.querySelector('#meth .lg').textContent.includes('παραδοχές'));
   mm.querySelector('.mseg button[data-v="long"]').click();
-  ck('Detailed: 7 sections, the 13 earlier paragraphs plus 7 new ones (20) and the 9 assumptions in « Assumptions and limits »',mm.querySelectorAll('.mb h3.mhd').length===7 && mm.querySelectorAll('.mb p').length===20 && mm.querySelectorAll('.mb section[data-sec="lim"] ul.mal li').length===9,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
+  ck('Detailed: 7 sections, the 13 earlier paragraphs plus 8 new ones (21, with « the river\'s dams (cascade) », D120) and the 9 assumptions in « Assumptions and limits »',mm.querySelectorAll('.mb h3.mhd').length===7 && mm.querySelectorAll('.mb p').length===21 && mm.querySelectorAll('.mb section[data-sec="lim"] ul.mal li').length===9,[mm.querySelectorAll('.mb p').length,mm.querySelectorAll('.mb li').length]);
   d.querySelector('#mclose-x').click(); ck('methodology: X closes',d.querySelector('#mm').hidden===true);
   d.querySelector('#meth').click(); d.querySelector('#mclose').click(); ck('methodology: footer Close closes',d.querySelector('#mm').hidden===true && !d.body.classList.contains('modal-open'));
   d.querySelector('#meth').click(); d.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true})); ck('methodology: Escape closes',d.querySelector('#mm').hidden===true);
@@ -342,10 +342,13 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 13: river cards look clickable; the river modal has date navigation');
   setLang(d,'el'); await sleep(60);
   const cardsBtn=[...d.querySelectorAll('#rg button.river')], flat=d.querySelectorAll('#rg .river.flat');
-  ck('every clickable river card has the chevron, the "view cascade" cue and a tooltip',cardsBtn.length===6 && cardsBtn.every(b=>b.querySelector('.chev svg') && b.querySelector('.more') && /καταρράκτη/.test(b.querySelector('.more').textContent) && b.getAttribute('title')),cardsBtn.length);
+  ck('every clickable river card has the chevron, the cue « Τα φράγματα του ποταμού › » (desktop) and a tooltip',cardsBtn.length===6 && cardsBtn.every(b=>b.querySelector('.chev svg') && b.querySelector('.more') && b.querySelector('.more').textContent==='Τα φράγματα του ποταμού ›' && b.getAttribute('title')==='Τα φράγματα του ποταμού'),cardsBtn.length);
+  { const css0=(fs.readFileSync(ROOT+'/index.html','utf8').match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'', top0=css0.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'');
+    ck('no rule outside a media query hides the card cue « .more » (the batch46 « More » button had taken the same class and hid it on the desktop)',[...top0.matchAll(/([^{}]+)\{([^}]*)\}/g)].every(m=>!(m[1].split(',').some(x=>/\.more(?![-\w])/.test(x)) && /display:none/.test(m[2]))));
+    ck('the card footer wraps and the cue sits at the right, so the longer « Τα φράγματα του ποταμού › » stays inside the card (it overflowed by ~20 px at 1280 px)',/\.rfoot\{[^}]*flex-wrap:wrap/.test(top0) && /(^|[},])\.more\{[^}]*margin-left:auto/.test(top0)); }
   ck('the combined Agras/Edessaios card is flat (a div, no cue, no chevron), so it is clearly not clickable',flat.length===1 && flat[0].tagName==='DIV' && !flat[0].querySelector('.more') && !flat[0].querySelector('.chev'));
   setLang(d,'en'); await sleep(60);
-  ck('card cue is localized (English: "View cascade")',[...d.querySelectorAll('#rg button.river .more')].every(m=>m.textContent.includes('View cascade')));
+  ck('card cue is localized (English: « The river’s dams › »)',[...d.querySelectorAll('#rg button.river .more')].every(m=>m.textContent==="The river's dams ›"));
   setLang(d,'el'); await sleep(60);
   const DAYS=B.P.idx.Days.filter(x=>B.P.fi[x.Date]!=null).map(x=>x.Date); await B.load(DAYS[3]); B.openRiver(1);
   const hd=d.querySelector('#rmc .mh');
@@ -822,7 +825,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   const wrap1=dO.activeElement===mm.querySelector('#mclose-x'); dO.dispatchEvent(new wO.KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true}));
   ck('Tab stays inside the window (from Close it goes back to the X, and Shift+Tab the other way)',wrap1 && dO.activeElement===mm.querySelector('#mclose'));
   mm.querySelector('.mseg button[data-v="long"]').click(); const mm2=dO.querySelector('#mmc');
-  ck('« Αναλυτική » shows the full text: 20 paragraphs and the 9 assumptions; the switch shows which view is on (aria-pressed)',mm2.querySelectorAll('p').length===20 && mm2.querySelectorAll('section[data-sec="lim"] li').length===9 && mm2.querySelector('.mseg button[data-v="long"]').getAttribute('aria-pressed')==='true');
+  ck('« Αναλυτική » shows the full text: 21 paragraphs and the 9 assumptions; the switch shows which view is on (aria-pressed)',mm2.querySelectorAll('p').length===21 && mm2.querySelectorAll('section[data-sec="lim"] li').length===9 && mm2.querySelector('.mseg button[data-v="long"]').getAttribute('aria-pressed')==='true');
   const det=mm2.textContent;
   ck('the Detailed text now covers what was added since: availability (1 MWh, 90 days), inflow against normal (regime, 2018–2025), the « ≥ » lower bound, days of cover, generation against previous years, inflow scenarios',['Διαθεσιμότητα μονάδων.','1 MWh','Εισροή σε σχέση με το κανονικό.','«υγρό»','Ορατή παραγωγή ως κάτω όριο.','Ημέρες κάλυψης.','Παραγωγή σε σχέση με προηγούμενα έτη.','Σενάρια εισροής.'].every(x=>det.includes(x)),['Διαθεσιμότητα','κάτω όριο'].map(x=>det.includes(x)));
   ck('stale phrases are gone: the water balance covers six rivers, Ilarionas is described (no « βλάβη »), the factors are re-estimated « τον Δεκέμβριο »',det.includes('Ισοζύγιο νερού (έξι ποτάμια).') && !det.includes('(Αχελώος, Αλιάκμονας)') && !/βλάβη/.test(det) && !/φθινοπωρινή/.test(det) && det.includes('τον Δεκέμβριο'));
@@ -865,7 +868,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   console.log('TEST 29: mobile sub-views — Stored energy (4 parts) and Pumping (2 parts + plant switch), « More » on long notes, compact scenarios');
   const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
   const top=css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'');
-  ck('desktop: the switches and the « More » / « All figures » buttons are hidden, and nothing is hidden by the sub-views (all parts show as before)',/\.ssw,\.more,\.cvmore\{display:none\}/.test(top) && !/\.svh/.test(top) && !/\.clp/.test(top));
+  ck('desktop: the switches and the « More » / « All figures » buttons are hidden, and nothing is hidden by the sub-views (all parts show as before)',/\.ssw,\.nmore,\.cvmore\{display:none\}/.test(top) && !/\.svh/.test(top) && !/\.clp/.test(top));
   ck('mobile: a part not chosen and a plant not chosen are hidden; long notes are cut to 2 lines until opened',/\[data-sv\]\.svh,\.panel\.plh\{display:none\}/.test(css) && /p\.note\.clp:not\(\.open\),\.trendline\.clp:not\(\.open\)\{display:-webkit-box;-webkit-line-clamp:2/.test(css));
   ck('mobile: summary cards two per row in these tabs (an odd last card spans the row), scenario rows keep the name and the days until « All figures »',/#t-energy \.cards,#t-pump \.cards\{grid-template-columns:1fr 1fr/.test(css) && /:last-child:nth-child\(odd\)\{grid-column:1\/-1\}/.test(css) && /table\.cvt\.mc:not\(\.cvall\) td:nth-child\(2\)/.test(css));
   const {dm:dmS,e2:errS}=mkDom({}); const wS=await boot2(dmS), dS=wS.document; setLang(dS,'el'); await sleep(80);
@@ -876,7 +879,7 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   E.querySelector('.ssw button[data-k="cover"]').click(); await sleep(20);
   ck('a tap shows that part only, and the choice survives a change of day',E.querySelector('.ssw button.on').getAttribute('data-k')==='cover' && !E.querySelector('[data-sv="cover"]').classList.contains('svh') && E.querySelector('[data-sv="stock"]').classList.contains('svh') && (await wS.__bh.load(wS.__bh.S.date),await sleep(150),dS.querySelector('#t-energy .ssw button.on').getAttribute('data-k')==='cover'));
   const E2=dS.getElementById('t-energy'), cl=[...E2.querySelectorAll('p.note.clp,.trendline.clp')];
-  ck('long notes (over 120 characters) get « Περισσότερα ▾ » right after them; short ones do not',cl.length>0 && cl.every(n=>n.textContent.length>120 && n.nextElementSibling.classList.contains('more') && n.nextElementSibling.textContent==='Περισσότερα ▾') && [...E2.querySelectorAll('p.note:not(.clp)')].every(n=>n.textContent.length<=120));
+  ck('long notes (over 120 characters) get « Περισσότερα ▾ » right after them; short ones do not',cl.length>0 && cl.every(n=>n.textContent.length>120 && n.nextElementSibling.classList.contains('nmore') && n.nextElementSibling.textContent==='Περισσότερα ▾') && [...E2.querySelectorAll('p.note:not(.clp)')].every(n=>n.textContent.length<=120));
   const n0=cl[0], b0=n0.nextElementSibling; b0.click();
   ck('« Περισσότερα » opens that one note only (« Λιγότερα ▴ », aria-expanded), the others stay cut; a second tap closes it',n0.classList.contains('open') && b0.textContent==='Λιγότερα ▴' && b0.getAttribute('aria-expanded')==='true' && cl.slice(1).every(n=>!n.classList.contains('open')) && (b0.click(),!n0.classList.contains('open') && b0.textContent==='Περισσότερα ▾'));
   const cv=[...E2.querySelectorAll('table.cvt')];
@@ -888,8 +891,31 @@ const txt=()=>[...d.querySelectorAll('.wrap,#rm,#mm')].map(e=>e.textContent).joi
   PU.querySelector('.ssw[data-pl-sw] button[data-pl="THESAVROS"]').click();
   ck('…and choosing Θησαυρός swaps them',pl[0].classList.contains('plh') && !pl[1].classList.contains('plh') && PU.querySelector('.ssw[data-pl-sw] button.on').getAttribute('data-pl')==='THESAVROS');
   setLang(dS,'en'); await sleep(120);
-  ck('English: « Stock · Generation · Days of cover · Model check », « Pumping · Pumped storage », « More ▾ », « All figures ▾ »',[...dS.querySelectorAll('#t-energy .ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Stock|Generation|Days of cover|Model check' && [...dS.querySelectorAll('#t-pump .ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Pumping|Pumped storage' && !!dS.querySelector('#t-energy .more') && dS.querySelector('#t-energy .more').textContent==='More ▾' && dS.querySelector('#t-energy .cvmore').textContent==='All figures ▾');
+  ck('English: « Stock · Generation · Days of cover · Model check », « Pumping · Pumped storage », « More ▾ », « All figures ▾ »',[...dS.querySelectorAll('#t-energy .ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Stock|Generation|Days of cover|Model check' && [...dS.querySelectorAll('#t-pump .ssw[data-sw] button')].map(b=>b.textContent).join('|')==='Pumping|Pumped storage' && !!dS.querySelector('#t-energy .nmore') && dS.querySelector('#t-energy .nmore').textContent==='More ▾' && dS.querySelector('#t-energy .cvmore').textContent==='All figures ▾');
   ck('no JS errors in the TEST 29 window',errS.length===0,errS.slice(0,2));
+  }
+  {  // TEST 30: συμπυκνωμένη κάρτα ποταμού στο κινητό, κάρτες σύνοψης ανά δύο σε όλα τα tabs, « τα φράγματα του ποταμού » (D120)
+  console.log('TEST 30: compact river cards and two summary cards per row on mobile; « the river’s dams » wording');
+  const html=fs.readFileSync(ROOT+'/index.html','utf8'), css=(html.match(/<style>([\s\S]*?)<\/style>/)||[])[1]||'';
+  const top=css.replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g,'');
+  ck('desktop: the compact parts (fill next to the name, three columns) are hidden, so the desktop card is as before',/\.river h3 \.bg2,\.river \.st3\{display:none\}/.test(top));
+  ck('mobile: the river card hides the long rows, the big number, the reliability and the cue, and shows the fill beside the name and the three columns',/#rg \.river\[data-i\] \.rfoot,#rg \.river\[data-i\] \.row2,#rg \.river\[data-i\] \.big\{display:none\}/.test(css) && /#rg \.river\[data-i\] h3 \.bg2\{display:inline/.test(css) && /#rg \.river\[data-i\] \.st3\{display:grid;grid-template-columns:1fr 1fr 1\.1fr/.test(css));
+  ck('mobile: summary cards two per row in Rivers, Water balance and Kastraki too (an odd last card spans the row)',/#t-rivers \.cards,#t-wb \.cards,#t-kast \.cards\{grid-template-columns:1fr 1fr/.test(css) && /#t-kast \.cards>\.card:last-child:nth-child\(odd\)\{grid-column:1\/-1\}/.test(css.replace(/#t-rivers \.cards>\.card:last-child:nth-child\(odd\),#t-wb \.cards>\.card:last-child:nth-child\(odd\),/,'')));
+  const {dm:dmR,e2:errR}=mkDom({}); const wR=await boot2(dmR), dR=wR.document; setLang(dR,'el'); await sleep(250);
+  const M=wR.__bh.S.M, cards=[...dR.querySelectorAll('#rg button.river')];
+  ck('each river card carries the fill beside the name, equal to the big number',cards.length===6 && cards.every(b=>b.querySelector('h3 .bg2') && b.querySelector('h3 .bg2').textContent===b.querySelector('.big').textContent));
+  ck('…and up to three columns: generation, stock and the 4-week inflow (when the river has one), the same values as the long rows',cards.every(b=>{const c=[...b.querySelectorAll('.st3 > div')],rows=[...b.querySelectorAll('.row2 b')].map(x=>x.innerHTML);return c.length>=2 && c.length===rows.length && c.every((x,k)=>x.querySelector('b').innerHTML===rows[k]) && c[0].querySelector('span').textContent==='Παραγωγή' && c[1].querySelector('span').textContent==='Απόθεμα'}) && cards.some(b=>b.querySelectorAll('.st3 > div').length===3));
+  const ar=cards.find(b=>/Άραχθος/.test(b.querySelector('h3').textContent));
+  ck('a name with a note in brackets has a short form for the phone and keeps the full one for the desktop (« Άραχθος » / « Άραχθος (με εκτροπή Πηγών Αώου) »)',!!ar && ar.querySelector('h3 .sh').textContent==='Άραχθος' && ar.querySelector('h3 .lg').textContent==='Άραχθος (με εκτροπή Πηγών Αώου)');
+  const fl=dR.querySelector('#rg .river.flat');
+  ck('the card without a reservoir (Άγρας / Εδεσσαίος) shows its generation beside the name on the phone',!!fl && /MWh$/.test(fl.querySelector('h3 .bg2').textContent));
+  ck('the hint under the cards speaks of the river’s dams',dR.getElementById('rfoot').textContent==='Πάτα μια κάρτα για να δεις τα φράγματα του ποταμού.');
+  dR.querySelector('#meth').click(); await sleep(10); const ms=dR.querySelector('#mmc section[data-sec="rivers"]').textContent; dR.querySelector('#mmc .mseg button[data-v="long"]').click(); const md=dR.querySelector('#mmc section[data-sec="rivers"]').textContent; dR.querySelector('#mclose').click();
+  ck('the Methodology explains the word: Short (« καταρράκτης ») and a Detailed paragraph « Φράγματα του ποταμού (καταρράκτης) » first in the Rivers section',ms.includes('« καταρράκτης »') && md.includes('Φράγματα του ποταμού (καταρράκτης).') && md.indexOf('Φράγματα του ποταμού')<md.indexOf('Πλήρωση.'));
+  setLang(dR,'en'); await sleep(100);
+  ck('English: « The river’s dams › », « Stock », and the cascade explained in the Methodology',[...dR.querySelectorAll('#rg button.river .more')].every(m=>m.textContent==="The river's dams ›") && dR.querySelector('#rg button.river .st3 > div:nth-child(2) span').textContent==='Stock' && (dR.querySelector('#mlinkb').click(),dR.querySelector('#mmc section[data-sec="rivers"]').textContent.includes('The river’s dams (cascade).')));
+  dR.querySelector('#mclose').click();
+  ck('no JS errors in the TEST 30 window',errR.length===0,errR.slice(0,2));
   }
   ck('no JS errors at the end',errors.length===0,errors.slice(0,5));
   console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail?1:0);
