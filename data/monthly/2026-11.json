@@ -1318,11 +1318,11 @@
     "hours": 1
    },
    "Reservoir": {
-    "official": null,
-    "mean14": null
+    "official": 36.9,
+    "mean14": 43.233
    },
    "Status": {
-    "reservoir": "missing",
+    "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
     "resmv": "missing",
