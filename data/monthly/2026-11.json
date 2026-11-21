@@ -1376,11 +1376,11 @@
    },
    "MCP": null,
    "Reservoir": {
-    "official": null,
-    "mean14": null
+    "official": 37.04,
+    "mean14": 44.072
    },
    "Status": {
-    "reservoir": "missing",
+    "reservoir": "ok",
     "scada": "missing",
     "isp": "ok",
     "resmv": "missing",
