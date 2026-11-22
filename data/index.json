@@ -1,20 +1,31 @@
 {
  "Schema": 3,
  "Clock": "Hourly rows use Greek local time (Europe/Athens): H01 = 00:00-01:00 local. SCADA and RESMV are published on this clock. ISP and MCP are published on market (CET) time and are shifted +1 h by the pipeline.",
- "Count": 325,
+ "Count": 326,
  "First": "2026-01-01",
- "Last": "2026-11-21",
+ "Last": "2026-11-22",
  "Days": [
+  {
+   "Date": "2026-11-22",
+   "Status": {
+    "reservoir": "missing",
+    "scada": "missing",
+    "isp": "ok",
+    "resmv": "missing",
+    "mcp": "partial"
+   },
+   "Updated": "2026-11-22T07:16:32+0200"
+  },
   {
    "Date": "2026-11-21",
    "Status": {
     "reservoir": "ok",
-    "scada": "missing",
+    "scada": "ok",
     "isp": "ok",
     "resmv": "missing",
     "mcp": "missing"
    },
-   "Updated": "2026-11-21T09:16:51+0200"
+   "Updated": "2026-11-22T07:16:20+0200"
   },
   {
    "Date": "2026-11-20",
