@@ -45,9 +45,9 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "partial"
    },
-   "Updated": "2026-11-22T10:16:10+0200"
+   "Updated": "2026-11-24T13:31:10+0200"
   },
   {
    "Date": "2026-11-20",

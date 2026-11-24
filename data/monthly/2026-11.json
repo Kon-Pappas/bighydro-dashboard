@@ -1374,7 +1374,13 @@
     "SCADA": 1548.0,
     "ISP": 2022.5
    },
-   "MCP": null,
+   "MCP": {
+    "mean": 190.7,
+    "min": 190.7,
+    "max": 190.7,
+    "negative_hours": 0,
+    "hours": 1
+   },
    "Reservoir": {
     "official": 37.04,
     "mean14": 44.072
@@ -1384,7 +1390,7 @@
     "scada": "ok",
     "isp": "ok",
     "resmv": "ok",
-    "mcp": "missing"
+    "mcp": "partial"
    }
   },
   {
